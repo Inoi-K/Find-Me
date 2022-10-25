@@ -2,9 +2,10 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"github.com/Inoi-K/Find-Me/pkg/utils"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -16,21 +17,54 @@ var (
 func main() {
 	defer out.Flush()
 
-	tags1, err := readTags()
+	line, err := in.ReadString('\n')
 	if err != nil {
-		log.Printf("couldn't read tags: %v", err)
+		log.Printf("couldn't read n: %v", err)
 	}
-	tags2, err := readTags()
+	n, err := strconv.Atoi(strings.TrimSpace(line))
 	if err != nil {
-		log.Printf("couldn't read tags: %v", err)
+		log.Printf("coldn't convert n: %v", err)
 	}
 
-	intersection := intersect(tags1, tags2)
+	users := make([]*user, n)
+	for i := 0; i < n; i++ {
+		users[i], err = newUser()
+		if err != nil {
+			log.Printf("couldn't create a new user: %v", err)
+		}
+	}
 
-	fmt.Printf("Tags 1: %v\nTags 2: %v\nIntersection: %v", tags1, tags2, intersection)
+	for i := 0; i < n-1; i++ {
+		for j := i + 1; j < n; j++ {
+			log.Printf("Similarity (by Jaccard index) between %v and %v is %v", users[i].name, users[j].name, utils.JaccardIndex(users[i].tags, users[j].tags))
+		}
+	}
 }
 
-func readTags() (map[string]struct{}, error) {
+type user struct {
+	name string
+	tags map[string]struct{}
+}
+
+func newUser() (*user, error) {
+	line, err := in.ReadString('\n')
+	if err != nil {
+		return nil, err
+	}
+	name := strings.TrimSpace(line)
+
+	tags, err := newTags()
+	if err != nil {
+		return nil, err
+	}
+
+	return &user{
+		name: name,
+		tags: tags,
+	}, nil
+}
+
+func newTags() (map[string]struct{}, error) {
 	line, err := in.ReadString('\n')
 	if err != nil {
 		return nil, err
@@ -44,14 +78,4 @@ func readTags() (map[string]struct{}, error) {
 	delete(tags, "")
 
 	return tags, nil
-}
-
-func intersect(s1, s2 map[string]struct{}) map[string]struct{} {
-	s3 := make(map[string]struct{})
-	for k := range s1 {
-		if _, consists := s2[k]; consists {
-			s3[k] = struct{}{}
-		}
-	}
-	return s3
 }
