@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"fmt"
+	"github.com/Inoi-K/Find-Me/configs/consts"
 	"github.com/Inoi-K/Find-Me/pkg/utils"
 	"log"
 	"os"
@@ -17,50 +19,86 @@ var (
 func main() {
 	defer out.Flush()
 
+	fmt.Print("Spheres: ")
 	line, err := in.ReadString('\n')
 	if err != nil {
-		log.Printf("couldn't read n: %v", err)
+		log.Printf("couldn't read spheres: %v", err)
 	}
-	n, err := strconv.Atoi(strings.TrimSpace(line))
+	spheres := strings.Fields(line)
+
+	fmt.Print("Current main sphere: ")
+	mainSphere, err := in.ReadString('\n')
 	if err != nil {
-		log.Printf("coldn't convert n: %v", err)
+		log.Printf("couldn't read spheres: %v", err)
 	}
 
-	users := make([]*user, n)
-	for i := 0; i < n; i++ {
-		users[i], err = newUser()
+	fmt.Print("Number of users: ")
+	line, err = in.ReadString('\n')
+	if err != nil {
+		log.Printf("couldn't read number of users: %v", err)
+	}
+	usersCount, err := strconv.Atoi(strings.TrimSpace(line))
+	if err != nil {
+		log.Printf("coldn't convert usersCount: %v", err)
+	}
+
+	users := make([]*user, usersCount)
+	for i := 0; i < usersCount; i++ {
+		users[i], err = newUser(i, spheres)
 		if err != nil {
 			log.Printf("couldn't create a new user: %v", err)
 		}
 	}
 
-	for i := 0; i < n-1; i++ {
-		for j := i + 1; j < n; j++ {
-			log.Printf("Similarity (by Jaccard index) between %v and %v is %v", users[i].name, users[j].name, utils.JaccardIndex(users[i].tags, users[j].tags))
+	for i := 0; i < usersCount-1; i++ {
+		for j := i + 1; j < usersCount; j++ {
+			mainSimilarity := 1.0
+
+			log.Printf("Similarity (by Jaccard index) between %v and %v solely by:\n", users[i].name, users[j].name)
+			for _, sphere := range spheres {
+				tags1 := users[i].sphereTags[sphere]
+				tags2 := users[j].sphereTags[sphere]
+				similarity := utils.JaccardIndex(tags1, tags2)
+				log.Printf(" - %v: %v", sphere, similarity)
+
+				coefficient := consts.OtherSphereCoefficient
+				if sphere == mainSphere {
+					coefficient = consts.MainSphereCoefficient
+				}
+				mainSimilarity += similarity * coefficient
+			}
+
+			log.Printf(" MAIN SIMILARITY: %v", mainSimilarity)
 		}
 	}
 }
 
 type user struct {
-	name string
-	tags map[string]struct{}
+	name       string
+	sphereTags map[string]map[string]struct{}
 }
 
-func newUser() (*user, error) {
+func newUser(id int, spheres []string) (*user, error) {
+	fmt.Printf("Name of the user %v: ", id)
 	line, err := in.ReadString('\n')
 	if err != nil {
 		return nil, err
 	}
 	name := strings.TrimSpace(line)
 
-	tags, err := newTags()
-	if err != nil {
-		return nil, err
+	sphereTags := make(map[string]map[string]struct{})
+	for _, sphere := range spheres {
+		fmt.Printf("Tags for sphere %v: ", sphere)
+		tags, err := newTags()
+		if err != nil {
+			return nil, err
+		}
+		sphereTags[sphere] = tags
 	}
 
 	return &user{
-		name: name,
-		tags: tags,
+		name:       name,
+		sphereTags: sphereTags,
 	}, nil
 }
 
