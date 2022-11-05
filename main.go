@@ -50,8 +50,84 @@ func main() {
 		}
 	}
 
-	for i := 0; i < usersCount-1; i++ {
-		for j := i + 1; j < usersCount; j++ {
+	showSimilarity(users, spheres, mainSphere)
+}
+
+type user struct {
+	name              string
+	sphereDescription map[string]string
+	sphereTags        map[string]map[string]struct{}
+}
+
+func newUser(id int, spheres []string) (*user, error) {
+	fmt.Printf("Name of the user %v: ", id)
+	line, err := in.ReadString('\n')
+	if err != nil {
+		return nil, err
+	}
+	name := strings.TrimSpace(line)
+
+	sphereDescription := make(map[string]string)
+	sphereTags := make(map[string]map[string]struct{})
+	for _, sphere := range spheres {
+		fmt.Printf("Description for sphere %v: ", sphere)
+		desc, err := in.ReadString('\n')
+		if err != nil {
+			return nil, err
+		}
+		sphereDescription[sphere] = desc
+
+		fmt.Printf("Unique tags for sphere %v: ", sphere)
+		tags, err := newTags()
+		if err != nil {
+			return nil, err
+		}
+		sphereTags[sphere] = tags
+	}
+
+	usr := &user{
+		name:              name,
+		sphereDescription: sphereDescription,
+		sphereTags:        sphereTags,
+	}
+
+	usr.processDescription()
+
+	return usr, nil
+}
+
+func (u *user) processDescription() {
+	for sphere, desc := range u.sphereDescription {
+		words := strings.Fields(desc)
+		for _, word := range words {
+			word = strings.ToLower(word)
+			if tag, exists := consts.Synonyms[word]; exists {
+				u.sphereTags[sphere][tag] = struct{}{}
+			}
+		}
+	}
+}
+
+func newTags() (map[string]struct{}, error) {
+	line, err := in.ReadString('\n')
+	if err != nil {
+		return nil, err
+	}
+
+	tags := make(map[string]struct{})
+	line = strings.TrimSpace(line)
+	for _, tag := range strings.Split(line, " ") {
+		tag = strings.ToLower(tag)
+		tags[tag] = struct{}{}
+	}
+	delete(tags, "")
+
+	return tags, nil
+}
+
+func showSimilarity(users []*user, spheres []string, mainSphere string) {
+	for i := 0; i < len(users)-1; i++ {
+		for j := i + 1; j < len(users); j++ {
 			mainSimilarity := 1.0
 
 			log.Printf("Similarity (by Jaccard index) between %v and %v solely by:\n", users[i].name, users[j].name)
@@ -71,49 +147,4 @@ func main() {
 			log.Printf(" MAIN SIMILARITY: %v", mainSimilarity)
 		}
 	}
-}
-
-type user struct {
-	name       string
-	sphereTags map[string]map[string]struct{}
-}
-
-func newUser(id int, spheres []string) (*user, error) {
-	fmt.Printf("Name of the user %v: ", id)
-	line, err := in.ReadString('\n')
-	if err != nil {
-		return nil, err
-	}
-	name := strings.TrimSpace(line)
-
-	sphereTags := make(map[string]map[string]struct{})
-	for _, sphere := range spheres {
-		fmt.Printf("Tags for sphere %v: ", sphere)
-		tags, err := newTags()
-		if err != nil {
-			return nil, err
-		}
-		sphereTags[sphere] = tags
-	}
-
-	return &user{
-		name:       name,
-		sphereTags: sphereTags,
-	}, nil
-}
-
-func newTags() (map[string]struct{}, error) {
-	line, err := in.ReadString('\n')
-	if err != nil {
-		return nil, err
-	}
-
-	tags := make(map[string]struct{})
-	line = strings.TrimSpace(line)
-	for _, tag := range strings.Split(line, " ") {
-		tags[tag] = struct{}{}
-	}
-	delete(tags, "")
-
-	return tags, nil
 }
