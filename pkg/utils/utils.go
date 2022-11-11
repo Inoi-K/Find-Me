@@ -1,5 +1,6 @@
 package utils
 
+// intersect gets two sets and returns their intersection
 func intersect(s1, s2 map[string]struct{}) map[string]struct{} {
 	s3 := make(map[string]struct{})
 	for k := range s1 {
@@ -10,6 +11,7 @@ func intersect(s1, s2 map[string]struct{}) map[string]struct{} {
 	return s3
 }
 
+// intersect gets two sets and returns their union
 func unite(s1, s2 map[string]struct{}) map[string]struct{} {
 	s3 := make(map[string]struct{})
 	for k := range s1 {
@@ -21,6 +23,7 @@ func unite(s1, s2 map[string]struct{}) map[string]struct{} {
 	return s3
 }
 
+// JaccardIndex gets two sets and returns their Jaccard index
 func JaccardIndex(s1, s2 map[string]struct{}) float64 {
 	intersection := intersect(s1, s2)
 
