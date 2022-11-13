@@ -9,7 +9,7 @@ import (
 // User represents a user with name, description and tags for a specific sphere
 type User struct {
 	Name              string
-	sphereDescription map[string]string
+	SphereDescription map[string]string
 	SphereTags        map[string]map[string]struct{}
 }
 
@@ -17,11 +17,11 @@ type User struct {
 func NewUser(name string, sphereDescription map[string]string, sphereTags map[string]map[string]struct{}) (*User, error) {
 	usr := &User{
 		Name:              name,
-		sphereDescription: sphereDescription,
+		SphereDescription: sphereDescription,
 		SphereTags:        sphereTags,
 	}
 
-	usr.processDescription()
+	//usr.processDescription()
 
 	return usr, nil
 }
