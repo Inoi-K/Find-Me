@@ -1,7 +1,7 @@
 package recommendation
 
 import (
-	"github.com/Inoi-K/Find-Me/pkg/configs/consts"
+	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/pkg/user"
 	"github.com/Inoi-K/Find-Me/services/recommendations/utils"
 	"log"
@@ -15,9 +15,9 @@ func calculateSimilarity(u1, u2 *user.User, mainSphere string) float64 {
 		tags2 := u2.SphereTags[sphere]
 		similarity := utils.JaccardIndex(tags, tags2)
 
-		coefficient := consts.OtherSphereCoefficient
+		coefficient := config.C.OtherSphereCoefficient
 		if sphere == mainSphere {
-			coefficient = consts.MainSphereCoefficient
+			coefficient = config.C.MainSphereCoefficient
 		}
 		mainSimilarity += similarity * coefficient
 	}

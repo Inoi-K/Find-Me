@@ -15,12 +15,12 @@ type Database struct {
 }
 
 // ConnectDB creates and returns connection to database
-func ConnectDB(ctx context.Context) (*Database, error) {
+func ConnectDB(ctx context.Context, url string) (*Database, error) {
 	if db != nil {
 		return db, nil
 	}
 
-	dbpool, err := pgxpool.New(ctx, "url")
+	dbpool, err := pgxpool.New(ctx, url)
 	if err != nil {
 		return nil, err
 	}
