@@ -7,7 +7,7 @@ import (
 
 // processDescription splits user's description into word and converts them into tags
 func (u *User) processDescription() {
-	for sphere, desc := range u.sphereDescription {
+	for sphere, desc := range u.SphereDescription {
 		words := strings.Fields(desc)
 		for _, word := range words {
 			word = strings.ToLower(word)
