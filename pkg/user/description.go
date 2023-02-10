@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/Inoi-K/Find-Me/configs/consts"
+	"configs/consts"
 	"strings"
 )
 

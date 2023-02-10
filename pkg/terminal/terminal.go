@@ -3,7 +3,7 @@ package terminal
 import (
 	"bufio"
 	"fmt"
-	"github.com/Inoi-K/Find-Me/internal/user"
+	"github.com/Inoi-K/Find-Me/pkg/user"
 	"log"
 	"os"
 	"strconv"

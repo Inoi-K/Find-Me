@@ -2,7 +2,7 @@ package user
 
 import (
 	"github.com/Inoi-K/Find-Me/configs/consts"
-	"github.com/Inoi-K/Find-Me/pkg/utils"
+	"github.com/Inoi-K/Find-Me/recommendations/pkg/utils"
 	"log"
 )
 

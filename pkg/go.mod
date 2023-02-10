@@ -1,8 +1,8 @@
-module github.com/Inoi-K/Find-Me
+module github.com/Inoi-K/Find-Me/pkg
 
 go 1.19
 
-require github.com/jackc/pgx/v5 v5.1.0
+require github.com/jackc/pgx/v5 v5.2.0
 
 require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect

@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"github.com/Inoi-K/Find-Me/internal/database"
-	"github.com/Inoi-K/Find-Me/internal/user"
+	"github.com/Inoi-K/Find-Me/pkg/database"
+	"github.com/Inoi-K/Find-Me/pkg/user"
 	"log"
 )
 

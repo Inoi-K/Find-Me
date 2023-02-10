@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Inoi-K/Find-Me/configs/flags"
-	"github.com/Inoi-K/Find-Me/internal/user"
+	"github.com/Inoi-K/Find-Me/pkg/user"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
