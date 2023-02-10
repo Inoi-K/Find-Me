@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/Inoi-K/Find-Me/pkg/database"
-	"github.com/Inoi-K/Find-Me/pkg/user"
+	"github.com/Inoi-K/Find-Me/services/recommendations/recommendation"
 	"log"
 )
 
@@ -19,5 +19,5 @@ func main() {
 		log.Fatalf("failed to get users %v", err)
 	}
 
-	user.ShowSimilarityAll(users, "work")
+	recommendation.ShowSimilarityAll(users, "work")
 }

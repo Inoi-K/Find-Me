@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/Inoi-K/Find-Me/pkg/user"
+	"github.com/Inoi-K/Find-Me/services/recommendations/recommendation"
 	"log"
 	"os"
 	"strconv"
@@ -46,7 +47,7 @@ func ProcessInput() {
 		}
 	}
 
-	user.ShowSimilarityAll(users, mainSphere)
+	recommendation.ShowSimilarityAll(users, mainSphere)
 }
 
 // readUser gets the required information about the user from a terminal

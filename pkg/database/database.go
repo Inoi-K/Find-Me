@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/Inoi-K/Find-Me/configs/flags"
 	"github.com/Inoi-K/Find-Me/pkg/user"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -21,7 +20,7 @@ func ConnectDB(ctx context.Context) (*Database, error) {
 		return db, nil
 	}
 
-	dbpool, err := pgxpool.New(ctx, *flags.DatabaseURL)
+	dbpool, err := pgxpool.New(ctx, "url")
 	if err != nil {
 		return nil, err
 	}
