@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/Inoi-K/Find-Me/pkg/user"
-	"github.com/Inoi-K/Find-Me/services/recommendations/recommendation"
+	"github.com/Inoi-K/Find-Me/services/rengine/recommendation"
 	"log"
 	"os"
 	"strconv"

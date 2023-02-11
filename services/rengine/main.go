@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/pkg/database"
-	"github.com/Inoi-K/Find-Me/services/recommendations/recommendation"
+	"github.com/Inoi-K/Find-Me/services/rengine/recommendation"
 	"log"
 )
 
@@ -12,7 +12,7 @@ func main() {
 	config.ReadConfig()
 
 	ctx := context.Background()
-	_, err := database.ConnectDB(ctx, config.C.DatabaseURL)
+	err := database.ConnectDB(ctx, config.C.DatabaseURL)
 	if err != nil {
 		log.Fatalf("failed to connect to db: %v", err)
 	}

@@ -3,7 +3,7 @@ package recommendation
 import (
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/pkg/user"
-	"github.com/Inoi-K/Find-Me/services/recommendations/utils"
+	"github.com/Inoi-K/Find-Me/services/rengine/utils"
 	"log"
 )
 

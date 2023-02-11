@@ -1,4 +1,4 @@
-module github.com/Inoi-K/Find-Me/services/recommendations
+module github.com/Inoi-K/Find-Me/services/rengine
 
 go 1.19
 
