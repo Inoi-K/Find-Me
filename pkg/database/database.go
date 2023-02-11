@@ -3,8 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/Inoi-K/Find-Me/configs/flags"
-	"github.com/Inoi-K/Find-Me/internal/user"
+	"github.com/Inoi-K/Find-Me/pkg/user"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -16,14 +15,14 @@ type Database struct {
 }
 
 // ConnectDB creates and returns connection to database
-func ConnectDB(ctx context.Context) (*Database, error) {
+func ConnectDB(ctx context.Context, url string) error {
 	if db != nil {
-		return db, nil
+		return nil
 	}
 
-	dbpool, err := pgxpool.New(ctx, *flags.DatabaseURL)
+	dbpool, err := pgxpool.New(ctx, url)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	//defer dbpool.Close()
 
@@ -31,12 +30,7 @@ func ConnectDB(ctx context.Context) (*Database, error) {
 		pool: dbpool,
 	}
 
-	return db, nil
-}
-
-// GetDB returns database
-func GetDB() *Database {
-	return db
+	return nil
 }
 
 func GetUsers(ctx context.Context) ([]*user.User, error) {
