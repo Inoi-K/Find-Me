@@ -8,6 +8,8 @@ const (
 	LanguageCommand = "lang"
 	PingCommand     = "ping"
 
+	SignUpCommand = "signup"
+
 	// CALLBACKS
 	LanguageButton = "language"
 )

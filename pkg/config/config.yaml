@@ -6,3 +6,6 @@ OtherSphereCoefficient: 0.2
 
 ArgumentsSeparator: " "
 ParseMode: "Markdown"
+
+ProfileHost: localhost
+ProfilePort: 8080

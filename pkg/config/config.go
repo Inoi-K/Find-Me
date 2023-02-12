@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-var C config
+var C *config
 
 type config struct {
 	Token       string
@@ -16,9 +16,16 @@ type config struct {
 
 	ArgumentsSeparator string
 	ParseMode          string
+
+	ProfileHost string
+	ProfilePort string
 }
 
 func ReadConfig() {
+	if C != nil {
+		return
+	}
+
 	viper.SetConfigFile("../../pkg/config/config.yaml")
 	err := viper.ReadInConfig()
 	if err != nil {

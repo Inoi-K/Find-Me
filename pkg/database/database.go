@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	pb "github.com/Inoi-K/Find-Me/pkg/api"
 	"github.com/Inoi-K/Find-Me/pkg/user"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -100,4 +101,14 @@ func GetUsers(ctx context.Context) ([]*user.User, error) {
 	}
 
 	return users, nil
+}
+
+func AddUser(ctx context.Context, request *pb.SignUpRequest) error {
+	query := fmt.Sprintf("INSERT INTO \"user\" VALUES (%d, '%s');", request.UserID, request.Name)
+	_, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

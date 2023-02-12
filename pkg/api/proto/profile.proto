@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = "/pb";
+
+service Profile {
+  rpc SignUp (SignUpRequest) returns (SignUpReply) {}
+}
+
+message SignUpRequest {
+  int64 userID = 1;
+  string name = 2;
+}
+
+message SignUpReply {
+  bool isOk = 1;
+}
