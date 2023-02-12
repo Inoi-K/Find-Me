@@ -14,7 +14,7 @@ type Database struct {
 	pool *pgxpool.Pool
 }
 
-// ConnectDB creates and returns connection to database
+// ConnectDB creates connection to database
 func ConnectDB(ctx context.Context, url string) error {
 	if db != nil {
 		return nil
@@ -30,7 +30,7 @@ func ConnectDB(ctx context.Context, url string) error {
 		pool: dbpool,
 	}
 
-	return nil
+	return CreateTables(ctx)
 }
 
 func GetUsers(ctx context.Context) ([]*user.User, error) {
