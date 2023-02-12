@@ -1,4 +1,8 @@
+DatabaseURL:
+Token:
+
 MainSphereCoefficient:  1.0
 OtherSphereCoefficient: 0.2
 
-DatabaseURL: 
+ArgumentsSeparator: " "
+ParseMode: "Markdown"

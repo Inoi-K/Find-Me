@@ -8,10 +8,14 @@ import (
 var C config
 
 type config struct {
+	Token       string
+	DatabaseURL string
+
 	MainSphereCoefficient  float64
 	OtherSphereCoefficient float64
 
-	DatabaseURL string
+	ArgumentsSeparator string
+	ParseMode          string
 }
 
 func ReadConfig() {
