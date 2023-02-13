@@ -7,30 +7,30 @@ import (
 	"strings"
 )
 
-// Reply builds message and sends it to the chat
-func Reply(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, text string) error {
-	msg := NewMessage(chat.ID, text, nil)
+// reply builds message and sends it to the chat
+func reply(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, text string) error {
+	msg := newMessage(chat.ID, text, nil)
 	_, err := bot.Send(msg)
 	return err
 }
 
-// ReplyKeyboard builds message with keyboard and sends it to the chat
-func ReplyKeyboard(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, text string, keyboard interface{}) error {
-	msg := NewMessage(chat.ID, text, keyboard)
+// replyKeyboard builds message with keyboard and sends it to the chat
+func replyKeyboard(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, text string, keyboard interface{}) error {
+	msg := newMessage(chat.ID, text, keyboard)
 	_, err := bot.Send(msg)
 	return err
 }
 
-// NewMessage builds message with all needed parameters
-func NewMessage(chatID int64, text string, keyboard interface{}) tgbotapi.MessageConfig {
+// newMessage builds message with all needed parameters
+func newMessage(chatID int64, text string, keyboard interface{}) tgbotapi.MessageConfig {
 	msg := tgbotapi.NewMessage(chatID, text)
 	msg.ParseMode = config.C.ParseMode
 	msg.ReplyMarkup = keyboard
 	return msg
 }
 
-// MakeInlineKeyboard builds inline keyboard from the content
-func MakeInlineKeyboard(content []model.Content, commandButton string) tgbotapi.InlineKeyboardMarkup {
+// makeInlineKeyboard builds inline keyboard from the content
+func makeInlineKeyboard(content []model.Content, commandButton string) tgbotapi.InlineKeyboardMarkup {
 	var keyboard [][]tgbotapi.InlineKeyboardButton
 
 	for _, c := range content {

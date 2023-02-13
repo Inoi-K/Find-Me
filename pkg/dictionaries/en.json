@@ -1,4 +1,5 @@
 {
   "start": "hello!",
-  "pong": "pong!"
+  "pong": "pong!",
+  "enterName": "Please, enter your name:"
 }

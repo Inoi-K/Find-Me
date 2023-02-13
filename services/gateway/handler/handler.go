@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/services/gateway/command"
+	"github.com/Inoi-K/Find-Me/services/gateway/session"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"strings"
@@ -42,7 +43,7 @@ func Start(ctx context.Context) error {
 func makeCommands() map[string]command.ICommand {
 	return map[string]command.ICommand{
 		command.SignUpCommand: &command.SignUp{},
-		//command.StartCommand: &command.Start{},
+		command.StartCommand:  &command.Start{},
 		//command.HelpCommand:     &command.Help{},
 		//command.LanguageCommand: &command.Language{},
 		//command.LanguageButton:  &command.LanguageButton{},
@@ -93,9 +94,7 @@ func handleMessage(ctx context.Context, update tgbotapi.Update) {
 	if message.IsCommand() {
 		err = handleCommand(ctx, update)
 	} else {
-		// This is equivalent to forwarding, without the sender's name
-		copyMsg := tgbotapi.NewCopyMessage(message.Chat.ID, message.Chat.ID, message.MessageID)
-		_, err = bot.CopyMessage(copyMsg)
+		err = handleText(ctx, update)
 	}
 
 	if err != nil {
@@ -104,21 +103,41 @@ func handleMessage(ctx context.Context, update tgbotapi.Update) {
 }
 
 // handleCommand handles commands specifically
-func handleCommand(ctx context.Context, update tgbotapi.Update) error {
-	curCommand := update.Message.Command()
+func handleCommand(ctx context.Context, upd tgbotapi.Update) error {
+	curCommand := upd.Message.Command()
 	if cmd, ok := commands[curCommand]; ok {
-		return cmd.Execute(ctx, bot, update, update.Message.CommandArguments())
+		return cmd.Execute(ctx, bot, upd, upd.Message.CommandArguments())
 	}
 
 	return command.UnknownCommandError
 }
 
-// handleButton handles buttons callback specifically
-func handleButton(ctx context.Context, update tgbotapi.Update) {
-	query := update.CallbackQuery
-	command, args, _ := strings.Cut(query.Data, config.C.ArgumentsSeparator)
+func handleText(ctx context.Context, upd tgbotapi.Update) error {
+	message := upd.Message
+	user := upd.SentFrom()
 
-	err := commands[command].Execute(ctx, bot, update, args)
+	// validated user (but might be not fully registered)
+	if sessionUser, ok := session.Users[user.ID]; ok {
+		// fill user's name
+		if sessionUser.Name == "" {
+			sessionUser.Name = message.Text
+		}
+		// complete user registration
+		return commands[command.SignUpCommand].Execute(ctx, bot, upd, message.Text)
+	}
+
+	// This is equivalent to forwarding, without the sender's name
+	copyMsg := tgbotapi.NewCopyMessage(message.Chat.ID, message.Chat.ID, message.MessageID)
+	_, err := bot.CopyMessage(copyMsg)
+	return err
+}
+
+// handleButton handles buttons callback specifically
+func handleButton(ctx context.Context, upd tgbotapi.Update) {
+	query := upd.CallbackQuery
+	curCommand, args, _ := strings.Cut(query.Data, config.C.ArgumentsSeparator)
+
+	err := commands[curCommand].Execute(ctx, bot, upd, args)
 	if err != nil {
 		log.Printf("couldn't process button callback: %v", err)
 	}

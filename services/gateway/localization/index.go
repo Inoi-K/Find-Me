@@ -7,4 +7,5 @@ const (
 	LangSuccess = "langSuccess"
 	LangFail    = "langFail"
 	Pong        = "pong"
+	EnterName   = "enterName"
 )

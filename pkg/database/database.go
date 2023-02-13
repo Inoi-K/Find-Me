@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	pb "github.com/Inoi-K/Find-Me/pkg/api"
-	"github.com/Inoi-K/Find-Me/pkg/user"
+	"github.com/Inoi-K/Find-Me/pkg/model"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -34,7 +34,7 @@ func ConnectDB(ctx context.Context, url string) error {
 	return CreateTables(ctx)
 }
 
-func GetUsers(ctx context.Context) ([]*user.User, error) {
+func GetUsers(ctx context.Context) ([]*model.User, error) {
 	query := fmt.Sprintf("SELECT id, name FROM public.user;")
 	userRows, err := db.pool.Query(ctx, query)
 	if err != nil {
@@ -42,7 +42,7 @@ func GetUsers(ctx context.Context) ([]*user.User, error) {
 	}
 	defer userRows.Close()
 
-	users := make([]*user.User, 0, 100)
+	users := make([]*model.User, 0, 100)
 	for userRows.Next() {
 		var userID int
 		var name string
@@ -93,7 +93,7 @@ func GetUsers(ctx context.Context) ([]*user.User, error) {
 			sphereTags[sphere] = tags
 		}
 
-		usr, err := user.NewUser(name, sphereDescription, sphereTags)
+		usr, err := model.NewUser(name, sphereDescription, sphereTags)
 		if err != nil {
 			return nil, err
 		}

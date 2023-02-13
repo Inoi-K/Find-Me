@@ -5,7 +5,9 @@ import (
 	"fmt"
 	pb "github.com/Inoi-K/Find-Me/pkg/api"
 	"github.com/Inoi-K/Find-Me/pkg/config"
+	"github.com/Inoi-K/Find-Me/pkg/model"
 	loc "github.com/Inoi-K/Find-Me/services/gateway/localization"
+	"github.com/Inoi-K/Find-Me/services/gateway/session"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -31,8 +33,15 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		loc.ChangeLanguage("en")
 	}
 
-	defer Reply(bot, chat, loc.Message(loc.Help))
-	return Reply(bot, chat, loc.Message(loc.Start))
+	// TODO validate terms & agreement
+
+	// TODO validate user with corporate email
+
+	// main information
+	// name
+	// create session with user
+	session.Users[usr.ID] = &model.User{}
+	return reply(bot, chat, loc.Message(loc.EnterName))
 }
 
 // SignUp sends a request to the profile service to register a new user
@@ -70,7 +79,7 @@ func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi
 //func (c *Help) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
 //	chat := upd.FromChat()
 //
-//	return Reply(bot, chat, loc.Message(loc.Help))
+//	return reply(bot, chat, loc.Message(loc.Help))
 //}
 //
 //type Language struct{}
@@ -78,12 +87,12 @@ func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi
 //func (c *Language) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
 //	chat := upd.FromChat()
 //
-//	return ReplyKeyboard(bot, chat, loc.Message(loc.Lang), MakeInlineKeyboard(loc.SupportedLanguages, consts.LanguageButton))
+//	return replyKeyboard(bot, chat, loc.Message(loc.Lang), makeInlineKeyboard(loc.SupportedLanguages, consts.LanguageButton))
 //}
 //
 //type Ping struct{}
 //
 //func (c *Ping) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
 //	chat := upd.FromChat()
-//	return Reply(bot, chat, loc.Message(loc.Pong))
+//	return reply(bot, chat, loc.Message(loc.Pong))
 //}
