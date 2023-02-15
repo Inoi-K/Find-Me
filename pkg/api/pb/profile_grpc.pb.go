@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.12
-// source: profile.proto
+// source: pkg/api/proto/profile.proto
 
 package pb
 
@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProfileClient interface {
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*SignUpReply, error)
+	Exists(ctx context.Context, in *ExistsRequest, opts ...grpc.CallOption) (*ExistsReply, error)
 }
 
 type profileClient struct {
@@ -42,11 +43,21 @@ func (c *profileClient) SignUp(ctx context.Context, in *SignUpRequest, opts ...g
 	return out, nil
 }
 
+func (c *profileClient) Exists(ctx context.Context, in *ExistsRequest, opts ...grpc.CallOption) (*ExistsReply, error) {
+	out := new(ExistsReply)
+	err := c.cc.Invoke(ctx, "/Profile/Exists", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProfileServer is the server API for Profile service.
 // All implementations must embed UnimplementedProfileServer
 // for forward compatibility
 type ProfileServer interface {
 	SignUp(context.Context, *SignUpRequest) (*SignUpReply, error)
+	Exists(context.Context, *ExistsRequest) (*ExistsReply, error)
 	mustEmbedUnimplementedProfileServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedProfileServer struct {
 
 func (UnimplementedProfileServer) SignUp(context.Context, *SignUpRequest) (*SignUpReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")
+}
+func (UnimplementedProfileServer) Exists(context.Context, *ExistsRequest) (*ExistsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Exists not implemented")
 }
 func (UnimplementedProfileServer) mustEmbedUnimplementedProfileServer() {}
 
@@ -88,6 +102,24 @@ func _Profile_SignUp_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Profile_Exists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExistsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProfileServer).Exists(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Profile/Exists",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProfileServer).Exists(ctx, req.(*ExistsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Profile_ServiceDesc is the grpc.ServiceDesc for Profile service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -99,7 +131,11 @@ var Profile_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "SignUp",
 			Handler:    _Profile_SignUp_Handler,
 		},
+		{
+			MethodName: "Exists",
+			Handler:    _Profile_Exists_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "profile.proto",
+	Metadata: "pkg/api/proto/profile.proto",
 }

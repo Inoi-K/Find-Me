@@ -12,14 +12,8 @@ const (
 
 	// CALLBACKS
 	LanguageButton = "language"
-
-	// STATES
-	State        = "state"
-	DefaultState = "default"
-	NameState    = "name"
 )
 
 var (
 	UnknownCommandError = errors.New("unknown command")
-	UnknownStateError   = errors.New("unknown state")
 )

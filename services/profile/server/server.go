@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
-	pb "github.com/Inoi-K/Find-Me/pkg/api"
+	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/pkg/database"
 	"google.golang.org/grpc"
@@ -16,7 +16,7 @@ type server struct {
 }
 
 func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.SignUpReply, error) {
-	log.Printf("Received: %v", in.GetName())
+	log.Printf("Received signup: %v", in.GetName())
 
 	err := database.AddUser(ctx, in)
 	if err != nil {
@@ -24,6 +24,17 @@ func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.SignUpRe
 	}
 
 	return &pb.SignUpReply{IsOk: true}, nil
+}
+
+func (s *server) Exists(ctx context.Context, in *pb.ExistsRequest) (*pb.ExistsReply, error) {
+	log.Printf("Received exists: %v", in.GetUserID())
+
+	exists, err := database.UserExists(ctx, in.GetUserID())
+	if err != nil {
+		return nil, err
+	}
+	log.Println(exists)
+	return &pb.ExistsReply{Exists: exists}, nil
 }
 
 func Start() {

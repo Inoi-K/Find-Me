@@ -4,6 +4,7 @@ option go_package = "/pb";
 
 service Profile {
   rpc SignUp (SignUpRequest) returns (SignUpReply) {}
+  rpc Exists(ExistsRequest) returns (ExistsReply) {}
 }
 
 message SignUpRequest {
@@ -13,4 +14,12 @@ message SignUpRequest {
 
 message SignUpReply {
   bool isOk = 1;
+}
+
+message ExistsRequest {
+  int64 userID = 1;
+}
+
+message ExistsReply {
+  bool Exists = 1;
 }

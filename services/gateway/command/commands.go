@@ -3,11 +3,9 @@ package command
 import (
 	"context"
 	"fmt"
-	pb "github.com/Inoi-K/Find-Me/pkg/api"
+	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
-	"github.com/Inoi-K/Find-Me/pkg/model"
 	loc "github.com/Inoi-K/Find-Me/services/gateway/localization"
-	"github.com/Inoi-K/Find-Me/services/gateway/session"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -40,7 +38,6 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 	// main information
 	// name
 	// create session with user
-	session.Users[usr.ID] = &model.User{}
 	return reply(bot, chat, loc.Message(loc.EnterName))
 }
 
@@ -74,25 +71,24 @@ func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi
 }
 
 // Help command shows information about all commands
-//type Help struct{}
+// type Help struct{}
 //
-//func (c *Help) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
-//	chat := upd.FromChat()
+//	func (c *Help) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+//		chat := upd.FromChat()
 //
-//	return reply(bot, chat, loc.Message(loc.Help))
-//}
+//		return reply(bot, chat, loc.Message(loc.Help))
+//	}
 //
-//type Language struct{}
+// type Language struct{}
 //
-//func (c *Language) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
-//	chat := upd.FromChat()
+//	func (c *Language) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+//		chat := upd.FromChat()
 //
-//	return replyKeyboard(bot, chat, loc.Message(loc.Lang), makeInlineKeyboard(loc.SupportedLanguages, consts.LanguageButton))
-//}
-//
-//type Ping struct{}
-//
-//func (c *Ping) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
-//	chat := upd.FromChat()
-//	return reply(bot, chat, loc.Message(loc.Pong))
-//}
+//		return replyKeyboard(bot, chat, loc.Message(loc.Lang), makeInlineKeyboard(loc.SupportedLanguages, consts.LanguageButton))
+//	}
+type Ping struct{}
+
+func (c *Ping) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+	chat := upd.FromChat()
+	return reply(bot, chat, loc.Message(loc.Pong))
+}
