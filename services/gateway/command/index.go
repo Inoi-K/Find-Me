@@ -16,4 +16,5 @@ const (
 
 var (
 	UnknownCommandError = errors.New("unknown command")
+	ContextDoneError    = errors.New("context is done")
 )

@@ -2,14 +2,14 @@ package command
 
 import (
 	"context"
-	"fmt"
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
+	"github.com/Inoi-K/Find-Me/services/gateway/client"
 	loc "github.com/Inoi-K/Find-Me/services/gateway/localization"
+	"github.com/Inoi-K/Find-Me/services/gateway/session"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -31,14 +31,64 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		loc.ChangeLanguage("en")
 	}
 
+	// check user existence
+	// contact the profile service
+	ctx2, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	rep, err := client.Profile.Exists(ctx2, &pb.ExistsRequest{
+		UserID: usr.ID,
+	})
+	if err != nil {
+		log.Fatalf("couldn't check existance of user with id = %d : %v", usr.ID, err)
+	}
+	// break execution if user already exists
+	if rep.Exists {
+		return reply(bot, chat, loc.Message(loc.AlreadyRegistered))
+	}
+
 	// TODO validate terms & agreement
 
 	// TODO validate user with corporate email
 
 	// main information
+	var signUpArgs, newArg string
+	session.UserStateArg[usr.ID] = make(chan string)
 	// name
-	// create session with user
-	return reply(bot, chat, loc.Message(loc.EnterName))
+	session.UserState[usr.ID] = session.EnterName
+	newArg, err = askNewArg(ctx, bot, chat, usr.ID, loc.EnterName)
+	if err != nil {
+		return err
+	}
+	signUpArgs += config.C.ArgumentsSeparator + newArg
+	// gender
+	session.UserState[usr.ID]++
+	newArg, err = askNewArg(ctx, bot, chat, usr.ID, loc.EnterGender)
+	if err != nil {
+		return err
+	}
+	signUpArgs += config.C.ArgumentsSeparator + newArg
+
+	// clear user state
+	close(session.UserStateArg[usr.ID])
+	delete(session.UserState, usr.ID)
+
+	signUp := &SignUp{}
+	return signUp.Execute(ctx, bot, upd, signUpArgs)
+}
+
+func askNewArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, messageKey string) (string, error) {
+	err := reply(bot, chat, loc.Message(messageKey))
+	if err != nil {
+		return "", err
+	}
+	newArg := ""
+	select {
+	case <-ctx.Done():
+		return "", ContextDoneError
+	case newArg = <-session.UserStateArg[userID]:
+	}
+
+	return newArg, nil
 }
 
 // SignUp sends a request to the profile service to register a new user
@@ -47,25 +97,20 @@ type SignUp struct{}
 func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
 	usr := upd.SentFrom()
 
-	// Set up a connection to the server.
-	address := fmt.Sprintf("%s:%s", config.C.ProfileHost, config.C.ProfilePort)
-	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-	defer conn.Close()
-	client := pb.NewProfileClient(conn)
+	info := strings.Split(args, config.C.ArgumentsSeparator)
 
 	// Contact the server and print out its response.
 	ctx2, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	_, err = client.SignUp(ctx2, &pb.SignUpRequest{
+	_, err := client.Profile.SignUp(ctx2, &pb.SignUpRequest{
 		UserID: usr.ID,
-		Name:   args,
+		Name:   info[0],
 	})
 	if err != nil {
 		log.Fatalf("couldn't sign up: %v", err)
 	}
+
+	session.UserState[usr.ID]++
 
 	return nil
 }

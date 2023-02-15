@@ -2,16 +2,12 @@ package handler
 
 import (
 	"context"
-	"fmt"
-	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/services/gateway/command"
+	"github.com/Inoi-K/Find-Me/services/gateway/session"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"strings"
-	"time"
 )
 
 var (
@@ -63,7 +59,7 @@ func receiveUpdates(ctx context.Context, updates tgbotapi.UpdatesChannel) {
 		case <-ctx.Done():
 			return
 		case update := <-updates:
-			handleUpdate(ctx, update)
+			go handleUpdate(ctx, update)
 		}
 	}
 }
@@ -120,34 +116,19 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 	message := upd.Message
 	user := upd.SentFrom()
 
-	// Set up a connection to the server.
-	address := fmt.Sprintf("%s:%s", config.C.ProfileHost, config.C.ProfilePort)
-	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-	defer conn.Close()
-	client := pb.NewProfileClient(conn)
-
-	// Contact the server and print out its response.
-	ctx2, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	rep, err := client.Exists(ctx2, &pb.ExistsRequest{
-		UserID: user.ID,
-	})
-	if err != nil {
-		log.Fatalf("couldn't check existance of user with id = %d : %v", user.ID, err)
-	}
-
 	// validated user (but might be not fully registered)
-	if !rep.Exists {
-		// complete user registration
-		return commands[command.SignUpCommand].Execute(ctx, bot, upd, message.Text)
+	if state, ok := session.UserState[user.ID]; ok {
+		switch state {
+		case session.EnterName:
+			session.UserStateArg[user.ID] <- message.Text
+		case session.EnterGender:
+			session.UserStateArg[user.ID] <- message.Text
+		}
 	}
 
 	// This is equivalent to forwarding, without the sender's name
 	copyMsg := tgbotapi.NewCopyMessage(message.Chat.ID, message.Chat.ID, message.MessageID)
-	_, err = bot.CopyMessage(copyMsg)
+	_, err := bot.CopyMessage(copyMsg)
 	return err
 }
 
