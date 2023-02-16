@@ -39,7 +39,8 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		UserID: usr.ID,
 	})
 	if err != nil {
-		log.Fatalf("couldn't check existance of user with id = %d : %v", usr.ID, err)
+		log.Printf("couldn't check existance of user with id = %d : %v", usr.ID, err)
+		return reply(bot, chat, loc.Message(loc.TryAgain))
 	}
 	// break execution if user already exists
 	if rep.Exists {
@@ -59,7 +60,7 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 	if err != nil {
 		return err
 	}
-	signUpArgs += config.C.ArgumentsSeparator + newArg
+	signUpArgs += newArg
 	// gender
 	session.UserState[usr.ID]++
 	newArg, err = askNewArg(ctx, bot, chat, usr.ID, loc.EnterGender)
@@ -96,23 +97,23 @@ type SignUp struct{}
 
 func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
 	usr := upd.SentFrom()
+	chat := upd.FromChat()
 
-	info := strings.Split(args, config.C.ArgumentsSeparator)
+	info := strings.Split(strings.TrimSpace(args), config.C.ArgumentsSeparator)
 
 	// Contact the server and print out its response.
-	ctx2, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx2, cancel := context.WithTimeout(context.Background(), config.C.Timeout)
 	defer cancel()
 	_, err := client.Profile.SignUp(ctx2, &pb.SignUpRequest{
 		UserID: usr.ID,
 		Name:   info[0],
 	})
 	if err != nil {
-		log.Fatalf("couldn't sign up: %v", err)
+		log.Printf("couldn't sign up: %v", err)
+		return reply(bot, chat, loc.Message(loc.SignUpFail))
 	}
 
-	session.UserState[usr.ID]++
-
-	return nil
+	return reply(bot, chat, loc.Message(loc.SignUpSuccess))
 }
 
 // Help command shows information about all commands

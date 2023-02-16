@@ -33,7 +33,7 @@ func (s *server) Exists(ctx context.Context, in *pb.ExistsRequest) (*pb.ExistsRe
 	if err != nil {
 		return nil, err
 	}
-	log.Println(exists)
+
 	return &pb.ExistsReply{Exists: exists}, nil
 }
 

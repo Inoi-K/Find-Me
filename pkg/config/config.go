@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/spf13/viper"
 	"log"
+	"time"
 )
 
 var C *config
@@ -16,6 +17,8 @@ type config struct {
 
 	ArgumentsSeparator string
 	ParseMode          string
+
+	Timeout time.Duration
 
 	ProfileHost string
 	ProfilePort string

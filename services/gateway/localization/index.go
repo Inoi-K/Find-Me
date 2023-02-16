@@ -10,4 +10,7 @@ const (
 	EnterName         = "enterName"
 	EnterGender       = "enterGender"
 	AlreadyRegistered = "alreadyRegistered"
+	SignUpSuccess     = "signUpSuccess"
+	SignUpFail        = "signUpFail"
+	TryAgain          = "tryAgain"
 )

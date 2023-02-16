@@ -3,5 +3,8 @@
   "pong": "pong!",
   "enterName": "Please, enter your name:",
   "enterGender": "Please, enter your gender:",
-  "alreadyRegistered": "You are already registered"
+  "alreadyRegistered": "You are already registered",
+  "signUpSuccess": "Successfully signed up!",
+  "signUpFail": "Couldn't sign up :(",
+  "tryAgain": "Please, try again later"
 }

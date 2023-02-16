@@ -124,6 +124,7 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 		case session.EnterGender:
 			session.UserStateArg[user.ID] <- message.Text
 		}
+		return nil
 	}
 
 	// This is equivalent to forwarding, without the sender's name
