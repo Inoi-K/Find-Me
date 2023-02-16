@@ -23,9 +23,9 @@ type Start struct{}
 
 func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
 	chat := upd.FromChat()
-	usr := upd.SentFrom()
+	user := upd.SentFrom()
 
-	ok := loc.ChangeLanguage(usr.LanguageCode)
+	ok := loc.ChangeLanguage(user.LanguageCode)
 	// if user's language is not supported then set default language to english
 	if !ok {
 		loc.ChangeLanguage("en")
@@ -36,10 +36,10 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 	ctx2, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	rep, err := client.Profile.Exists(ctx2, &pb.ExistsRequest{
-		UserID: usr.ID,
+		UserID: user.ID,
 	})
 	if err != nil {
-		log.Printf("couldn't check existance of user with id = %d : %v", usr.ID, err)
+		log.Printf("couldn't check existance of user with id = %d : %v", user.ID, err)
 		return reply(bot, chat, loc.Message(loc.TryAgain))
 	}
 	// break execution if user already exists
@@ -53,25 +53,25 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 
 	// main information
 	var signUpArgs, newArg string
-	session.UserStateArg[usr.ID] = make(chan string)
+	session.UserStateArg[user.ID] = make(chan string)
 	// name
-	session.UserState[usr.ID] = session.EnterName
-	newArg, err = askNewArg(ctx, bot, chat, usr.ID, loc.EnterName)
+	session.UserState[user.ID] = session.EnterName
+	newArg, err = askNewArg(ctx, bot, chat, user.ID, loc.EnterName)
 	if err != nil {
 		return err
 	}
 	signUpArgs += newArg
 	// gender
-	session.UserState[usr.ID]++
-	newArg, err = askNewArg(ctx, bot, chat, usr.ID, loc.EnterGender)
+	session.UserState[user.ID]++
+	newArg, err = askNewArg(ctx, bot, chat, user.ID, loc.EnterGender)
 	if err != nil {
 		return err
 	}
 	signUpArgs += config.C.ArgumentsSeparator + newArg
 
 	// clear user state
-	close(session.UserStateArg[usr.ID])
-	delete(session.UserState, usr.ID)
+	close(session.UserStateArg[user.ID])
+	delete(session.UserState, user.ID)
 
 	signUp := &SignUp{}
 	return signUp.Execute(ctx, bot, upd, signUpArgs)
@@ -96,7 +96,7 @@ func askNewArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, u
 type SignUp struct{}
 
 func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
-	usr := upd.SentFrom()
+	user := upd.SentFrom()
 	chat := upd.FromChat()
 
 	info := strings.Split(strings.TrimSpace(args), config.C.ArgumentsSeparator)
@@ -105,7 +105,7 @@ func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi
 	ctx2, cancel := context.WithTimeout(context.Background(), config.C.Timeout)
 	defer cancel()
 	_, err := client.Profile.SignUp(ctx2, &pb.SignUpRequest{
-		UserID: usr.ID,
+		UserID: user.ID,
 		Name:   info[0],
 	})
 	if err != nil {
@@ -132,6 +132,8 @@ func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi
 //
 //		return replyKeyboard(bot, chat, loc.Message(loc.Lang), makeInlineKeyboard(loc.SupportedLanguages, consts.LanguageButton))
 //	}
+
+// Ping replies with 'pong' message
 type Ping struct{}
 
 func (c *Ping) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {

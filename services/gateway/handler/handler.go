@@ -42,8 +42,8 @@ func Start(ctx context.Context) error {
 // makeCommands creates all bot commands and buttons
 func makeCommands() map[string]command.ICommand {
 	return map[string]command.ICommand{
-		command.SignUpCommand: &command.SignUp{},
-		command.StartCommand:  &command.Start{},
+		//command.SignUpCommand: &command.SignUp{},
+		command.StartCommand: &command.Start{},
 		//command.HelpCommand:     &command.Help{},
 		//command.LanguageCommand: &command.Language{},
 		//command.LanguageButton:  &command.LanguageButton{},
@@ -112,6 +112,7 @@ func handleCommand(ctx context.Context, upd tgbotapi.Update) error {
 	return command.UnknownCommandError
 }
 
+// handleText handles text specifically
 func handleText(ctx context.Context, upd tgbotapi.Update) error {
 	message := upd.Message
 	user := upd.SentFrom()

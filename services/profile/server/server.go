@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/pkg/database"
@@ -15,6 +14,7 @@ type server struct {
 	pb.UnimplementedProfileServer
 }
 
+// SignUp adds user to database
 func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.SignUpReply, error) {
 	log.Printf("Received signup: %v", in.GetName())
 
@@ -26,6 +26,7 @@ func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.SignUpRe
 	return &pb.SignUpReply{IsOk: true}, nil
 }
 
+// Exists checks if user exists in database
 func (s *server) Exists(ctx context.Context, in *pb.ExistsRequest) (*pb.ExistsReply, error) {
 	log.Printf("Received exists: %v", in.GetUserID())
 
@@ -38,7 +39,7 @@ func (s *server) Exists(ctx context.Context, in *pb.ExistsRequest) (*pb.ExistsRe
 }
 
 func Start() {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", config.C.ProfilePort))
+	lis, err := net.Listen("tcp", ":"+config.C.ProfilePort)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

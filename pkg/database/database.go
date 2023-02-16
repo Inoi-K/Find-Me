@@ -104,11 +104,11 @@ func GetUsers(ctx context.Context) (map[int64]*model.User, error) {
 			sphereTags[sphere] = tags
 		}
 
-		usr, err := model.NewUser(name, sphereDescription, sphereTags)
+		user, err := model.NewUser(name, sphereDescription, sphereTags)
 		if err != nil {
 			return nil, err
 		}
-		users[userID] = usr
+		users[userID] = user
 	}
 
 	return users, nil

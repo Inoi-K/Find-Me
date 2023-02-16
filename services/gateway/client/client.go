@@ -1,7 +1,6 @@
 package client
 
 import (
-	"fmt"
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"google.golang.org/grpc"
@@ -13,10 +12,11 @@ var (
 	conn    *grpc.ClientConn
 )
 
+// Open creates connections to other services
 func Open() error {
 	var err error
 	// Set up a connection to the server.
-	address := fmt.Sprintf("%s:%s", config.C.ProfileHost, config.C.ProfilePort)
+	address := config.C.ProfileHost + ":" + config.C.ProfilePort
 	conn, err = grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return err
@@ -26,6 +26,7 @@ func Open() error {
 	return nil
 }
 
+// Close closes connections to other services
 func Close() {
 	conn.Close()
 }

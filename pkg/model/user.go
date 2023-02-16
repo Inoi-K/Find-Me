@@ -11,15 +11,15 @@ type User struct {
 
 // NewUser creates a new user and handles description to tags conversion
 func NewUser(name string, sphereDescription map[string]string, sphereTags map[string]map[string]struct{}) (*User, error) {
-	usr := &User{
+	user := &User{
 		Name:              name,
 		SphereDescription: sphereDescription,
 		SphereTags:        sphereTags,
 	}
 
-	//usr.processDescription()
+	//user.processDescription()
 
-	return usr, nil
+	return user, nil
 }
 
 // processDescription splits user's description into word and converts them into tags
