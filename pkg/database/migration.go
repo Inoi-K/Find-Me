@@ -25,7 +25,7 @@ func CreateTables(ctx context.Context) error {
 	}
 
 	// user_sphere
-	query = "create table if not exists user_sphere\n(\n    user_id     integer not null\n        constraint user_sphere_user_fk\n            references \"user\",\n    sphere_id   integer not null\n        constraint user_sphere_sphere_fk\n            references sphere\n            on update cascade on delete cascade,\n    description text,\n    photo       text    not null,\n    constraint user_sphere_pk\n        primary key (user_id, sphere_id)\n);"
+	query = "create table if not exists user_sphere\n(\n    user_id     integer not null\n        constraint user_sphere_user_fk\n            references \"user\",\n    sphere_id   integer not null\n        constraint user_sphere_sphere_fk\n            references sphere\n            on update cascade on delete cascade,\n    description text,\n    photo       text,\n    constraint user_sphere_pk\n        primary key (user_id, sphere_id)\n);"
 	_, err = db.pool.Query(ctx, query)
 	if err != nil {
 		return err

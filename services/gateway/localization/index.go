@@ -28,5 +28,5 @@ const (
 	Name        = "name"
 	Gender      = "gender"
 	Photo       = "photo"
-	Description = "description"
+	Description = "desc"
 )

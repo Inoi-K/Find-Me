@@ -121,11 +121,17 @@ func AddUser(ctx context.Context, request *pb.SignUpRequest) error {
 		return err
 	}
 
+	query = fmt.Sprintf("INSERT INTO user_sphere VALUES (%d, '%d');", request.UserID, request.SphereID)
+	_, err = db.pool.Query(ctx, query)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func EditField(ctx context.Context, field, value string, userID, sphereID int64) error {
-	query := fmt.Sprintf("UPDATE user_sphere(%s) VALUES ('%s') WHERE user_id=%d AND sphere_id=%d;", field, value, userID, sphereID)
+	query := fmt.Sprintf("UPDATE user_sphere SET %s='%s' WHERE user_id=%d AND sphere_id=%d;", field, value, userID, sphereID)
 	_, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return err

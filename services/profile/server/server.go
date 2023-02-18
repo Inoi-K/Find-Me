@@ -38,7 +38,7 @@ func (s *server) Exists(ctx context.Context, in *pb.ExistsRequest) (*pb.ExistsRe
 	return &pb.ExistsReply{Exists: exists}, nil
 }
 
-func (s *server) EditField(ctx context.Context, in *pb.EditRequest) (*pb.Empty, error) {
+func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.Empty, error) {
 	log.Printf("Received edit field: %v", in.GetUserID())
 
 	switch in.Field {

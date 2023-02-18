@@ -126,10 +126,10 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 	// validated user (but might be not fully registered)
 	if state, ok := session.UserState[user.ID]; ok {
 		switch state {
-		case session.EnterName:
+		case session.EnterName, session.EnterGender, session.EnterDescription:
 			session.UserStateArg[user.ID] <- message.Text
-		case session.EnterGender:
-			session.UserStateArg[user.ID] <- message.Text
+		case session.EnterPhoto:
+			session.UserStateArg[user.ID] <- ""
 		}
 		return nil
 	}
@@ -145,14 +145,16 @@ func handleButton(ctx context.Context, upd tgbotapi.Update) {
 	query := upd.CallbackQuery
 	curCommand, args, _ := strings.Cut(query.Data, config.C.Separator)
 
-	err := commands[curCommand].Execute(ctx, bot, upd, args)
-	if err != nil {
-		log.Printf("couldn't process button callback: %v", err)
-	}
+	go func() {
+		err := commands[curCommand].Execute(ctx, bot, upd, args)
+		if err != nil {
+			log.Printf("couldn't process button callback: %v", err)
+		}
+	}()
 
 	// close the query
 	callbackCfg := tgbotapi.NewCallback(query.ID, "")
-	_, err = bot.Request(callbackCfg)
+	_, err := bot.Request(callbackCfg)
 	if err != nil {
 		log.Printf("callback config error: %v", err)
 	}

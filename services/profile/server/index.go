@@ -5,7 +5,7 @@ import "errors"
 const (
 	// PROFILE FIELDS
 	PhotoField       = "photo"
-	DescriptionField = "desc"
+	DescriptionField = "description"
 	TagsField        = "tags"
 )
 

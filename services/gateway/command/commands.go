@@ -10,7 +10,6 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"strings"
-	"time"
 )
 
 // ICommand provides an interface for all commands and buttons callbacks
@@ -41,7 +40,7 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 
 	// check user existence
 	// contact the profile service
-	ctx2, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx2, cancel := context.WithTimeout(context.Background(), config.C.Timeout)
 	defer cancel()
 	rep, err := client.Profile.Exists(ctx2, &pb.ExistsRequest{
 		UserID: user.ID,
@@ -61,7 +60,6 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 
 	// main information
 	var signUpArgs string
-	session.UserStateArg[user.ID] = make(chan string)
 	for _, field := range []string{Name, Gender} {
 		newArg, err := getStateArg(ctx, bot, chat, user.ID, field)
 		if err != nil {
@@ -89,7 +87,6 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 	}
 
 	// clear user state
-	close(session.UserStateArg[user.ID])
 	delete(session.UserState, user.ID)
 
 	return reply(bot, chat, loc.Message(loc.Rubicon))
@@ -112,12 +109,15 @@ func askNewArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, u
 	if err != nil {
 		return "", err
 	}
+
+	session.UserStateArg[userID] = make(chan string)
 	newArg := ""
 	select {
 	case <-ctx.Done():
 		return "", ContextDoneError
 	case newArg = <-session.UserStateArg[userID]:
 	}
+	close(session.UserStateArg[userID])
 
 	return newArg, nil
 }
@@ -135,12 +135,14 @@ func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi
 	ctx2, cancel := context.WithTimeout(context.Background(), config.C.Timeout)
 	defer cancel()
 	_, err := client.Profile.SignUp(ctx2, &pb.SignUpRequest{
-		UserID: user.ID,
-		Name:   info[0],
+		UserID:   user.ID,
+		SphereID: config.C.SphereID,
+		Name:     info[0],
 	})
 	if err != nil {
 		log.Printf("couldn't sign up: %v", err)
-		return reply(bot, chat, loc.Message(loc.SignUpFail))
+		_ = reply(bot, chat, loc.Message(loc.SignUpFail))
+		return err
 	}
 
 	return reply(bot, chat, loc.Message(loc.SignUpSuccess))

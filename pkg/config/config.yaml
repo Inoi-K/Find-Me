@@ -8,7 +8,7 @@ OtherSphereCoefficient: 0.2
 Separator: " "
 ParseMode: Markdown
 
-TimeoutMS: 1000ms
+Timeout: 1000ms
 
 ProfileHost: localhost
 ProfilePort: 8080

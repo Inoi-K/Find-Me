@@ -48,7 +48,8 @@ func (c *EditField) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbot
 	_, err := client.Profile.Edit(ctx2, editRequest)
 	if err != nil {
 		log.Printf("couldn't edit field %s: %v", field, err)
-		return reply(bot, chat, loc.Message(loc.EditFail))
+		_ = reply(bot, chat, loc.Message(loc.EditFail))
+		return err
 	}
 
 	return reply(bot, chat, loc.Message(loc.EditSuccess))
