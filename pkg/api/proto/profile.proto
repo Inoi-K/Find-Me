@@ -3,9 +3,12 @@ syntax = "proto3";
 option go_package = "/pb";
 
 service Profile {
-  rpc SignUp (SignUpRequest) returns (SignUpReply) {}
+  rpc SignUp (SignUpRequest) returns (Empty) {}
   rpc Exists(ExistsRequest) returns (ExistsReply) {}
+  rpc Edit (EditRequest) returns (Empty) {}
 }
+
+message Empty {}
 
 message SignUpRequest {
   int64 userID = 1;
@@ -22,4 +25,12 @@ message ExistsRequest {
 
 message ExistsReply {
   bool Exists = 1;
+}
+
+message EditRequest {
+  int64 userID = 1;
+  int64 sphereID = 2;
+  string field = 3;
+  repeated string value = 4;
+//  repeated string tags = 5;
 }

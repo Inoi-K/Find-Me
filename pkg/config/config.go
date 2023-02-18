@@ -9,14 +9,15 @@ import (
 var C *config
 
 type config struct {
+	SphereID    int64
 	Token       string
 	DatabaseURL string
 
 	MainSphereCoefficient  float64
 	OtherSphereCoefficient float64
 
-	ArgumentsSeparator string
-	ParseMode          string
+	Separator string // ArgumentSeparator
+	ParseMode string
 
 	Timeout time.Duration
 

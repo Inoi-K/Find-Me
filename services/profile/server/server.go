@@ -15,15 +15,15 @@ type server struct {
 }
 
 // SignUp adds user to database
-func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.SignUpReply, error) {
-	log.Printf("Received signup: %v", in.GetName())
+func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.Empty, error) {
+	log.Printf("Received sign up: %v", in.GetUserID())
 
 	err := database.AddUser(ctx, in)
 	if err != nil {
-		return &pb.SignUpReply{IsOk: false}, err
+		return &pb.Empty{}, err
 	}
 
-	return &pb.SignUpReply{IsOk: true}, nil
+	return &pb.Empty{}, nil
 }
 
 // Exists checks if user exists in database
@@ -36,6 +36,36 @@ func (s *server) Exists(ctx context.Context, in *pb.ExistsRequest) (*pb.ExistsRe
 	}
 
 	return &pb.ExistsReply{Exists: exists}, nil
+}
+
+func (s *server) EditField(ctx context.Context, in *pb.EditRequest) (*pb.Empty, error) {
+	log.Printf("Received edit field: %v", in.GetUserID())
+
+	switch in.Field {
+	case PhotoField, DescriptionField:
+		switch n := len(in.Value); {
+		case n == 0:
+			return nil, WrongArgumentsNumberError
+		case n > 1:
+			log.Printf("strange behaviour in EditField: required 1 value, but %d given - %v", n, in.Value)
+		}
+
+		err := database.EditField(ctx, in.Field, in.Value[0], in.UserID, in.SphereID)
+		if err != nil {
+			return nil, err
+		}
+
+	case TagsField:
+		err := database.EditTags(ctx, in.Value, in.UserID, in.SphereID)
+		if err != nil {
+			return nil, err
+		}
+
+	default:
+		return nil, UnknownFieldError
+	}
+
+	return &pb.Empty{}, nil
 }
 
 func Start() {

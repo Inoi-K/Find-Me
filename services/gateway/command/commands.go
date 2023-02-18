@@ -18,6 +18,14 @@ type ICommand interface {
 	Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error
 }
 
+// Ping replies with 'pong' message
+type Ping struct{}
+
+func (c *Ping) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+	chat := upd.FromChat()
+	return reply(bot, chat, loc.Message(loc.Pong))
+}
+
 // Start command begins an interaction with the chat and creates the record in database
 type Start struct{}
 
@@ -52,29 +60,51 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 	// TODO validate user with corporate email
 
 	// main information
-	var signUpArgs, newArg string
+	var signUpArgs string
 	session.UserStateArg[user.ID] = make(chan string)
-	// name
-	session.UserState[user.ID] = session.EnterName
-	newArg, err = askNewArg(ctx, bot, chat, user.ID, loc.EnterName)
+	for _, field := range []string{Name, Gender} {
+		newArg, err := getStateArg(ctx, bot, chat, user.ID, field)
+		if err != nil {
+			return err
+		}
+		signUpArgs += newArg + config.C.Separator
+	}
+	// sign up
+	err = (&SignUp{}).Execute(ctx, bot, upd, signUpArgs)
 	if err != nil {
 		return err
 	}
-	signUpArgs += newArg
-	// gender
-	session.UserState[user.ID]++
-	newArg, err = askNewArg(ctx, bot, chat, user.ID, loc.EnterGender)
+
+	// additional information
+	editFieldButton := &EditFieldCallback{}
+	// photo
+	//err = editFieldButton.Execute(ctx, bot, upd, Photo)
+	//if err != nil {
+	//	return err
+	//}
+	// description
+	err = editFieldButton.Execute(ctx, bot, upd, Description)
 	if err != nil {
 		return err
 	}
-	signUpArgs += config.C.ArgumentsSeparator + newArg
 
 	// clear user state
 	close(session.UserStateArg[user.ID])
 	delete(session.UserState, user.ID)
 
-	signUp := &SignUp{}
-	return signUp.Execute(ctx, bot, upd, signUpArgs)
+	return reply(bot, chat, loc.Message(loc.Rubicon))
+}
+
+func getStateArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, field string) (string, error) {
+	state, message := getStateAndMessageByField(field)
+
+	session.UserState[userID] = state
+	newArg, err := askNewArg(ctx, bot, chat, userID, message)
+	if err != nil {
+		return "", err
+	}
+
+	return newArg, nil
 }
 
 func askNewArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, messageKey string) (string, error) {
@@ -99,7 +129,7 @@ func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi
 	user := upd.SentFrom()
 	chat := upd.FromChat()
 
-	info := strings.Split(strings.TrimSpace(args), config.C.ArgumentsSeparator)
+	info := strings.Split(strings.TrimSpace(args), config.C.Separator)
 
 	// Contact the server and print out its response.
 	ctx2, cancel := context.WithTimeout(context.Background(), config.C.Timeout)
@@ -114,6 +144,15 @@ func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi
 	}
 
 	return reply(bot, chat, loc.Message(loc.SignUpSuccess))
+}
+
+// EditProfile sends inline keyboard with fields available for editing
+type EditProfile struct{}
+
+func (c *EditProfile) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+	chat := upd.FromChat()
+
+	return replyKeyboard(bot, chat, loc.Message(loc.EditMenu), EditProfileMarkup)
 }
 
 // Help command shows information about all commands
@@ -132,11 +171,3 @@ func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi
 //
 //		return replyKeyboard(bot, chat, loc.Message(loc.Lang), makeInlineKeyboard(loc.SupportedLanguages, consts.LanguageButton))
 //	}
-
-// Ping replies with 'pong' message
-type Ping struct{}
-
-func (c *Ping) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
-	chat := upd.FromChat()
-	return reply(bot, chat, loc.Message(loc.Pong))
-}

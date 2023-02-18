@@ -22,8 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProfileClient interface {
-	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*SignUpReply, error)
+	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*Empty, error)
 	Exists(ctx context.Context, in *ExistsRequest, opts ...grpc.CallOption) (*ExistsReply, error)
+	Edit(ctx context.Context, in *EditRequest, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type profileClient struct {
@@ -34,8 +35,8 @@ func NewProfileClient(cc grpc.ClientConnInterface) ProfileClient {
 	return &profileClient{cc}
 }
 
-func (c *profileClient) SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*SignUpReply, error) {
-	out := new(SignUpReply)
+func (c *profileClient) SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
 	err := c.cc.Invoke(ctx, "/Profile/SignUp", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -52,12 +53,22 @@ func (c *profileClient) Exists(ctx context.Context, in *ExistsRequest, opts ...g
 	return out, nil
 }
 
+func (c *profileClient) Edit(ctx context.Context, in *EditRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/Profile/Edit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProfileServer is the server API for Profile service.
 // All implementations must embed UnimplementedProfileServer
 // for forward compatibility
 type ProfileServer interface {
-	SignUp(context.Context, *SignUpRequest) (*SignUpReply, error)
+	SignUp(context.Context, *SignUpRequest) (*Empty, error)
 	Exists(context.Context, *ExistsRequest) (*ExistsReply, error)
+	Edit(context.Context, *EditRequest) (*Empty, error)
 	mustEmbedUnimplementedProfileServer()
 }
 
@@ -65,11 +76,14 @@ type ProfileServer interface {
 type UnimplementedProfileServer struct {
 }
 
-func (UnimplementedProfileServer) SignUp(context.Context, *SignUpRequest) (*SignUpReply, error) {
+func (UnimplementedProfileServer) SignUp(context.Context, *SignUpRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")
 }
 func (UnimplementedProfileServer) Exists(context.Context, *ExistsRequest) (*ExistsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Exists not implemented")
+}
+func (UnimplementedProfileServer) Edit(context.Context, *EditRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Edit not implemented")
 }
 func (UnimplementedProfileServer) mustEmbedUnimplementedProfileServer() {}
 
@@ -120,6 +134,24 @@ func _Profile_Exists_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Profile_Edit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProfileServer).Edit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Profile/Edit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProfileServer).Edit(ctx, req.(*EditRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Profile_ServiceDesc is the grpc.ServiceDesc for Profile service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var Profile_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Exists",
 			Handler:    _Profile_Exists_Handler,
+		},
+		{
+			MethodName: "Edit",
+			Handler:    _Profile_Edit_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,11 +1,12 @@
+SphereID:
 DatabaseURL:
 Token:
 
 MainSphereCoefficient:  1.0
 OtherSphereCoefficient: 0.2
 
-ArgumentsSeparator: " "
-ParseMode: "Markdown"
+Separator: " "
+ParseMode: Markdown
 
 TimeoutMS: 1000ms
 

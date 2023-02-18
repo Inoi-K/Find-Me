@@ -27,6 +27,7 @@ func Start(ctx context.Context) error {
 
 	// Generate structs for commands
 	commands = makeCommands()
+	command.UpdateIndex()
 
 	// Set update rate
 	u := tgbotapi.NewUpdate(0)
@@ -43,11 +44,16 @@ func Start(ctx context.Context) error {
 func makeCommands() map[string]command.ICommand {
 	return map[string]command.ICommand{
 		//command.SignUpCommand: &command.SignUp{},
-		command.StartCommand: &command.Start{},
+		//command.EditFieldCommand: &command.EditField{},
+
+		command.StartCommand:       &command.Start{},
+		command.PingCommand:        &command.Ping{},
+		command.EditProfileCommand: &command.EditProfile{},
+		command.EditFieldButton:    &command.EditFieldCallback{},
+
 		//command.HelpCommand:     &command.Help{},
 		//command.LanguageCommand: &command.Language{},
 		//command.LanguageButton:  &command.LanguageButton{},
-		command.PingCommand: &command.Ping{},
 	}
 }
 
@@ -137,7 +143,7 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 // handleButton handles buttons callback specifically
 func handleButton(ctx context.Context, upd tgbotapi.Update) {
 	query := upd.CallbackQuery
-	curCommand, args, _ := strings.Cut(query.Data, config.C.ArgumentsSeparator)
+	curCommand, args, _ := strings.Cut(query.Data, config.C.Separator)
 
 	err := commands[curCommand].Execute(ctx, bot, upd, args)
 	if err != nil {

@@ -123,3 +123,80 @@ func AddUser(ctx context.Context, request *pb.SignUpRequest) error {
 
 	return nil
 }
+
+func EditField(ctx context.Context, field, value string, userID, sphereID int64) error {
+	query := fmt.Sprintf("UPDATE user_sphere(%s) VALUES ('%s') WHERE user_id=%d AND sphere_id=%d;", field, value, userID, sphereID)
+	_, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func EditTags(ctx context.Context, tags []string, userID, sphereID int64) error {
+	var err error
+	// TODO goroutine deletion and getting ids
+	err = DeleteTags(ctx, userID, sphereID)
+	if err != nil {
+		return err
+	}
+
+	tagIDs, err := ConvertTagsToIDS(ctx, tags)
+	if err != nil {
+		return err
+	}
+
+	return AddTags(ctx, tagIDs, userID, sphereID)
+}
+
+func AddTags(ctx context.Context, tags []int64, userID, sphereID int64) error {
+	var valuesPart string
+	// TODO convert tag names to ids
+	for tagID := range tags {
+		valuesPart += fmt.Sprintf("(%d, %d, %d),", userID, sphereID, tagID)
+	}
+	query := fmt.Sprintf("INSERT INTO user_tag VALUES %s;", valuesPart[:len(valuesPart)-1])
+	_, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func DeleteTags(ctx context.Context, userID, sphereID int64) error {
+	query := fmt.Sprintf("DELETE FROM user_tag WHERE user_id=%d AND sphere_id=%d", userID, sphereID)
+	_, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func ConvertTagsToIDS(ctx context.Context, tags []string) ([]int64, error) {
+	var inPart string
+	for _, tag := range tags {
+		inPart += fmt.Sprintf("'%s',", tag)
+	}
+
+	query := fmt.Sprintf("SELECT id FROM tag WHERE name IN (%s);", inPart[:len(inPart)-1])
+	tagIDsRows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	// TODO optimize it with caching
+	i := 0
+	tagIDs := make([]int64, len(tags))
+	for tagIDsRows.Next() {
+		var tagID int64
+		err = tagIDsRows.Scan(&tagID)
+		if err != nil {
+			return nil, err
+		}
+
+		tagIDs[i] = tagID
+		i++
+	}
+
+	return tagIDs, nil
+}

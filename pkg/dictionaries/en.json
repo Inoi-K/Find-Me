@@ -1,10 +1,25 @@
 {
   "start": "hello!",
   "pong": "pong!",
+
+  "tryAgain": "Please, try again later",
+  "rubicon": "Rubicon",
+
   "enterName": "Please, enter your name:",
   "enterGender": "Please, enter your gender:",
+  "enterPhoto": "Please, enter your photo:",
+  "enterDescription": "Please, enter your description:",
+
   "alreadyRegistered": "You are already registered",
   "signUpSuccess": "Successfully signed up!",
   "signUpFail": "Couldn't sign up :(",
-  "tryAgain": "Please, try again later"
+
+  "editMenu": "Choose a profile field to edit:",
+  "editSuccess": "Successfully edited!",
+  "editFail": "Couldn't edit :(",
+
+  "name": "Name",
+  "gender": "Gender",
+  "photo": "Photo",
+  "description": "Description"
 }

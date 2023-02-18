@@ -3,6 +3,8 @@ package command
 import (
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/pkg/model"
+	loc "github.com/Inoi-K/Find-Me/services/gateway/localization"
+	"github.com/Inoi-K/Find-Me/services/gateway/session"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strings"
 )
@@ -35,10 +37,28 @@ func makeInlineKeyboard(content []model.Content, commandButton string) tgbotapi.
 
 	for _, c := range content {
 		row := tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(c.Text, strings.Join([]string{commandButton, c.Data}, config.C.ArgumentsSeparator)),
+			tgbotapi.NewInlineKeyboardButtonData(c.Text, strings.Join([]string{commandButton, c.Data}, config.C.Separator)),
 		)
 		keyboard = append(keyboard, row)
 	}
 
 	return tgbotapi.NewInlineKeyboardMarkup(keyboard...)
+}
+
+func getStateAndMessageByField(field string) (state session.State, message string) {
+	switch field {
+	case Name:
+		state = session.EnterName
+		message = loc.EnterName
+	case Gender:
+		state = session.EnterGender
+		message = loc.EnterGender
+	case Photo:
+		state = session.EnterPhoto
+		message = loc.EnterPhoto
+	case Description:
+		state = session.EnterDescription
+		message = loc.EnterDescription
+	}
+	return
 }
