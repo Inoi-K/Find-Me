@@ -3,18 +3,32 @@ package config
 import (
 	"github.com/spf13/viper"
 	"log"
+	"time"
 )
 
-var C config
+var C *config
 
 type config struct {
+	Token       string
+	DatabaseURL string
+
 	MainSphereCoefficient  float64
 	OtherSphereCoefficient float64
 
-	DatabaseURL string
+	ArgumentsSeparator string
+	ParseMode          string
+
+	Timeout time.Duration
+
+	ProfileHost string
+	ProfilePort string
 }
 
 func ReadConfig() {
+	if C != nil {
+		return
+	}
+
 	viper.SetConfigFile("../../pkg/config/config.yaml")
 	err := viper.ReadInConfig()
 	if err != nil {

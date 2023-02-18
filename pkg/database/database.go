@@ -3,7 +3,8 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/Inoi-K/Find-Me/pkg/user"
+	"github.com/Inoi-K/Find-Me/pkg/api/pb"
+	"github.com/Inoi-K/Find-Me/pkg/model"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -33,7 +34,17 @@ func ConnectDB(ctx context.Context, url string) error {
 	return CreateTables(ctx)
 }
 
-func GetUsers(ctx context.Context) ([]*user.User, error) {
+func UserExists(ctx context.Context, userID int64) (bool, error) {
+	query := fmt.Sprintf("SELECT 1 FROM public.user WHERE id=%d;", userID)
+	rows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return false, err
+	}
+
+	return rows.Next(), nil
+}
+
+func GetUsers(ctx context.Context) (map[int64]*model.User, error) {
 	query := fmt.Sprintf("SELECT id, name FROM public.user;")
 	userRows, err := db.pool.Query(ctx, query)
 	if err != nil {
@@ -41,9 +52,9 @@ func GetUsers(ctx context.Context) ([]*user.User, error) {
 	}
 	defer userRows.Close()
 
-	users := make([]*user.User, 0, 100)
+	users := make(map[int64]*model.User, 100)
 	for userRows.Next() {
-		var userID int
+		var userID int64
 		var name string
 		err = userRows.Scan(&userID, &name)
 		if err != nil {
@@ -58,6 +69,7 @@ func GetUsers(ctx context.Context) ([]*user.User, error) {
 		if err != nil {
 			return nil, err
 		}
+		// TODO optimize it with caching
 		for userSphereRows.Next() {
 			var sphereID int
 			var description string
@@ -92,12 +104,22 @@ func GetUsers(ctx context.Context) ([]*user.User, error) {
 			sphereTags[sphere] = tags
 		}
 
-		usr, err := user.NewUser(name, sphereDescription, sphereTags)
+		user, err := model.NewUser(name, sphereDescription, sphereTags)
 		if err != nil {
 			return nil, err
 		}
-		users = append(users, usr)
+		users[userID] = user
 	}
 
 	return users, nil
+}
+
+func AddUser(ctx context.Context, request *pb.SignUpRequest) error {
+	query := fmt.Sprintf("INSERT INTO \"user\" VALUES (%d, '%s');", request.UserID, request.Name)
+	_, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

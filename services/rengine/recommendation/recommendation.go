@@ -2,13 +2,13 @@ package recommendation
 
 import (
 	"github.com/Inoi-K/Find-Me/pkg/config"
-	"github.com/Inoi-K/Find-Me/pkg/user"
+	"github.com/Inoi-K/Find-Me/pkg/model"
 	"github.com/Inoi-K/Find-Me/services/rengine/utils"
 	"log"
 )
 
 // calculateSimilarity calculates and returns the similarity between the current user and provided one
-func calculateSimilarity(u1, u2 *user.User, mainSphere string) float64 {
+func calculateSimilarity(u1, u2 *model.User, mainSphere string) float64 {
 	mainSimilarity := 0.0
 
 	for sphere, tags := range u1.SphereTags {
@@ -26,7 +26,7 @@ func calculateSimilarity(u1, u2 *user.User, mainSphere string) float64 {
 }
 
 // calculateSimilarityAll calculates similarity between given slice of users and returns user1-user2-similarity map
-func calculateSimilarityAll(users []*user.User, mainSphere string) map[string]map[string]float64 {
+func calculateSimilarityAll(users []*model.User, mainSphere string) map[string]map[string]float64 {
 	userUserSimilarity := make(map[string]map[string]float64)
 
 	for i := 0; i < len(users)-1; i++ {
@@ -45,8 +45,14 @@ func calculateSimilarityAll(users []*user.User, mainSphere string) map[string]ma
 	return userUserSimilarity
 }
 
-func ShowSimilarityAll(users []*user.User, mainSphere string) {
-	userUserSimilarity := calculateSimilarityAll(users, mainSphere)
+func ShowSimilarityAll(users map[int64]*model.User, mainSphere string) {
+	usersList := make([]*model.User, len(users))
+	i := 0
+	for _, u := range users {
+		usersList[i] = u
+		i++
+	}
+	userUserSimilarity := calculateSimilarityAll(usersList, mainSphere)
 
 	for user1, user2Similarity := range userUserSimilarity {
 		log.Printf("Similarity list for %v", user1)

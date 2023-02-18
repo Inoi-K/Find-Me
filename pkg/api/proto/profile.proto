@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option go_package = "/pb";
+
+service Profile {
+  rpc SignUp (SignUpRequest) returns (SignUpReply) {}
+  rpc Exists(ExistsRequest) returns (ExistsReply) {}
+}
+
+message SignUpRequest {
+  int64 userID = 1;
+  string name = 2;
+}
+
+message SignUpReply {
+  bool isOk = 1;
+}
+
+message ExistsRequest {
+  int64 userID = 1;
+}
+
+message ExistsReply {
+  bool Exists = 1;
+}

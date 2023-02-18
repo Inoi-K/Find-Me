@@ -1,10 +1,10 @@
 package terminal
 
+// TODO move it to the rengine tests
 import (
 	"bufio"
 	"fmt"
-	"github.com/Inoi-K/Find-Me/pkg/user"
-	"github.com/Inoi-K/Find-Me/services/rengine/recommendation"
+	"github.com/Inoi-K/Find-Me/pkg/model"
 	"log"
 	"os"
 	"strconv"
@@ -39,7 +39,7 @@ func ProcessInput() {
 		log.Printf("coldn't convert usersCount: %v", err)
 	}
 
-	users := make([]*user.User, usersCount)
+	users := make([]*model.User, usersCount)
 	for i := 0; i < usersCount; i++ {
 		users[i], err = readUser(in, i, spheres)
 		if err != nil {
@@ -47,11 +47,12 @@ func ProcessInput() {
 		}
 	}
 
-	recommendation.ShowSimilarityAll(users, mainSphere)
+	fmt.Print(mainSphere)
+	//recommendation.ShowSimilarityAll(users, mainSphere)
 }
 
 // readUser gets the required information about the user from a terminal
-func readUser(in *bufio.Reader, id int, spheres []string) (*user.User, error) {
+func readUser(in *bufio.Reader, id int, spheres []string) (*model.User, error) {
 	fmt.Printf("Name of the User %v: ", id)
 	line, err := in.ReadString('\n')
 	if err != nil {
@@ -77,7 +78,7 @@ func readUser(in *bufio.Reader, id int, spheres []string) (*user.User, error) {
 		sphereTags[sphere] = tags
 	}
 
-	return user.NewUser(name, sphereDescription, sphereTags)
+	return model.NewUser(name, sphereDescription, sphereTags)
 }
 
 // readTags gets the user's tags from a terminal
@@ -87,5 +88,5 @@ func readTags(in *bufio.Reader) (map[string]struct{}, error) {
 		return nil, err
 	}
 
-	return user.NewTags(line)
+	return model.NewTags(line)
 }
