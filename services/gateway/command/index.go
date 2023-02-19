@@ -10,6 +10,7 @@ import (
 const (
 	StartCommand       = "start"
 	PingCommand        = "ping"
+	ShowProfileCommand = "profile"
 	EditProfileCommand = "edit"
 	EditFieldButton    = "editButton"
 	EditFieldCommand   = "editField"

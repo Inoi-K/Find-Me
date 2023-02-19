@@ -16,21 +16,52 @@ type server struct {
 
 // SignUp adds user to database
 func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.Empty, error) {
-	log.Printf("Received sign up: %v", in.GetUserID())
+	log.Printf("Received sign up: %v", in.UserID)
 
 	err := database.AddUser(ctx, in)
 	if err != nil {
-		return &pb.Empty{}, err
+		return nil, err
 	}
 
 	return &pb.Empty{}, nil
 }
 
+func (s *server) GetUser(ctx context.Context, in *pb.GetUserRequest) (*pb.GetUserReply, error) {
+	log.Printf("Received get user: %v", in.UserID)
+
+	user, err := database.GetUser(ctx, in.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.GetUserReply{
+		Name:    user.Name,
+		Gender:  user.Gender,
+		Age:     user.Age,
+		Faculty: user.Faculty,
+	}, nil
+}
+
+func (s *server) GetUserSphere(ctx context.Context, in *pb.GetUserSphereRequest) (*pb.GetUserSphereReply, error) {
+	log.Printf("Received get user sphere: %v", in.UserID)
+
+	user, err := database.GetUser(ctx, in.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.GetUserSphereReply{
+		Description: user.SphereInfo[config.C.SphereID].Description,
+		PhotoID:     user.SphereInfo[config.C.SphereID].PhotoID,
+		//Tags: user.SphereInfo[config.C.SphereID].Tags,
+	}, nil
+}
+
 // Exists checks if user exists in database
 func (s *server) Exists(ctx context.Context, in *pb.ExistsRequest) (*pb.ExistsReply, error) {
-	log.Printf("Received exists: %v", in.GetUserID())
+	log.Printf("Received exists: %v", in.UserID)
 
-	exists, err := database.UserExists(ctx, in.GetUserID())
+	exists, err := database.UserExists(ctx, in.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +70,7 @@ func (s *server) Exists(ctx context.Context, in *pb.ExistsRequest) (*pb.ExistsRe
 }
 
 func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.Empty, error) {
-	log.Printf("Received edit field: %v", in.GetUserID())
+	log.Printf("Received edit field: %v", in.UserID)
 
 	switch in.Field {
 	case PhotoField, DescriptionField:

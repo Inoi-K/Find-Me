@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"fmt"
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/services/gateway/client"
@@ -155,6 +156,34 @@ func (c *EditProfile) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgb
 	chat := upd.FromChat()
 
 	return replyKeyboard(bot, chat, loc.Message(loc.EditMenu), EditProfileMarkup)
+}
+
+// ShowProfile shows a profile with its image, main and additional info
+type ShowProfile struct{}
+
+func (c *ShowProfile) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+	userID := upd.SentFrom().ID
+	// get user
+	main, err := client.Profile.GetUser(ctx, &pb.GetUserRequest{
+		UserID: userID,
+	})
+	if err != nil {
+		return err
+	}
+	add, err := client.Profile.GetUserSphere(ctx, &pb.GetUserSphereRequest{
+		UserID:   userID,
+		SphereID: config.C.SphereID,
+	})
+	if err != nil {
+		return err
+	}
+
+	file := tgbotapi.FileID(add.PhotoID)
+	photoMsg := tgbotapi.NewPhoto(upd.FromChat().ID, file)
+	photoMsg.Caption = fmt.Sprintf("%s, %d y.o.\n%s\n%s", main.Name, main.Age, main.Faculty, add.Description)
+
+	_, err = bot.Send(photoMsg)
+	return err
 }
 
 // Help command shows information about all commands

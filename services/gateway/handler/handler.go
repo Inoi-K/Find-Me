@@ -48,6 +48,7 @@ func makeCommands() map[string]command.ICommand {
 
 		command.StartCommand:       &command.Start{},
 		command.PingCommand:        &command.Ping{},
+		command.ShowProfileCommand: &command.ShowProfile{},
 		command.EditProfileCommand: &command.EditProfile{},
 		command.EditFieldButton:    &command.EditFieldCallback{},
 
@@ -129,7 +130,7 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 		case session.EnterName, session.EnterGender, session.EnterDescription:
 			session.UserStateArg[user.ID] <- message.Text
 		case session.EnterPhoto:
-			session.UserStateArg[user.ID] <- ""
+			session.UserStateArg[user.ID] <- message.Photo[0].FileID
 		}
 		return nil
 	}

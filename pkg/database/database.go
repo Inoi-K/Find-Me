@@ -35,7 +35,7 @@ func ConnectDB(ctx context.Context, url string) error {
 }
 
 func UserExists(ctx context.Context, userID int64) (bool, error) {
-	query := fmt.Sprintf("SELECT 1 FROM public.user WHERE id=%d;", userID)
+	query := fmt.Sprintf("SELECT 1 FROM user WHERE id=%d;", userID)
 	rows, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return false, err
@@ -45,7 +45,7 @@ func UserExists(ctx context.Context, userID int64) (bool, error) {
 }
 
 func GetUsers(ctx context.Context) (map[int64]*model.User, error) {
-	query := fmt.Sprintf("SELECT id, name FROM public.user;")
+	query := fmt.Sprintf("SELECT id FROM user;")
 	userRows, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return nil, err
@@ -55,63 +55,70 @@ func GetUsers(ctx context.Context) (map[int64]*model.User, error) {
 	users := make(map[int64]*model.User, 100)
 	for userRows.Next() {
 		var userID int64
-		var name string
-		err = userRows.Scan(&userID, &name)
+		err = userRows.Scan(&userID)
 		if err != nil {
 			return nil, err
 		}
 
-		sphereDescription := make(map[string]string)
-		sphereTags := make(map[string]map[string]struct{})
-
-		query = fmt.Sprintf("SELECT sphere_id, description FROM public.user_sphere WHERE user_id = %v;", userID)
-		userSphereRows, err := db.pool.Query(ctx, query)
+		users[userID], err = GetUser(ctx, userID)
 		if err != nil {
 			return nil, err
 		}
-		// TODO optimize it with caching
-		for userSphereRows.Next() {
-			var sphereID int
-			var description string
-			err = userSphereRows.Scan(&sphereID, &description)
-			if err != nil {
-				return nil, err
-			}
-
-			query = fmt.Sprintf("SELECT name FROM public.sphere WHERE id = %v", sphereID)
-			var sphere string
-			err = db.pool.QueryRow(ctx, query).Scan(&sphere)
-			if err != nil {
-				return nil, err
-			}
-			sphereDescription[sphere] = description
-
-			query = fmt.Sprintf("SELECT name FROM public.tag WHERE id IN (SELECT tag_id FROM public.user_tag WHERE user_id = %v AND sphere_id = %v);", userID, sphereID)
-			tagRows, err := db.pool.Query(ctx, query)
-			if err != nil {
-				return nil, err
-			}
-
-			tags := make(map[string]struct{})
-			for tagRows.Next() {
-				var tag string
-				err = tagRows.Scan(&tag)
-				if err != nil {
-					return nil, err
-				}
-				tags[tag] = struct{}{}
-			}
-			sphereTags[sphere] = tags
-		}
-
-		user, err := model.NewUser(name, sphereDescription, sphereTags)
-		if err != nil {
-			return nil, err
-		}
-		users[userID] = user
 	}
 
 	return users, nil
+}
+
+func GetUser(ctx context.Context, userID int64) (*model.User, error) {
+	user := &model.User{}
+	query := fmt.Sprintf("SELECT name, gender, age, faculty FROM \"user\" WHERE id=%d", userID)
+	err := db.pool.QueryRow(ctx, query).Scan(&user.Name, &user.Gender, &user.Age, &user.Faculty)
+	if err != nil {
+		return nil, err
+	}
+
+	sphereInfo := make(map[int64]*model.UserSphere)
+	query = fmt.Sprintf("SELECT sphere_id, description, photo FROM user_sphere WHERE user_id=%d;", userID)
+	userSphereRows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	// TODO optimize it with caching
+	for userSphereRows.Next() {
+		var (
+			sphereID    int64
+			description string
+			photo       string
+		)
+		err = userSphereRows.Scan(&sphereID, &description, &photo)
+		if err != nil {
+			return nil, err
+		}
+
+		query = fmt.Sprintf("SELECT name FROM tag WHERE id IN (SELECT tag_id FROM user_tag WHERE user_id=%d AND sphere_id=%d);", userID, sphereID)
+		tagRows, err := db.pool.Query(ctx, query)
+		if err != nil {
+			return nil, err
+		}
+		tags := make(map[string]struct{})
+		for tagRows.Next() {
+			var tag string
+			err = tagRows.Scan(&tag)
+			if err != nil {
+				return nil, err
+			}
+			tags[tag] = struct{}{}
+		}
+
+		sphereInfo[sphereID] = &model.UserSphere{
+			Description: description,
+			PhotoID:     photo,
+			Tags:        tags,
+		}
+	}
+	user.SphereInfo = sphereInfo
+
+	return user, nil
 }
 
 func AddUser(ctx context.Context, request *pb.SignUpRequest) error {
