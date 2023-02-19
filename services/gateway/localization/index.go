@@ -27,6 +27,9 @@ const (
 	// FIELDS
 	Name        = "name"
 	Gender      = "gender"
+	Age         = "age"
+	Faculty     = "faculty"
 	Photo       = "photo"
 	Description = "desc"
+	Tags        = "tags"
 )

@@ -1,6 +1,10 @@
 {
   "start": "hello!",
   "pong": "pong!",
+  "lang": "Please, choose a new language:",
+  "langSuccess": "The language successfully changed!",
+  "langFail": "The chosen language is not supported yet",
+  "help": "help",
 
   "tryAgain": "Please, try again later",
   "rubicon": "Rubicon",

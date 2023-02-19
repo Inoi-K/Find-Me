@@ -4,8 +4,8 @@ option go_package = "/pb";
 
 service Profile {
   rpc SignUp (SignUpRequest) returns (Empty) {}
-  rpc GetUser (GetUserRequest) returns (GetUserReply) {}
-  rpc GetUserSphere (GetUserSphereRequest) returns (GetUserSphereReply) {}
+  rpc GetUserMain (GetUserMainRequest) returns (GetUserMainReply) {}
+  rpc GetUserAdditional (GetUserAdditionalRequest) returns (GetUserAdditionalReply) {}
   rpc Exists(ExistsRequest) returns (ExistsReply) {}
   rpc Edit (EditRequest) returns (Empty) {}
 }
@@ -22,23 +22,23 @@ message SignUpReply {
   bool isOk = 1;
 }
 
-message GetUserRequest {
+message GetUserMainRequest {
   int64 userID = 1;
 }
 
-message GetUserReply {
+message GetUserMainReply {
   string name = 1;
   string gender = 2;
   int64 age = 3;
   string faculty = 4;
 }
 
-message GetUserSphereRequest {
+message GetUserAdditionalRequest {
   int64 userID = 1;
   int64 sphereID = 2;
 }
 
-message GetUserSphereReply {
+message GetUserAdditionalReply {
   string description = 1;
   string photoID = 2;
   repeated string tags = 3;

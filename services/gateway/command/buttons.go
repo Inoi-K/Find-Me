@@ -55,15 +55,16 @@ func (c *EditField) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbot
 	return reply(bot, chat, loc.Message(loc.EditSuccess))
 }
 
-//type LanguageButton struct{}
-//
-//func (c *LanguageButton) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
-//	chat := upd.FromChat()
-//
-//	result := loc.Message(loc.LangFail) // fail in current language
-//	if loc.ChangeLanguage(args) {
-//		result = loc.Message(loc.LangSuccess) // success in new language
-//	}
-//
-//	return reply(bot, chat, result)
-//}
+// LanguageCallback changes language
+type LanguageCallback struct{}
+
+func (c *LanguageCallback) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+	chat := upd.FromChat()
+
+	result := loc.Message(loc.LangFail) // fail in current language
+	if loc.ChangeLanguage(args) {
+		result = loc.Message(loc.LangSuccess) // success in new language
+	}
+
+	return reply(bot, chat, result)
+}

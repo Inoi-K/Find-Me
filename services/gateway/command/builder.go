@@ -45,6 +45,7 @@ func makeInlineKeyboard(content []model.Content, commandButton string) tgbotapi.
 	return tgbotapi.NewInlineKeyboardMarkup(keyboard...)
 }
 
+// getStateAndMessageByField returns specific to a field state and a text message to ask
 func getStateAndMessageByField(field string) (state session.State, message string) {
 	switch field {
 	case Name:

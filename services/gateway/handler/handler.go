@@ -43,18 +43,21 @@ func Start(ctx context.Context) error {
 // makeCommands creates all bot commands and buttons
 func makeCommands() map[string]command.ICommand {
 	return map[string]command.ICommand{
-		//command.SignUpCommand: &command.SignUp{},
-		//command.EditFieldCommand: &command.EditField{},
+		// General commands
+		command.StartCommand:    &command.Start{},
+		command.PingCommand:     &command.Ping{},
+		command.HelpCommand:     &command.Help{},
+		command.LanguageCommand: &command.Language{},
+		command.LanguageButton:  &command.LanguageCallback{},
 
-		command.StartCommand:       &command.Start{},
-		command.PingCommand:        &command.Ping{},
+		// Specific commands
 		command.ShowProfileCommand: &command.ShowProfile{},
 		command.EditProfileCommand: &command.EditProfile{},
 		command.EditFieldButton:    &command.EditFieldCallback{},
 
-		//command.HelpCommand:     &command.Help{},
-		//command.LanguageCommand: &command.Language{},
-		//command.LanguageButton:  &command.LanguageButton{},
+		// Shortcut commands for testing
+		//command.SignUpCommand: &command.SignUp{},
+		//command.EditFieldCommand: &command.EditField{},
 	}
 }
 

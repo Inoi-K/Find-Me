@@ -23,8 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProfileClient interface {
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*Empty, error)
-	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserReply, error)
-	GetUserSphere(ctx context.Context, in *GetUserSphereRequest, opts ...grpc.CallOption) (*GetUserSphereReply, error)
+	GetUserMain(ctx context.Context, in *GetUserMainRequest, opts ...grpc.CallOption) (*GetUserMainReply, error)
+	GetUserAdditional(ctx context.Context, in *GetUserAdditionalRequest, opts ...grpc.CallOption) (*GetUserAdditionalReply, error)
 	Exists(ctx context.Context, in *ExistsRequest, opts ...grpc.CallOption) (*ExistsReply, error)
 	Edit(ctx context.Context, in *EditRequest, opts ...grpc.CallOption) (*Empty, error)
 }
@@ -46,18 +46,18 @@ func (c *profileClient) SignUp(ctx context.Context, in *SignUpRequest, opts ...g
 	return out, nil
 }
 
-func (c *profileClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserReply, error) {
-	out := new(GetUserReply)
-	err := c.cc.Invoke(ctx, "/Profile/GetUser", in, out, opts...)
+func (c *profileClient) GetUserMain(ctx context.Context, in *GetUserMainRequest, opts ...grpc.CallOption) (*GetUserMainReply, error) {
+	out := new(GetUserMainReply)
+	err := c.cc.Invoke(ctx, "/Profile/GetUserMain", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *profileClient) GetUserSphere(ctx context.Context, in *GetUserSphereRequest, opts ...grpc.CallOption) (*GetUserSphereReply, error) {
-	out := new(GetUserSphereReply)
-	err := c.cc.Invoke(ctx, "/Profile/GetUserSphere", in, out, opts...)
+func (c *profileClient) GetUserAdditional(ctx context.Context, in *GetUserAdditionalRequest, opts ...grpc.CallOption) (*GetUserAdditionalReply, error) {
+	out := new(GetUserAdditionalReply)
+	err := c.cc.Invoke(ctx, "/Profile/GetUserAdditional", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,8 +87,8 @@ func (c *profileClient) Edit(ctx context.Context, in *EditRequest, opts ...grpc.
 // for forward compatibility
 type ProfileServer interface {
 	SignUp(context.Context, *SignUpRequest) (*Empty, error)
-	GetUser(context.Context, *GetUserRequest) (*GetUserReply, error)
-	GetUserSphere(context.Context, *GetUserSphereRequest) (*GetUserSphereReply, error)
+	GetUserMain(context.Context, *GetUserMainRequest) (*GetUserMainReply, error)
+	GetUserAdditional(context.Context, *GetUserAdditionalRequest) (*GetUserAdditionalReply, error)
 	Exists(context.Context, *ExistsRequest) (*ExistsReply, error)
 	Edit(context.Context, *EditRequest) (*Empty, error)
 	mustEmbedUnimplementedProfileServer()
@@ -101,11 +101,11 @@ type UnimplementedProfileServer struct {
 func (UnimplementedProfileServer) SignUp(context.Context, *SignUpRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")
 }
-func (UnimplementedProfileServer) GetUser(context.Context, *GetUserRequest) (*GetUserReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+func (UnimplementedProfileServer) GetUserMain(context.Context, *GetUserMainRequest) (*GetUserMainReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserMain not implemented")
 }
-func (UnimplementedProfileServer) GetUserSphere(context.Context, *GetUserSphereRequest) (*GetUserSphereReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserSphere not implemented")
+func (UnimplementedProfileServer) GetUserAdditional(context.Context, *GetUserAdditionalRequest) (*GetUserAdditionalReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserAdditional not implemented")
 }
 func (UnimplementedProfileServer) Exists(context.Context, *ExistsRequest) (*ExistsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Exists not implemented")
@@ -144,38 +144,38 @@ func _Profile_SignUp_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Profile_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserRequest)
+func _Profile_GetUserMain_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserMainRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProfileServer).GetUser(ctx, in)
+		return srv.(ProfileServer).GetUserMain(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Profile/GetUser",
+		FullMethod: "/Profile/GetUserMain",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProfileServer).GetUser(ctx, req.(*GetUserRequest))
+		return srv.(ProfileServer).GetUserMain(ctx, req.(*GetUserMainRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Profile_GetUserSphere_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserSphereRequest)
+func _Profile_GetUserAdditional_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserAdditionalRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProfileServer).GetUserSphere(ctx, in)
+		return srv.(ProfileServer).GetUserAdditional(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Profile/GetUserSphere",
+		FullMethod: "/Profile/GetUserAdditional",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProfileServer).GetUserSphere(ctx, req.(*GetUserSphereRequest))
+		return srv.(ProfileServer).GetUserAdditional(ctx, req.(*GetUserAdditionalRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -228,12 +228,12 @@ var Profile_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Profile_SignUp_Handler,
 		},
 		{
-			MethodName: "GetUser",
-			Handler:    _Profile_GetUser_Handler,
+			MethodName: "GetUserMain",
+			Handler:    _Profile_GetUserMain_Handler,
 		},
 		{
-			MethodName: "GetUserSphere",
-			Handler:    _Profile_GetUserSphere_Handler,
+			MethodName: "GetUserAdditional",
+			Handler:    _Profile_GetUserAdditional_Handler,
 		},
 		{
 			MethodName: "Exists",

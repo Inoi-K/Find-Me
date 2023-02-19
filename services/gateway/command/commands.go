@@ -61,7 +61,7 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 
 	// main information
 	var signUpArgs string
-	for _, field := range []string{Name, Gender} {
+	for _, field := range []string{Name, Gender, Age, Faculty} {
 		newArg, err := getStateArg(ctx, bot, chat, user.ID, field)
 		if err != nil {
 			return err
@@ -76,15 +76,11 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 
 	// additional information
 	editFieldButton := &EditFieldCallback{}
-	// photo
-	//err = editFieldButton.Execute(ctx, bot, upd, Photo)
-	//if err != nil {
-	//	return err
-	//}
-	// description
-	err = editFieldButton.Execute(ctx, bot, upd, Description)
-	if err != nil {
-		return err
+	for _, field := range []string{Photo, Description, Tags} {
+		err = editFieldButton.Execute(ctx, bot, upd, field)
+		if err != nil {
+			return err
+		}
 	}
 
 	// clear user state
@@ -93,6 +89,7 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 	return reply(bot, chat, loc.Message(loc.Rubicon))
 }
 
+// getStateArg handles getting a new value for the field
 func getStateArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, field string) (string, error) {
 	state, message := getStateAndMessageByField(field)
 
@@ -105,6 +102,7 @@ func getStateArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat,
 	return newArg, nil
 }
 
+// askNewArg asks a user for a new value of the field and waits for it - reponse
 func askNewArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, messageKey string) (string, error) {
 	err := reply(bot, chat, loc.Message(messageKey))
 	if err != nil {
@@ -164,13 +162,13 @@ type ShowProfile struct{}
 func (c *ShowProfile) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
 	userID := upd.SentFrom().ID
 	// get user
-	main, err := client.Profile.GetUser(ctx, &pb.GetUserRequest{
+	main, err := client.Profile.GetUserMain(ctx, &pb.GetUserMainRequest{
 		UserID: userID,
 	})
 	if err != nil {
 		return err
 	}
-	add, err := client.Profile.GetUserSphere(ctx, &pb.GetUserSphereRequest{
+	add, err := client.Profile.GetUserAdditional(ctx, &pb.GetUserAdditionalRequest{
 		UserID:   userID,
 		SphereID: config.C.SphereID,
 	})
@@ -187,18 +185,19 @@ func (c *ShowProfile) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgb
 }
 
 // Help command shows information about all commands
-// type Help struct{}
-//
-//	func (c *Help) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
-//		chat := upd.FromChat()
-//
-//		return reply(bot, chat, loc.Message(loc.Help))
-//	}
-//
-// type Language struct{}
-//
-//	func (c *Language) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
-//		chat := upd.FromChat()
-//
-//		return replyKeyboard(bot, chat, loc.Message(loc.Lang), makeInlineKeyboard(loc.SupportedLanguages, consts.LanguageButton))
-//	}
+type Help struct{}
+
+func (c *Help) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+	chat := upd.FromChat()
+
+	return reply(bot, chat, loc.Message(loc.Help))
+}
+
+// Language replies with buttons of languages available for change
+type Language struct{}
+
+func (c *Language) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+	chat := upd.FromChat()
+
+	return replyKeyboard(bot, chat, loc.Message(loc.Lang), makeInlineKeyboard(loc.SupportedLanguages, LanguageButton))
+}

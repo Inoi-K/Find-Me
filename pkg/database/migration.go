@@ -4,7 +4,7 @@ import "context"
 
 func CreateTables(ctx context.Context) error {
 	// user
-	query := "create table if not exists \"user\"\n(\n    id   integer not null\n        constraint user_pk\n            primary key,\n    name text    not null\n);"
+	query := "create table \"user\"\n(\n    id      integer not null\n        constraint user_pk\n            primary key,\n    name    text    not null,\n    gender  varchar(1),\n    age     integer,\n    faculty text\n);"
 	_, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return err

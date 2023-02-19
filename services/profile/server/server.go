@@ -26,15 +26,16 @@ func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.Empty, e
 	return &pb.Empty{}, nil
 }
 
-func (s *server) GetUser(ctx context.Context, in *pb.GetUserRequest) (*pb.GetUserReply, error) {
+// GetUserMain gets main info of a user
+func (s *server) GetUserMain(ctx context.Context, in *pb.GetUserMainRequest) (*pb.GetUserMainReply, error) {
 	log.Printf("Received get user: %v", in.UserID)
 
-	user, err := database.GetUser(ctx, in.UserID)
+	user, err := database.GetUserMain(ctx, in.UserID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pb.GetUserReply{
+	return &pb.GetUserMainReply{
 		Name:    user.Name,
 		Gender:  user.Gender,
 		Age:     user.Age,
@@ -42,17 +43,18 @@ func (s *server) GetUser(ctx context.Context, in *pb.GetUserRequest) (*pb.GetUse
 	}, nil
 }
 
-func (s *server) GetUserSphere(ctx context.Context, in *pb.GetUserSphereRequest) (*pb.GetUserSphereReply, error) {
+// GetUserAdditional gets an additional info of a user
+func (s *server) GetUserAdditional(ctx context.Context, in *pb.GetUserAdditionalRequest) (*pb.GetUserAdditionalReply, error) {
 	log.Printf("Received get user sphere: %v", in.UserID)
 
-	user, err := database.GetUser(ctx, in.UserID)
+	sphereInfo, err := database.GetUserAdditional(ctx, in.UserID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pb.GetUserSphereReply{
-		Description: user.SphereInfo[config.C.SphereID].Description,
-		PhotoID:     user.SphereInfo[config.C.SphereID].PhotoID,
+	return &pb.GetUserAdditionalReply{
+		Description: sphereInfo[in.SphereID].Description,
+		PhotoID:     sphereInfo[in.SphereID].PhotoID,
 		//Tags: user.SphereInfo[config.C.SphereID].Tags,
 	}, nil
 }
@@ -69,6 +71,7 @@ func (s *server) Exists(ctx context.Context, in *pb.ExistsRequest) (*pb.ExistsRe
 	return &pb.ExistsReply{Exists: exists}, nil
 }
 
+// Edit updates field of a user with a new value
 func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.Empty, error) {
 	log.Printf("Received edit field: %v", in.UserID)
 
