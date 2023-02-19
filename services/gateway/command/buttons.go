@@ -12,6 +12,7 @@ import (
 )
 
 // EditFieldCallback asks a user for a new value of a field and edits it
+// callbacks come from EditMenu
 type EditFieldCallback struct{}
 
 func (c *EditFieldCallback) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
@@ -54,6 +55,12 @@ func (c *EditField) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbot
 
 	return reply(bot, chat, loc.Message(loc.EditSuccess))
 }
+
+//type EditTagsCallback struct{}
+//
+//func (c *EditTagsCallback) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+//
+//}
 
 // LanguageCallback changes language
 type LanguageCallback struct{}

@@ -27,7 +27,7 @@ func Start(ctx context.Context) error {
 
 	// Generate structs for commands
 	commands = makeCommands()
-	command.UpdateIndex()
+	command.UpdateIndex(ctx)
 
 	// Set update rate
 	u := tgbotapi.NewUpdate(0)

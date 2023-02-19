@@ -102,6 +102,26 @@ func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.Empty, error
 	return &pb.Empty{}, nil
 }
 
+func (s *server) GetTags(ctx context.Context, in *pb.GetTagsRequest) (*pb.GetTagsReply, error) {
+	log.Printf("Received get tags: %v", in.SphereID)
+
+	tags, err := database.GetTags(ctx, in.SphereID)
+	if err != nil {
+		return nil, err
+	}
+
+	rep := &pb.GetTagsReply{
+		TagNames: make([]string, len(tags)),
+		TagIDs:   make([]string, len(tags)),
+	}
+	for i := 0; i < len(tags); i++ {
+		rep.TagNames[i] = tags[i].Name
+		rep.TagIDs[i] = tags[i].ID
+	}
+
+	return rep, nil
+}
+
 func Start() {
 	lis, err := net.Listen("tcp", ":"+config.C.ProfilePort)
 	if err != nil {

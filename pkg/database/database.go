@@ -54,6 +54,7 @@ func GetUsers(ctx context.Context) (map[int64]*model.User, error) {
 	}
 	defer userRows.Close()
 
+	// TODO sus 100
 	users := make(map[int64]*model.User, 100)
 	for userRows.Next() {
 		var userID int64
@@ -168,6 +169,31 @@ func EditField(ctx context.Context, field, value string, userID, sphereID int64)
 	}
 
 	return nil
+}
+
+func GetTags(ctx context.Context, sphereID int64) ([]model.Tag, error) {
+	query := fmt.Sprintf("SELECT * FROM tag WHERE id IN (SELECT tag_id FROM sphere_tag WHERE sphere_id=%d);", sphereID)
+	tagRows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	tags := make([]model.Tag, 0, 100)
+	for tagRows.Next() {
+		var id string
+		var name string
+		err = tagRows.Scan(&id, &name)
+		if err != nil {
+			return nil, err
+		}
+		tag := model.Tag{
+			ID:   id,
+			Name: name,
+		}
+		tags = append(tags, tag)
+	}
+
+	return tags, nil
 }
 
 // EditTags updates tags of a user

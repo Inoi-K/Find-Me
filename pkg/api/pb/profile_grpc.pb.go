@@ -27,6 +27,7 @@ type ProfileClient interface {
 	GetUserAdditional(ctx context.Context, in *GetUserAdditionalRequest, opts ...grpc.CallOption) (*GetUserAdditionalReply, error)
 	Exists(ctx context.Context, in *ExistsRequest, opts ...grpc.CallOption) (*ExistsReply, error)
 	Edit(ctx context.Context, in *EditRequest, opts ...grpc.CallOption) (*Empty, error)
+	GetTags(ctx context.Context, in *GetTagsRequest, opts ...grpc.CallOption) (*GetTagsReply, error)
 }
 
 type profileClient struct {
@@ -82,6 +83,15 @@ func (c *profileClient) Edit(ctx context.Context, in *EditRequest, opts ...grpc.
 	return out, nil
 }
 
+func (c *profileClient) GetTags(ctx context.Context, in *GetTagsRequest, opts ...grpc.CallOption) (*GetTagsReply, error) {
+	out := new(GetTagsReply)
+	err := c.cc.Invoke(ctx, "/Profile/GetTags", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProfileServer is the server API for Profile service.
 // All implementations must embed UnimplementedProfileServer
 // for forward compatibility
@@ -91,6 +101,7 @@ type ProfileServer interface {
 	GetUserAdditional(context.Context, *GetUserAdditionalRequest) (*GetUserAdditionalReply, error)
 	Exists(context.Context, *ExistsRequest) (*ExistsReply, error)
 	Edit(context.Context, *EditRequest) (*Empty, error)
+	GetTags(context.Context, *GetTagsRequest) (*GetTagsReply, error)
 	mustEmbedUnimplementedProfileServer()
 }
 
@@ -112,6 +123,9 @@ func (UnimplementedProfileServer) Exists(context.Context, *ExistsRequest) (*Exis
 }
 func (UnimplementedProfileServer) Edit(context.Context, *EditRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Edit not implemented")
+}
+func (UnimplementedProfileServer) GetTags(context.Context, *GetTagsRequest) (*GetTagsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTags not implemented")
 }
 func (UnimplementedProfileServer) mustEmbedUnimplementedProfileServer() {}
 
@@ -216,6 +230,24 @@ func _Profile_Edit_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Profile_GetTags_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTagsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProfileServer).GetTags(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Profile/GetTags",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProfileServer).GetTags(ctx, req.(*GetTagsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Profile_ServiceDesc is the grpc.ServiceDesc for Profile service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -242,6 +274,10 @@ var Profile_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Edit",
 			Handler:    _Profile_Edit_Handler,
+		},
+		{
+			MethodName: "GetTags",
+			Handler:    _Profile_GetTags_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

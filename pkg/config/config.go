@@ -13,9 +13,6 @@ type config struct {
 	Token       string
 	DatabaseURL string
 
-	MainSphereCoefficient  float64
-	OtherSphereCoefficient float64
-
 	Separator string // ArgumentSeparator
 	ParseMode string
 
@@ -23,6 +20,10 @@ type config struct {
 
 	ProfileHost string
 	ProfilePort string
+
+	MainSphereCoefficient  float64
+	OtherSphereCoefficient float64
+	Faculties              []string
 }
 
 func ReadConfig() {

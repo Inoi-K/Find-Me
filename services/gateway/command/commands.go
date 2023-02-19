@@ -91,18 +91,21 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 
 // getStateArg handles getting a new value for the field
 func getStateArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, field string) (string, error) {
-	state, message := getStateAndMessageByField(field)
+	state, message, keyboard := handleFieldSpecifics(field)
 
 	session.UserState[userID] = state
-	newArg, err := askNewArg(ctx, bot, chat, userID, message)
-	if err != nil {
-		return "", err
+	if len(keyboard.InlineKeyboard) == 0 {
+		newArg, err := askNewArg(ctx, bot, chat, userID, message)
+		if err != nil {
+			return "", err
+		}
+		return newArg, nil
+	} else {
+		return askNewArgKeyboard(ctx, bot, chat, userID, message, keyboard)
 	}
-
-	return newArg, nil
 }
 
-// askNewArg asks a user for a new value of the field and waits for it - reponse
+// askNewArg asks a user for a new value of the field and waits for it - response
 func askNewArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, messageKey string) (string, error) {
 	err := reply(bot, chat, loc.Message(messageKey))
 	if err != nil {
@@ -119,6 +122,16 @@ func askNewArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, u
 	close(session.UserStateArg[userID])
 
 	return newArg, nil
+}
+
+// askNewArgKeyboard asks with a keyboard a user for a new value of the field and waits for it - response
+func askNewArgKeyboard(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, messageKey string, keyboard tgbotapi.InlineKeyboardMarkup) (string, error) {
+	err := replyKeyboard(bot, chat, loc.Message(messageKey), keyboard)
+	if err != nil {
+		return "", err
+	}
+
+	return "", nil
 }
 
 // SignUp sends a request to the profile service to register a new user

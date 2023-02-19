@@ -8,6 +8,7 @@ service Profile {
   rpc GetUserAdditional (GetUserAdditionalRequest) returns (GetUserAdditionalReply) {}
   rpc Exists(ExistsRequest) returns (ExistsReply) {}
   rpc Edit (EditRequest) returns (Empty) {}
+  rpc GetTags (GetTagsRequest) returns (GetTagsReply) {}
 }
 
 message Empty {}
@@ -58,4 +59,13 @@ message EditRequest {
   string field = 3;
   repeated string value = 4;
 //  repeated string tags = 5;
+}
+
+message GetTagsRequest {
+  int64 sphereID = 1;
+}
+
+message GetTagsReply {
+  repeated string tagNames = 1;
+  repeated string tagIDs = 2;
 }

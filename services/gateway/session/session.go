@@ -11,6 +11,9 @@ type State int
 const (
 	EnterName State = iota
 	EnterGender
+	EnterAge
+	EnterFaculty
 	EnterPhoto
 	EnterDescription
+	EnterTags
 )

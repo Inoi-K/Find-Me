@@ -11,8 +11,11 @@
 
   "enterName": "Please, enter your name:",
   "enterGender": "Please, enter your gender:",
+  "enterAge": "Please, enter your age:",
+  "enterFaculty": "Please, enter your faculty:",
   "enterPhoto": "Please, enter your photo:",
   "enterDescription": "Please, enter your description:",
+  "enterTags": "Please, enter your tags:",
 
   "alreadyRegistered": "You are already registered",
   "signUpSuccess": "Successfully signed up!",
@@ -24,6 +27,9 @@
 
   "name": "Name",
   "gender": "Gender",
+  "age": "Age",
+  "faculty": "Faculty",
   "photo": "Photo",
-  "desc": "Description"
+  "desc": "Description",
+  "tags": "Tags"
 }

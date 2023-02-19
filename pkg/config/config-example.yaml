@@ -2,9 +2,6 @@ SphereID:
 DatabaseURL:
 Token:
 
-MainSphereCoefficient:  1.0
-OtherSphereCoefficient: 0.2
-
 Separator: " "
 ParseMode: Markdown
 
@@ -12,3 +9,8 @@ Timeout: 1000ms
 
 ProfileHost: localhost
 ProfilePort: 8080
+
+MainSphereCoefficient:  1.0
+OtherSphereCoefficient: 0.2
+Faculties:
+  -

@@ -13,8 +13,11 @@ const (
 
 	EnterName        = "enterName"
 	EnterGender      = "enterGender"
+	EnterAge         = "enterAge"
+	EnterFaculty     = "enterFaculty"
 	EnterPhoto       = "enterPhoto"
 	EnterDescription = "enterDescription"
+	EnterTags        = "enterTags"
 
 	AlreadyRegistered = "alreadyRegistered"
 	SignUpSuccess     = "signUpSuccess"
@@ -32,4 +35,6 @@ const (
 	Photo       = "photo"
 	Description = "desc"
 	Tags        = "tags"
+
+	DeleteAccount = "deleteAccount"
 )
