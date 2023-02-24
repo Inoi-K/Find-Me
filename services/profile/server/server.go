@@ -15,27 +15,111 @@ type server struct {
 }
 
 // SignUp adds user to database
-func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.SignUpReply, error) {
-	log.Printf("Received signup: %v", in.GetName())
+func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.Empty, error) {
+	log.Printf("Received sign up: %v", in.UserID)
 
 	err := database.AddUser(ctx, in)
 	if err != nil {
-		return &pb.SignUpReply{IsOk: false}, err
+		return nil, err
 	}
 
-	return &pb.SignUpReply{IsOk: true}, nil
+	return &pb.Empty{}, nil
+}
+
+// GetUserMain gets main info of a user
+func (s *server) GetUserMain(ctx context.Context, in *pb.GetUserMainRequest) (*pb.GetUserMainReply, error) {
+	log.Printf("Received get user: %v", in.UserID)
+
+	user, err := database.GetUserMain(ctx, in.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.GetUserMainReply{
+		Name:    user.Name,
+		Gender:  user.Gender,
+		Age:     user.Age,
+		Faculty: user.Faculty,
+	}, nil
+}
+
+// GetUserAdditional gets an additional info of a user
+func (s *server) GetUserAdditional(ctx context.Context, in *pb.GetUserAdditionalRequest) (*pb.GetUserAdditionalReply, error) {
+	log.Printf("Received get user sphere: %v", in.UserID)
+
+	sphereInfo, err := database.GetUserAdditional(ctx, in.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.GetUserAdditionalReply{
+		Description: sphereInfo[in.SphereID].Description,
+		PhotoID:     sphereInfo[in.SphereID].PhotoID,
+		//Tags: user.SphereInfo[config.C.SphereID].Tags,
+	}, nil
 }
 
 // Exists checks if user exists in database
 func (s *server) Exists(ctx context.Context, in *pb.ExistsRequest) (*pb.ExistsReply, error) {
-	log.Printf("Received exists: %v", in.GetUserID())
+	log.Printf("Received exists: %v", in.UserID)
 
-	exists, err := database.UserExists(ctx, in.GetUserID())
+	exists, err := database.UserExists(ctx, in.UserID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &pb.ExistsReply{Exists: exists}, nil
+}
+
+// Edit updates field of a user with a new value
+func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.Empty, error) {
+	log.Printf("Received edit field: %v", in.UserID)
+
+	switch in.Field {
+	case AgeField, FacultyField, PhotoField, DescriptionField:
+		switch n := len(in.Value); {
+		case n == 0:
+			return nil, WrongArgumentsNumberError
+		case n > 1:
+			log.Printf("strange behaviour in EditField: required 1 value, but %d given - %v", n, in.Value)
+		}
+
+		err := database.EditField(ctx, in.Field, in.Value[0], in.UserID, in.SphereID)
+		if err != nil {
+			return nil, err
+		}
+
+	case TagsField:
+		err := database.EditTags(ctx, in.Value, in.UserID, in.SphereID)
+		if err != nil {
+			return nil, err
+		}
+
+	default:
+		return nil, UnknownFieldError
+	}
+
+	return &pb.Empty{}, nil
+}
+
+func (s *server) GetTags(ctx context.Context, in *pb.GetTagsRequest) (*pb.GetTagsReply, error) {
+	log.Printf("Received get tags: %v", in.SphereID)
+
+	tags, err := database.GetTags(ctx, in.SphereID)
+	if err != nil {
+		return nil, err
+	}
+
+	rep := &pb.GetTagsReply{
+		TagNames: make([]string, len(tags)),
+		TagIDs:   make([]string, len(tags)),
+	}
+	for i := 0; i < len(tags); i++ {
+		rep.TagNames[i] = tags[i].Name
+		rep.TagIDs[i] = tags[i].ID
+	}
+
+	return rep, nil
 }
 
 func Start() {

@@ -27,6 +27,7 @@ func Start(ctx context.Context) error {
 
 	// Generate structs for commands
 	commands = makeCommands()
+	command.UpdateIndex(ctx)
 
 	// Set update rate
 	u := tgbotapi.NewUpdate(0)
@@ -42,12 +43,21 @@ func Start(ctx context.Context) error {
 // makeCommands creates all bot commands and buttons
 func makeCommands() map[string]command.ICommand {
 	return map[string]command.ICommand{
+		// General commands
+		command.StartCommand:    &command.Start{},
+		command.PingCommand:     &command.Ping{},
+		command.HelpCommand:     &command.Help{},
+		command.LanguageCommand: &command.Language{},
+		command.LanguageButton:  &command.LanguageCallback{},
+
+		// Specific commands
+		command.ShowProfileCommand: &command.ShowProfile{},
+		command.EditProfileCommand: &command.EditProfile{},
+		command.EditFieldButton:    &command.EditFieldCallback{},
+
+		// Shortcut commands for testing
 		//command.SignUpCommand: &command.SignUp{},
-		command.StartCommand: &command.Start{},
-		//command.HelpCommand:     &command.Help{},
-		//command.LanguageCommand: &command.Language{},
-		//command.LanguageButton:  &command.LanguageButton{},
-		command.PingCommand: &command.Ping{},
+		//command.EditFieldCommand: &command.EditField{},
 	}
 }
 
@@ -105,8 +115,13 @@ func handleMessage(ctx context.Context, update tgbotapi.Update) {
 // handleCommand handles commands specifically
 func handleCommand(ctx context.Context, upd tgbotapi.Update) error {
 	curCommand := upd.Message.Command()
-	if cmd, ok := commands[curCommand]; ok {
-		return cmd.Execute(ctx, bot, upd, upd.Message.CommandArguments())
+	args := upd.Message.CommandArguments()
+	return executeCommand(ctx, upd, curCommand, args)
+}
+
+func executeCommand(ctx context.Context, upd tgbotapi.Update, cmd string, args string) error {
+	if c, ok := commands[cmd]; ok {
+		return c.Execute(ctx, bot, upd, args)
 	}
 
 	return command.UnknownCommandError
@@ -120,10 +135,12 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 	// validated user (but might be not fully registered)
 	if state, ok := session.UserState[user.ID]; ok {
 		switch state {
-		case session.EnterName:
+		case session.EnterName, session.EnterAge, session.EnterDescription:
 			session.UserStateArg[user.ID] <- message.Text
-		case session.EnterGender:
-			session.UserStateArg[user.ID] <- message.Text
+		case session.EnterPhoto:
+			session.UserStateArg[user.ID] <- message.Photo[0].FileID
+		default:
+			return command.UnknownStateError
 		}
 		return nil
 	}
@@ -137,16 +154,30 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 // handleButton handles buttons callback specifically
 func handleButton(ctx context.Context, upd tgbotapi.Update) {
 	query := upd.CallbackQuery
-	curCommand, args, _ := strings.Cut(query.Data, config.C.ArgumentsSeparator)
+	mainPart, args, isCommand := strings.Cut(query.Data, config.C.Separator)
 
-	err := commands[curCommand].Execute(ctx, bot, upd, args)
-	if err != nil {
-		log.Printf("couldn't process button callback: %v", err)
+	if isCommand {
+		err := executeCommand(ctx, upd, mainPart, args)
+		if err != nil {
+			log.Printf("couldn't process button callback: %v", err)
+		}
+	} else {
+		user := upd.SentFrom()
+
+		if state, ok := session.UserState[user.ID]; ok {
+			switch state {
+			case session.EnterGender, session.EnterFaculty, session.EnterTags:
+				session.UserStateArg[user.ID] <- mainPart
+			default:
+				log.Printf(command.UnknownStateError.Error())
+				return
+			}
+		}
 	}
 
 	// close the query
 	callbackCfg := tgbotapi.NewCallback(query.ID, "")
-	_, err = bot.Request(callbackCfg)
+	_, err := bot.Request(callbackCfg)
 	if err != nil {
 		log.Printf("callback config error: %v", err)
 	}

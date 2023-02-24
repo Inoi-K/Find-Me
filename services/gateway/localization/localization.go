@@ -18,7 +18,7 @@ var (
 	}
 )
 
-func init() {
+func Initialize() {
 	bundle = i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 

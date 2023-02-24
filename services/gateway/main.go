@@ -5,11 +5,13 @@ import (
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/services/gateway/client"
 	"github.com/Inoi-K/Find-Me/services/gateway/handler"
+	loc "github.com/Inoi-K/Find-Me/services/gateway/localization"
 	"log"
 )
 
 func main() {
 	config.ReadConfig()
+	loc.Initialize()
 
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)

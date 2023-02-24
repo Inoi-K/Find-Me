@@ -1,14 +1,19 @@
 package session
 
 var (
-	UserState    = map[int64]state{}
+	UserState    = map[int64]State{}
 	UserStateArg = map[int64]chan string{}
 )
 
 // State of the user's session
-type state int
+type State int
 
 const (
-	EnterName state = iota
+	EnterName State = iota
 	EnterGender
+	EnterAge
+	EnterFaculty
+	EnterPhoto
+	EnterDescription
+	EnterTags
 )

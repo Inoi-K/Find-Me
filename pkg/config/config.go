@@ -9,19 +9,23 @@ import (
 var C *config
 
 type config struct {
+	SphereID    int64
 	Token       string
 	DatabaseURL string
 
-	MainSphereCoefficient  float64
-	OtherSphereCoefficient float64
+	Separator string // ArgumentSeparator
+	ParseMode string
 
-	ArgumentsSeparator string
-	ParseMode          string
-
-	Timeout time.Duration
+	DatabasePoolMaxConnections int32
+	Timeout                    time.Duration
 
 	ProfileHost string
 	ProfilePort string
+
+	TagsLimit              int
+	MainSphereCoefficient  float64
+	OtherSphereCoefficient float64
+	Faculties              []string
 }
 
 func ReadConfig() {

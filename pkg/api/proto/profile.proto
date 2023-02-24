@@ -3,17 +3,49 @@ syntax = "proto3";
 option go_package = "/pb";
 
 service Profile {
-  rpc SignUp (SignUpRequest) returns (SignUpReply) {}
+  rpc SignUp (SignUpRequest) returns (Empty) {}
+  rpc GetUserMain (GetUserMainRequest) returns (GetUserMainReply) {}
+  rpc GetUserAdditional (GetUserAdditionalRequest) returns (GetUserAdditionalReply) {}
   rpc Exists(ExistsRequest) returns (ExistsReply) {}
+  rpc Edit (EditRequest) returns (Empty) {}
+  rpc GetTags (GetTagsRequest) returns (GetTagsReply) {}
 }
+
+message Empty {}
 
 message SignUpRequest {
   int64 userID = 1;
-  string name = 2;
+  int64 sphereID = 2;
+  string name = 3;
+  string gender = 4;
+  string age = 5;
+  string faculty = 6;
 }
 
 message SignUpReply {
   bool isOk = 1;
+}
+
+message GetUserMainRequest {
+  int64 userID = 1;
+}
+
+message GetUserMainReply {
+  string name = 1;
+  string gender = 2;
+  int64 age = 3;
+  string faculty = 4;
+}
+
+message GetUserAdditionalRequest {
+  int64 userID = 1;
+  int64 sphereID = 2;
+}
+
+message GetUserAdditionalReply {
+  string description = 1;
+  string photoID = 2;
+  repeated string tags = 3;
 }
 
 message ExistsRequest {
@@ -22,4 +54,21 @@ message ExistsRequest {
 
 message ExistsReply {
   bool Exists = 1;
+}
+
+message EditRequest {
+  int64 userID = 1;
+  int64 sphereID = 2;
+  string field = 3;
+  repeated string value = 4;
+//  repeated string tags = 5;
+}
+
+message GetTagsRequest {
+  int64 sphereID = 1;
+}
+
+message GetTagsReply {
+  repeated string tagNames = 1;
+  repeated string tagIDs = 2;
 }

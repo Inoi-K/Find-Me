@@ -4,7 +4,7 @@ import "context"
 
 func CreateTables(ctx context.Context) error {
 	// user
-	query := "create table if not exists \"user\"\n(\n    id   integer not null\n        constraint user_pk\n            primary key,\n    name text    not null\n);"
+	query := "create table \"user\"\n(\n    id      integer not null\n        constraint user_pk\n            primary key,\n    name    text    not null,\n    gender  varchar(1),\n    age     integer,\n    faculty text\n);"
 	_, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return err
@@ -25,7 +25,7 @@ func CreateTables(ctx context.Context) error {
 	}
 
 	// user_sphere
-	query = "create table if not exists user_sphere\n(\n    user_id     integer not null\n        constraint user_sphere_user_fk\n            references \"user\",\n    sphere_id   integer not null\n        constraint user_sphere_sphere_fk\n            references sphere\n            on update cascade on delete cascade,\n    description text,\n    photo       text    not null,\n    constraint user_sphere_pk\n        primary key (user_id, sphere_id)\n);"
+	query = "create table if not exists user_sphere\n(\n    user_id     integer not null\n        constraint user_sphere_user_fk\n            references \"user\",\n    sphere_id   integer not null\n        constraint user_sphere_sphere_fk\n            references sphere\n            on update cascade on delete cascade,\n    description text,\n    photo       text,\n    constraint user_sphere_pk\n        primary key (user_id, sphere_id)\n);"
 	_, err = db.pool.Query(ctx, query)
 	if err != nil {
 		return err
