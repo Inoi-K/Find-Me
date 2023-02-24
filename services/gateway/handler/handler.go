@@ -115,8 +115,13 @@ func handleMessage(ctx context.Context, update tgbotapi.Update) {
 // handleCommand handles commands specifically
 func handleCommand(ctx context.Context, upd tgbotapi.Update) error {
 	curCommand := upd.Message.Command()
-	if cmd, ok := commands[curCommand]; ok {
-		return cmd.Execute(ctx, bot, upd, upd.Message.CommandArguments())
+	args := upd.Message.CommandArguments()
+	return executeCommand(ctx, upd, curCommand, args)
+}
+
+func executeCommand(ctx context.Context, upd tgbotapi.Update, cmd string, args string) error {
+	if c, ok := commands[cmd]; ok {
+		return c.Execute(ctx, bot, upd, args)
 	}
 
 	return command.UnknownCommandError
@@ -130,10 +135,12 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 	// validated user (but might be not fully registered)
 	if state, ok := session.UserState[user.ID]; ok {
 		switch state {
-		case session.EnterName, session.EnterGender, session.EnterDescription:
+		case session.EnterName, session.EnterAge, session.EnterDescription:
 			session.UserStateArg[user.ID] <- message.Text
 		case session.EnterPhoto:
 			session.UserStateArg[user.ID] <- message.Photo[0].FileID
+		default:
+			return command.UnknownStateError
 		}
 		return nil
 	}
@@ -147,14 +154,26 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 // handleButton handles buttons callback specifically
 func handleButton(ctx context.Context, upd tgbotapi.Update) {
 	query := upd.CallbackQuery
-	curCommand, args, _ := strings.Cut(query.Data, config.C.Separator)
+	mainPart, args, isCommand := strings.Cut(query.Data, config.C.Separator)
 
-	go func() {
-		err := commands[curCommand].Execute(ctx, bot, upd, args)
+	if isCommand {
+		err := executeCommand(ctx, upd, mainPart, args)
 		if err != nil {
 			log.Printf("couldn't process button callback: %v", err)
 		}
-	}()
+	} else {
+		user := upd.SentFrom()
+
+		if state, ok := session.UserState[user.ID]; ok {
+			switch state {
+			case session.EnterGender, session.EnterFaculty, session.EnterTags:
+				session.UserStateArg[user.ID] <- mainPart
+			default:
+				log.Printf(command.UnknownStateError.Error())
+				return
+			}
+		}
+	}
 
 	// close the query
 	callbackCfg := tgbotapi.NewCallback(query.ID, "")

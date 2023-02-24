@@ -10,7 +10,7 @@ import (
 
 // reply builds message and sends it to the chat
 func reply(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, text string) error {
-	msg := newMessage(chat.ID, text, nil)
+	msg := newMessage(chat.ID, text, tgbotapi.InlineKeyboardMarkup{})
 	_, err := bot.Send(msg)
 	return err
 }
@@ -23,22 +23,39 @@ func replyKeyboard(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, text string, keybo
 }
 
 // newMessage builds message with all needed parameters
-func newMessage(chatID int64, text string, keyboard interface{}) tgbotapi.MessageConfig {
+func newMessage(chatID int64, text string, keyboard tgbotapi.InlineKeyboardMarkup) tgbotapi.MessageConfig {
 	msg := tgbotapi.NewMessage(chatID, text)
 	msg.ParseMode = config.C.ParseMode
-	msg.ReplyMarkup = keyboard
+	if len(keyboard.InlineKeyboard) != 0 {
+		msg.ReplyMarkup = keyboard
+	}
 	return msg
 }
 
 // makeInlineKeyboard builds inline keyboard from the content
-func makeInlineKeyboard(content []model.Content, commandButton string) tgbotapi.InlineKeyboardMarkup {
-	keyboard := make([][]tgbotapi.InlineKeyboardButton, len(content))
+func makeInlineKeyboard(content []model.Content, commandButton string, columnCount int) tgbotapi.InlineKeyboardMarkup {
+	rowCount := len(content) / columnCount
+	if len(content)%columnCount != 0 {
+		rowCount++
+	}
+	keyboard := make([][]tgbotapi.InlineKeyboardButton, rowCount)
 
-	for i := 0; i < len(content); i++ {
-		row := tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(content[i].Text, commandButton+config.C.Separator+content[i].Data),
-		)
-		keyboard[i] = row
+	commandPart := commandButton
+	if len(commandPart) > 0 {
+		commandPart += config.C.Separator
+	}
+	for i := 0; i < rowCount; i++ {
+		buttonPlaced := i * columnCount
+		currentColumnCount := columnCount
+		buttonLeft := len(content) - buttonPlaced
+		if buttonLeft < columnCount {
+			currentColumnCount = buttonLeft
+		}
+		columns := make([]tgbotapi.InlineKeyboardButton, currentColumnCount)
+		for j := 0; j < len(columns); j++ {
+			columns[j] = tgbotapi.NewInlineKeyboardButtonData(content[buttonPlaced+j].Text, commandPart+content[buttonPlaced+j].Data)
+		}
+		keyboard[i] = columns
 	}
 
 	return tgbotapi.NewInlineKeyboardMarkup(keyboard...)

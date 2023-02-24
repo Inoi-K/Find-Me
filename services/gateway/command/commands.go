@@ -62,7 +62,7 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 	// main information
 	var signUpArgs string
 	for _, field := range []string{Name, Gender, Age, Faculty} {
-		newArg, err := getStateArg(ctx, bot, chat, user.ID, field)
+		newArg, err := askStateField(ctx, bot, chat, user.ID, field)
 		if err != nil {
 			return err
 		}
@@ -83,55 +83,72 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		}
 	}
 
-	// clear user state
-	delete(session.UserState, user.ID)
-
 	return reply(bot, chat, loc.Message(loc.Rubicon))
 }
 
-// getStateArg handles getting a new value for the field
-func getStateArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, field string) (string, error) {
+// askStateField handles getting a new value for the field
+func askStateField(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, field string) (string, error) {
 	state, message, keyboard := handleFieldSpecifics(field)
 
+	// create user state
 	session.UserState[userID] = state
-	if len(keyboard.InlineKeyboard) == 0 {
-		newArg, err := askNewArg(ctx, bot, chat, userID, message)
-		if err != nil {
-			return "", err
-		}
-		return newArg, nil
-	} else {
-		return askNewArgKeyboard(ctx, bot, chat, userID, message, keyboard)
-	}
-}
 
-// askNewArg asks a user for a new value of the field and waits for it - response
-func askNewArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, messageKey string) (string, error) {
-	err := reply(bot, chat, loc.Message(messageKey))
+	// get arguments
+	var newArg string
+	var err error
+	if len(keyboard.InlineKeyboard) == 0 {
+		newArg, err = askArg(ctx, bot, chat, userID, message)
+	} else {
+		newArg, err = askArgKeyboard(ctx, bot, chat, userID, message, keyboard)
+	}
 	if err != nil {
 		return "", err
 	}
 
-	session.UserStateArg[userID] = make(chan string)
-	newArg := ""
-	select {
-	case <-ctx.Done():
-		return "", ContextDoneError
-	case newArg = <-session.UserStateArg[userID]:
-	}
-	close(session.UserStateArg[userID])
+	// clear user state
+	delete(session.UserState, userID)
 
 	return newArg, nil
 }
 
-// askNewArgKeyboard asks with a keyboard a user for a new value of the field and waits for it - response
-func askNewArgKeyboard(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, messageKey string, keyboard tgbotapi.InlineKeyboardMarkup) (string, error) {
+// askArg asks a user for a new value of the field and waits for it - response
+func askArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, messageKey string) (string, error) {
+	return askArgKeyboard(ctx, bot, chat, userID, messageKey, tgbotapi.InlineKeyboardMarkup{})
+}
+
+// askArgKeyboard asks with a keyboard a user for a new value of the field and waits for it - response
+func askArgKeyboard(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, messageKey string, keyboard tgbotapi.InlineKeyboardMarkup) (string, error) {
 	err := replyKeyboard(bot, chat, loc.Message(messageKey), keyboard)
 	if err != nil {
 		return "", err
 	}
 
-	return "", nil
+	session.UserStateArg[userID] = make(chan string)
+	arg := ""
+	switch session.UserState[userID] {
+	case session.EnterName, session.EnterGender, session.EnterAge, session.EnterFaculty, session.EnterPhoto, session.EnterDescription:
+		select {
+		case <-ctx.Done():
+			return "", ContextDoneError
+		case arg = <-session.UserStateArg[userID]:
+		}
+
+	case session.EnterTags:
+		tagsEntered := 0
+		for tagsEntered < config.C.TagsLimit {
+			select {
+			case <-ctx.Done():
+				return "", ContextDoneError
+			case newArg := <-session.UserStateArg[userID]:
+				arg += newArg + config.C.Separator
+				tagsEntered++
+			}
+		}
+		arg = strings.TrimSpace(arg)
+	}
+	close(session.UserStateArg[userID])
+
+	return arg, nil
 }
 
 // SignUp sends a request to the profile service to register a new user
@@ -212,5 +229,5 @@ type Language struct{}
 func (c *Language) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
 	chat := upd.FromChat()
 
-	return replyKeyboard(bot, chat, loc.Message(loc.Lang), makeInlineKeyboard(loc.SupportedLanguages, LanguageButton))
+	return replyKeyboard(bot, chat, loc.Message(loc.Lang), makeInlineKeyboard(loc.SupportedLanguages, LanguageButton, 1))
 }

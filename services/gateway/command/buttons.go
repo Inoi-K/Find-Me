@@ -19,7 +19,7 @@ func (c *EditFieldCallback) Execute(ctx context.Context, bot *tgbotapi.BotAPI, u
 	user := upd.SentFrom()
 	chat := upd.FromChat()
 
-	newArg, err := getStateArg(ctx, bot, chat, user.ID, args)
+	newArg, err := askStateField(ctx, bot, chat, user.ID, args)
 	if err != nil {
 		return err
 	}

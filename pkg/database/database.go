@@ -36,7 +36,7 @@ func ConnectDB(ctx context.Context, url string) error {
 
 // UserExists checks if user exists in db
 func UserExists(ctx context.Context, userID int64) (bool, error) {
-	query := fmt.Sprintf("SELECT 1 FROM user WHERE id=%d;", userID)
+	query := fmt.Sprintf("SELECT 1 FROM \"user\" WHERE id=%d;", userID)
 	rows, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return false, err
@@ -47,7 +47,7 @@ func UserExists(ctx context.Context, userID int64) (bool, error) {
 
 // GetUsers gets all (main and additional) information about all user
 func GetUsers(ctx context.Context) (map[int64]*model.User, error) {
-	query := fmt.Sprintf("SELECT id FROM user;")
+	query := fmt.Sprintf("SELECT id FROM \"user\";")
 	userRows, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return nil, err
@@ -197,15 +197,10 @@ func GetTags(ctx context.Context, sphereID int64) ([]model.Tag, error) {
 }
 
 // EditTags updates tags of a user
-func EditTags(ctx context.Context, tags []string, userID, sphereID int64) error {
+func EditTags(ctx context.Context, tagIDs []string, userID, sphereID int64) error {
 	var err error
 	// TODO goroutine deletion and getting ids
 	err = DeleteTags(ctx, userID, sphereID)
-	if err != nil {
-		return err
-	}
-
-	tagIDs, err := ConvertTagsToIDS(ctx, tags)
 	if err != nil {
 		return err
 	}
@@ -214,11 +209,10 @@ func EditTags(ctx context.Context, tags []string, userID, sphereID int64) error 
 }
 
 // AddTags creates new tags for a user in a sphere
-func AddTags(ctx context.Context, tags []int64, userID, sphereID int64) error {
+func AddTags(ctx context.Context, tags []string, userID, sphereID int64) error {
 	var valuesPart string
-	// TODO convert tag names to ids
-	for tagID := range tags {
-		valuesPart += fmt.Sprintf("(%d, %d, %d),", userID, sphereID, tagID)
+	for _, tagID := range tags {
+		valuesPart += fmt.Sprintf("(%d, %d, %s),", userID, sphereID, tagID)
 	}
 	query := fmt.Sprintf("INSERT INTO user_tag VALUES %s;", valuesPart[:len(valuesPart)-1])
 	_, err := db.pool.Query(ctx, query)

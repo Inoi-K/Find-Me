@@ -48,6 +48,7 @@ var (
 
 	UnknownCommandError = errors.New("unknown command")
 	ContextDoneError    = errors.New("context is done")
+	UnknownStateError   = errors.New("unknown state")
 )
 
 // UpdateIndex creates keyboard markups in format '<EditFieldButton><argumentSeparator><field>
@@ -60,7 +61,7 @@ func UpdateIndex(ctx context.Context) {
 		),
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Age), EditFieldButton+config.C.Separator+Age),
-			tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Faculty), EditFieldButton+config.C.Separator+Description),
+			tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Faculty), EditFieldButton+config.C.Separator+Faculty),
 		),
 		tgbotapi.NewInlineKeyboardRow(
 			//tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Age), EditFieldButton+config.C.Separator+Age),
@@ -74,8 +75,8 @@ func UpdateIndex(ctx context.Context) {
 	// gender
 	EditGenderMarkup = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Gender), EditFieldButton+config.C.Separator+Male),
-			tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Gender), EditFieldButton+config.C.Separator+Female),
+			tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Gender), Male),
+			tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Gender), Female),
 		),
 	)
 
@@ -87,7 +88,7 @@ func UpdateIndex(ctx context.Context) {
 			Data: config.C.Faculties[i],
 		}
 	}
-	EditFacultyMarkup = makeInlineKeyboard(faculties, EditFieldButton)
+	EditFacultyMarkup = makeInlineKeyboard(faculties, "", 2)
 
 	// tags
 	rep, err := client.Profile.GetTags(ctx, &pb.GetTagsRequest{SphereID: config.C.SphereID})
@@ -101,5 +102,5 @@ func UpdateIndex(ctx context.Context) {
 			Data: rep.TagIDs[i],
 		}
 	}
-	EditTagsMarkup = makeInlineKeyboard(tags, EditFieldCommand)
+	EditTagsMarkup = makeInlineKeyboard(tags, "", 4)
 }

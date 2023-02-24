@@ -10,6 +10,7 @@ Timeout: 1000ms
 ProfileHost: localhost
 ProfilePort: 8080
 
+TagsLimit:
 MainSphereCoefficient:  1.0
 OtherSphereCoefficient: 0.2
 Faculties:
