@@ -134,15 +134,23 @@ func askArgKeyboard(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Ch
 		}
 
 	case session.EnterTags:
-		tagsEntered := 0
-		for tagsEntered < config.C.TagsLimit {
+		tags := make(map[string]struct{}, config.C.TagsLimit)
+
+		for len(tags) < config.C.TagsLimit {
 			select {
 			case <-ctx.Done():
 				return "", ContextDoneError
 			case newArg := <-session.UserStateArg[userID]:
-				arg += newArg + config.C.Separator
-				tagsEntered++
+				if _, picked := tags[newArg]; picked {
+					delete(tags, newArg)
+				} else {
+					tags[newArg] = struct{}{}
+				}
 			}
+		}
+
+		for tag := range tags {
+			arg += tag + config.C.Separator
 		}
 		arg = strings.TrimSpace(arg)
 	}
@@ -211,7 +219,10 @@ func (c *ShowProfile) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgb
 
 	file := tgbotapi.FileID(add.PhotoID)
 	photoMsg := tgbotapi.NewPhoto(upd.FromChat().ID, file)
-	photoMsg.Caption = fmt.Sprintf("%s, %d y.o.\n%s\n%s", main.Name, main.Age, main.Faculty, add.Description)
+
+	tagsPart := "#" + strings.Join(add.Tags, " #")
+
+	photoMsg.Caption = fmt.Sprintf("%s, %d y.o.\n%s\n%s\n\n%s", main.Name, main.Age, main.Faculty, add.Description, tagsPart)
 
 	_, err = bot.Send(photoMsg)
 	return err

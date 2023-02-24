@@ -25,6 +25,8 @@ const (
 	LanguageCommand = "lang"
 	LanguageButton  = "langButton"
 
+	Undo = "undo"
+
 	// FIELDS
 	Name        = "name"
 	Gender      = "gender"
@@ -49,6 +51,7 @@ var (
 	UnknownCommandError = errors.New("unknown command")
 	ContextDoneError    = errors.New("context is done")
 	UnknownStateError   = errors.New("unknown state")
+	KeyboardUpdateError = errors.New("couldn't update inline keyboard")
 )
 
 // UpdateIndex creates keyboard markups in format '<EditFieldButton><argumentSeparator><field>

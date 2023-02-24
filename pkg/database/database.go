@@ -171,7 +171,11 @@ func EditField(ctx context.Context, field, value string, userID, sphereID int64)
 	query := fmt.Sprintf("UPDATE user_sphere SET %s='%s' WHERE user_id=%d AND sphere_id=%d;", field, value, userID, sphereID)
 	_, err := db.pool.Query(ctx, query)
 	if err != nil {
-		return err
+		query = fmt.Sprintf("UPDATE user SET %s='%s' WHERE user_id=%d;", field, value, userID)
+		_, err = db.pool.Query(ctx, query)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
