@@ -13,7 +13,7 @@ func main() {
 
 	ctx := context.Background()
 
-	err := database.ConnectDB(ctx, config.C.DatabaseURL)
+	err := database.ConnectDB(ctx)
 	if err != nil {
 		log.Fatalf("failed to connect to db: %v", err)
 	}

@@ -17,6 +17,9 @@ message SignUpRequest {
   int64 userID = 1;
   int64 sphereID = 2;
   string name = 3;
+  string gender = 4;
+  string age = 5;
+  string faculty = 6;
 }
 
 message SignUpReply {

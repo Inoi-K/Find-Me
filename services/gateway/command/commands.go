@@ -167,6 +167,9 @@ func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi
 		UserID:   user.ID,
 		SphereID: config.C.SphereID,
 		Name:     info[0],
+		Gender:   info[1],
+		Age:      info[2],
+		Faculty:  info[3],
 	})
 	if err != nil {
 		log.Printf("couldn't sign up: %v", err)

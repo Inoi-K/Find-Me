@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
+	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/pkg/model"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -16,12 +17,17 @@ type Database struct {
 }
 
 // ConnectDB creates connection to database
-func ConnectDB(ctx context.Context, url string) error {
+func ConnectDB(ctx context.Context) error {
 	if db != nil {
 		return nil
 	}
 
-	dbpool, err := pgxpool.New(ctx, url)
+	dbConfig, err := pgxpool.ParseConfig(config.C.DatabaseURL)
+	if err != nil {
+		return err
+	}
+	dbConfig.MaxConns = config.C.DatabasePoolMaxConnections
+	dbpool, err := pgxpool.NewWithConfig(ctx, dbConfig)
 	if err != nil {
 		return err
 	}
@@ -90,7 +96,7 @@ func GetUser(ctx context.Context, userID int64) (*model.User, error) {
 // GetUserMain gets main info about a user
 func GetUserMain(ctx context.Context, userID int64) (*model.User, error) {
 	user := &model.User{}
-	query := fmt.Sprintf("SELECT name, gender, age, faculty FROM \"user\" WHERE id=%d", userID)
+	query := fmt.Sprintf("SELECT name, gender, age, faculty FROM \"user\" WHERE id=%d;", userID)
 	err := db.pool.QueryRow(ctx, query).Scan(&user.Name, &user.Gender, &user.Age, &user.Faculty)
 	if err != nil {
 		return nil, err
@@ -145,7 +151,7 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 
 // AddUser adds user to db in all necessary tables
 func AddUser(ctx context.Context, request *pb.SignUpRequest) error {
-	query := fmt.Sprintf("INSERT INTO \"user\" VALUES (%d, '%s');", request.UserID, request.Name)
+	query := fmt.Sprintf("INSERT INTO \"user\" VALUES (%d, '%s', '%s', %s, '%s');", request.UserID, request.Name, request.Gender, request.Age, request.Faculty)
 	_, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return err
@@ -199,7 +205,6 @@ func GetTags(ctx context.Context, sphereID int64) ([]model.Tag, error) {
 // EditTags updates tags of a user
 func EditTags(ctx context.Context, tagIDs []string, userID, sphereID int64) error {
 	var err error
-	// TODO goroutine deletion and getting ids
 	err = DeleteTags(ctx, userID, sphereID)
 	if err != nil {
 		return err
@@ -224,7 +229,7 @@ func AddTags(ctx context.Context, tags []string, userID, sphereID int64) error {
 
 // DeleteTags deletes previous tags of a user
 func DeleteTags(ctx context.Context, userID, sphereID int64) error {
-	query := fmt.Sprintf("DELETE FROM user_tag WHERE user_id=%d AND sphere_id=%d", userID, sphereID)
+	query := fmt.Sprintf("DELETE FROM user_tag WHERE user_id=%d AND sphere_id=%d;", userID, sphereID)
 	_, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return err

@@ -75,8 +75,8 @@ func UpdateIndex(ctx context.Context) {
 	// gender
 	EditGenderMarkup = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Gender), Male),
-			tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Gender), Female),
+			tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Male), Male),
+			tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Female), Female),
 		),
 	)
 

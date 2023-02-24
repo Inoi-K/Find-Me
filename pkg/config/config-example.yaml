@@ -5,6 +5,7 @@ Token:
 Separator: " "
 ParseMode: Markdown
 
+DatabasePoolMaxConnections: 50
 Timeout: 1000ms
 
 ProfileHost: localhost

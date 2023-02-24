@@ -4,6 +4,9 @@ import "errors"
 
 const (
 	// PROFILE FIELDS
+	GenderField      = "gender"
+	AgeField         = "age"
+	FacultyField     = "faculty"
 	PhotoField       = "photo"
 	DescriptionField = "description"
 	TagsField        = "tags"

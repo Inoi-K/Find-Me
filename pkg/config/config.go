@@ -16,7 +16,8 @@ type config struct {
 	Separator string // ArgumentSeparator
 	ParseMode string
 
-	Timeout time.Duration
+	DatabasePoolMaxConnections int32
+	Timeout                    time.Duration
 
 	ProfileHost string
 	ProfilePort string

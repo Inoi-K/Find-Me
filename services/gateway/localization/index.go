@@ -36,5 +36,9 @@ const (
 	Description = "desc"
 	Tags        = "tags"
 
+	// OPTIONS
+	Male   = "male"
+	Female = "female"
+
 	DeleteAccount = "deleteAccount"
 )

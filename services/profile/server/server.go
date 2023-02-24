@@ -76,7 +76,7 @@ func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.Empty, error
 	log.Printf("Received edit field: %v", in.UserID)
 
 	switch in.Field {
-	case PhotoField, DescriptionField:
+	case AgeField, FacultyField, PhotoField, DescriptionField:
 		switch n := len(in.Value); {
 		case n == 0:
 			return nil, WrongArgumentsNumberError

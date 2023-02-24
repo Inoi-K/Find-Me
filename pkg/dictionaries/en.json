@@ -31,5 +31,8 @@
   "faculty": "Faculty",
   "photo": "Photo",
   "desc": "Description",
-  "tags": "Tags"
+  "tags": "Tags",
+
+  "male": "Male",
+  "female": "Female"
 }
