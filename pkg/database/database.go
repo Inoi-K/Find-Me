@@ -47,11 +47,43 @@ func UserExists(ctx context.Context, userID int64) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer rows.Close()
 
 	return rows.Next(), nil
 }
 
+func GetUserSphereTag(ctx context.Context) (model.UST, error) {
+	query := fmt.Sprintf("SELECT * FROM user_tag;")
+	userSphereTagRows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer userSphereTagRows.Close()
+
+	ust := make(model.UST, 1000)
+	for userSphereTagRows.Next() {
+		var userID, sphereID, tagID int64
+		err = userSphereTagRows.Scan(&userID, &sphereID, &tagID)
+		if err != nil {
+			return nil, err
+		}
+
+		// new user
+		if _, ok := ust[userID]; !ok {
+			ust[userID] = make(map[int64]map[int64]struct{}, 1000)
+		}
+		// new sphere
+		if _, ok := ust[userID][sphereID]; !ok {
+			ust[userID][sphereID] = make(map[int64]struct{}, config.C.TagsLimit)
+		}
+		ust[userID][sphereID][tagID] = struct{}{}
+	}
+
+	return ust, nil
+}
+
 // GetUsers gets all (main and additional) information about all user
+// TODO caching/sharding/partitioning?
 func GetUsers(ctx context.Context) (map[int64]*model.User, error) {
 	query := fmt.Sprintf("SELECT id FROM \"user\";")
 	userRows, err := db.pool.Query(ctx, query)
@@ -113,6 +145,8 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 	if err != nil {
 		return nil, err
 	}
+	defer userSphereRows.Close()
+
 	// TODO optimize it with caching
 	for userSphereRows.Next() {
 		var (
@@ -130,6 +164,7 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 		if err != nil {
 			return nil, err
 		}
+
 		tags := make(map[string]struct{})
 		for tagRows.Next() {
 			var tag string
@@ -139,6 +174,7 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 			}
 			tags[tag] = struct{}{}
 		}
+		tagRows.Close()
 
 		sphereInfo[sphereID] = &model.UserSphere{
 			Description: description,
@@ -183,6 +219,7 @@ func GetTags(ctx context.Context, sphereID int64) ([]model.Tag, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer tagRows.Close()
 
 	tags := make([]model.Tag, 0, 100)
 	for tagRows.Next() {
@@ -249,6 +286,8 @@ func ConvertTagsToIDS(ctx context.Context, tags []string) ([]int64, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer tagIDsRows.Close()
+
 	// TODO optimize it with caching
 	i := 0
 	tagIDs := make([]int64, len(tags))

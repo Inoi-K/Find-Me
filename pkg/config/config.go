@@ -21,6 +21,8 @@ type config struct {
 
 	ProfileHost string
 	ProfilePort string
+	REngineHost string
+	REnginePort string
 
 	TagsLimit              int
 	MainSphereCoefficient  float64

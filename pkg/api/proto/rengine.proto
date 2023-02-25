@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "/pb";
+
+service REngine {
+  rpc UpdateRecommendations (UpdateRecommendationsRequest) returns (UpdateRecommendationsReply) {}
+}
+
+message Empty {}
+
+message UpdateRecommendationsRequest {
+  int64 userID = 1;
+}
+
+message UpdateRecommendationsReply {
+  repeated int64 recommendationIDs = 1;
+}
