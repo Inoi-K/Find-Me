@@ -44,7 +44,7 @@ func (c *EditField) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbot
 	}
 
 	// Contact the server and print out its response.
-	ctx2, cancel := context.WithTimeout(context.Background(), config.C.Timeout)
+	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
 	defer cancel()
 	_, err := client.Profile.Edit(ctx2, editRequest)
 	if err != nil {

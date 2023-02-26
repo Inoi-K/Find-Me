@@ -20,6 +20,7 @@ const (
 	EditFieldButton    = "editButton"
 	EditFieldCommand   = "editField"
 	SignUpCommand      = "signup"
+	FindCommand        = "find"
 
 	HelpCommand     = "help"
 	LanguageCommand = "lang"

@@ -10,6 +10,7 @@ import (
 	"github.com/Inoi-K/Find-Me/services/gateway/session"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -41,7 +42,7 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 
 	// check user existence
 	// contact the profile service
-	ctx2, cancel := context.WithTimeout(context.Background(), config.C.Timeout)
+	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
 	defer cancel()
 	rep, err := client.Profile.Exists(ctx2, &pb.ExistsRequest{
 		UserID: user.ID,
@@ -160,8 +161,8 @@ func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi
 
 	info := strings.Split(strings.TrimSpace(args), config.C.Separator)
 
-	// Contact the server and print out its response.
-	ctx2, cancel := context.WithTimeout(context.Background(), config.C.Timeout)
+	// Contact the profile server
+	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
 	defer cancel()
 	_, err := client.Profile.SignUp(ctx2, &pb.SignUpRequest{
 		UserID:   user.ID,
@@ -215,6 +216,25 @@ func (c *ShowProfile) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgb
 
 	_, err = bot.Send(photoMsg)
 	return err
+}
+
+type Find struct{}
+
+func (c *Find) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+	userID := upd.SentFrom().ID
+	chat := upd.FromChat()
+
+	next, err := client.Match.Next(ctx, &pb.NextRequest{
+		UserID:   userID,
+		SphereID: config.C.SphereID,
+	})
+	if err != nil {
+		log.Printf("couldn't get recommendations: %v", err)
+		_ = reply(bot, chat, loc.Message(loc.FindFail))
+		return err
+	}
+
+	return reply(bot, chat, strconv.Itoa(int(next.NextUserID)))
 }
 
 // Help command shows information about all commands

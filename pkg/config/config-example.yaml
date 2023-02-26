@@ -12,6 +12,8 @@ ProfileHost: localhost
 ProfilePort: 8080
 REngineHost: localhost
 REnginePort: 8081
+MatchHost: localhost
+MatchPort: 8082
 
 TagsLimit: 5
 MainSphereCoefficient:  1.0

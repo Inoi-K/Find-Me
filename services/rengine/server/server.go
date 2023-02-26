@@ -15,20 +15,18 @@ type server struct {
 	pb.UnimplementedREngineServer
 }
 
-func (s *server) UpdateRecommendations(ctx context.Context, in *pb.UpdateRecommendationsRequest) (*pb.UpdateRecommendationsReply, error) {
+func (s *server) GetRecommendations(ctx context.Context, in *pb.GetRecommendationsRequest) (*pb.GetRecommendationsReply, error) {
 	ust, err := database.GetUserSphereTag(ctx)
 	if err != nil {
 		log.Fatalf("failed to get user sphere tags %v", err)
 	}
 
-	// TODO create recommendations for current user
+	// create recommendations for current user
 	recommendations := recommendation.CreateRecommendationsForUser(in.UserID, ust)
-
-	// TODO update recommendations of affected online users
 
 	//recommendation.ShowSimilarityAll(users, "work")
 
-	return &pb.UpdateRecommendationsReply{
+	return &pb.GetRecommendationsReply{
 		RecommendationIDs: recommendations,
 	}, nil
 }

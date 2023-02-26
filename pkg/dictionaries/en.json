@@ -25,6 +25,8 @@
   "editSuccess": "Successfully edited!",
   "editFail": "Couldn't edit :(",
 
+  "findFail": "Couldn't find :(",
+
   "name": "Name",
   "gender": "Gender",
   "age": "Age",

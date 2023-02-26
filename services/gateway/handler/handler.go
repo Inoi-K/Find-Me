@@ -56,6 +56,7 @@ func makeCommands() map[string]command.ICommand {
 		command.EditFieldButton:    &command.EditFieldCallback{},
 
 		// Shortcut commands for testing
+		command.FindCommand: &command.Find{},
 		//command.SignUpCommand: &command.SignUp{},
 		//command.EditFieldCommand: &command.EditField{},
 	}

@@ -27,6 +27,8 @@ const (
 	EditSuccess = "editSuccess"
 	EditFail    = "editFail"
 
+	FindFail = "findFail"
+
 	// FIELDS
 	Name        = "name"
 	Gender      = "gender"

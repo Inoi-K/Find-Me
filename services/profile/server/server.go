@@ -5,6 +5,7 @@ import (
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/pkg/database"
+	"github.com/Inoi-K/Find-Me/services/profile/client"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -15,7 +16,7 @@ type server struct {
 }
 
 // SignUp adds user to database
-func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.Empty, error) {
+func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.ProfileEmpty, error) {
 	log.Printf("Received sign up: %v", in.UserID)
 
 	err := database.AddUser(ctx, in)
@@ -23,7 +24,15 @@ func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.Empty, e
 		return nil, err
 	}
 
-	return &pb.Empty{}, nil
+	// Contact the match server
+	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
+	defer cancel()
+	_, err = client.Match.UpdateRecommendations(ctx2, &pb.UpdateRecommendationsRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ProfileEmpty{}, nil
 }
 
 // GetUserMain gets main info of a user
@@ -72,7 +81,7 @@ func (s *server) Exists(ctx context.Context, in *pb.ExistsRequest) (*pb.ExistsRe
 }
 
 // Edit updates field of a user with a new value
-func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.Empty, error) {
+func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.ProfileEmpty, error) {
 	log.Printf("Received edit field: %v", in.UserID)
 
 	switch in.Field {
@@ -99,7 +108,7 @@ func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.Empty, error
 		return nil, UnknownFieldError
 	}
 
-	return &pb.Empty{}, nil
+	return &pb.ProfileEmpty{}, nil
 }
 
 func (s *server) GetTags(ctx context.Context, in *pb.GetTagsRequest) (*pb.GetTagsReply, error) {

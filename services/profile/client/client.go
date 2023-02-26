@@ -8,26 +8,16 @@ import (
 )
 
 var (
-	Profile     pb.ProfileClient
-	Match       pb.MatchClient
-	connProfile *grpc.ClientConn
-	connMatch   *grpc.ClientConn
+	Match     pb.MatchClient
+	connMatch *grpc.ClientConn
 )
 
 // Open creates connections to other services
 func Open() error {
 	var err error
 
-	// Set up a connection to the profile server.
-	address := config.C.ProfileHost + ":" + config.C.ProfilePort
-	connProfile, err = grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return err
-	}
-	Profile = pb.NewProfileClient(connProfile)
-
 	// Set up a connection to the match server
-	address = config.C.MatchHost + ":" + config.C.MatchPort
+	address := config.C.MatchHost + ":" + config.C.MatchPort
 	connMatch, err = grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return err
@@ -39,6 +29,5 @@ func Open() error {
 
 // Close closes connections to other services
 func Close() {
-	connProfile.Close()
 	connMatch.Close()
 }

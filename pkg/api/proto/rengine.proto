@@ -3,15 +3,14 @@ syntax = "proto3";
 option go_package = "/pb";
 
 service REngine {
-  rpc UpdateRecommendations (UpdateRecommendationsRequest) returns (UpdateRecommendationsReply) {}
+  rpc GetRecommendations (GetRecommendationsRequest) returns (GetRecommendationsReply) {}
 }
 
-message Empty {}
-
-message UpdateRecommendationsRequest {
+message GetRecommendationsRequest {
   int64 userID = 1;
+  int64 sphereID = 2;
 }
 
-message UpdateRecommendationsReply {
+message GetRecommendationsReply {
   repeated int64 recommendationIDs = 1;
 }
