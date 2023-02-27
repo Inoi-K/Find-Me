@@ -36,5 +36,7 @@
   "tags": "Тег",
 
   "male": "Парень",
-  "female": "Девушка"
+  "female": "Девушка",
+
+  "markSuccess": "✅"
 }

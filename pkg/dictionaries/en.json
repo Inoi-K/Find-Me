@@ -36,5 +36,7 @@
   "tags": "Tags",
 
   "male": "Male",
-  "female": "Female"
+  "female": "Female",
+
+  "markSuccess": "✅"
 }

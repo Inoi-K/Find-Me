@@ -42,5 +42,6 @@ const (
 	Male   = "male"
 	Female = "female"
 
+	MarkSuccess   = "markSuccess"
 	DeleteAccount = "deleteAccount"
 )

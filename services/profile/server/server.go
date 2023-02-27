@@ -61,10 +61,17 @@ func (s *server) GetUserAdditional(ctx context.Context, in *pb.GetUserAdditional
 		return nil, err
 	}
 
+	tags := make([]string, len(sphereInfo[config.C.SphereID].Tags))
+	i := 0
+	for tag := range sphereInfo[config.C.SphereID].Tags {
+		tags[i] = tag
+		i++
+	}
+
 	return &pb.GetUserAdditionalReply{
 		Description: sphereInfo[in.SphereID].Description,
 		PhotoID:     sphereInfo[in.SphereID].PhotoID,
-		//Tags: user.SphereInfo[config.C.SphereID].Tags,
+		Tags:        tags,
 	}, nil
 }
 
