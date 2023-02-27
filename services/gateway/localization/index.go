@@ -39,8 +39,10 @@ const (
 	Tags        = "tags"
 
 	// OPTIONS
-	Male   = "male"
-	Female = "female"
+	Male    = "male"
+	Female  = "female"
+	Like    = "like"
+	Dislike = "dislike"
 
 	MarkSuccess   = "markSuccess"
 	DeleteAccount = "deleteAccount"

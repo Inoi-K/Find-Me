@@ -22,7 +22,7 @@ func CreateRecommendationsForUser(userID int64, ust model.UST) []int64 {
 	}
 	sortedSimilarities := utils.SortSetByValue(similarities)
 
-	recommendations := make([]int64, len(ust)-1)
+	recommendations := make([]int64, len(sortedSimilarities))
 	for i := 0; i < len(sortedSimilarities); i++ {
 		recommendations[i] = sortedSimilarities[i].Key
 	}

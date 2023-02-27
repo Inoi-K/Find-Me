@@ -37,6 +37,8 @@
 
   "male": "Male",
   "female": "Female",
+  "like": "\uD83D\uDC4D",
+  "dislike": "\uD83D\uDC4E",
 
   "markSuccess": "✅"
 }

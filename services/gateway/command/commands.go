@@ -10,7 +10,6 @@ import (
 	"github.com/Inoi-K/Find-Me/services/gateway/session"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
-	"strconv"
 	"strings"
 )
 
@@ -202,41 +201,50 @@ func (c *EditProfile) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgb
 type ShowProfile struct{}
 
 func (c *ShowProfile) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
-	userID := upd.SentFrom().ID
+	photoMsg, err := prepareProfile(ctx, upd.SentFrom().ID, upd.FromChat().ID)
+	if err != nil {
+		return err
+	}
+
+	_, err = bot.Send(photoMsg)
+	return err
+}
+
+func prepareProfile(ctx context.Context, userID, chatID int64) (*tgbotapi.PhotoConfig, error) {
 	// get user
 	main, err := client.Profile.GetUserMain(ctx, &pb.GetUserMainRequest{
 		UserID: userID,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	add, err := client.Profile.GetUserAdditional(ctx, &pb.GetUserAdditionalRequest{
 		UserID:   userID,
 		SphereID: config.C.SphereID,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	// build a message with profile photo and other info
 	file := tgbotapi.FileID(add.PhotoID)
-	photoMsg := tgbotapi.NewPhoto(upd.FromChat().ID, file)
+	photoMsg := tgbotapi.NewPhoto(chatID, file)
 
 	tagsPart := "#" + strings.Join(add.Tags, " #")
 
 	photoMsg.Caption = fmt.Sprintf("%s, %d y.o.\n%s\n%s\n\n%s", main.Name, main.Age, main.Faculty, add.Description, tagsPart)
 
-	_, err = bot.Send(photoMsg)
-	return err
+	return &photoMsg, nil
 }
 
 type Find struct{}
 
 func (c *Find) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
-	userID := upd.SentFrom().ID
 	chat := upd.FromChat()
 
+	// get next user id
 	next, err := client.Match.Next(ctx, &pb.NextRequest{
-		UserID:   userID,
+		UserID:   upd.SentFrom().ID,
 		SphereID: config.C.SphereID,
 	})
 	if err != nil {
@@ -245,7 +253,17 @@ func (c *Find) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.U
 		return err
 	}
 
-	return reply(bot, chat, strconv.Itoa(int(next.NextUserID)))
+	// prepare profile with like/dislike buttons
+	nextProfile, err := prepareProfile(ctx, next.NextUserID, chat.ID)
+	if err != nil {
+		log.Printf("couldn't get profile %d: %v", next.NextUserID, err)
+		_ = reply(bot, chat, loc.Message(loc.FindFail))
+		return err
+	}
+	nextProfile.ReplyMarkup = MatchMarkup
+
+	_, err = bot.Send(nextProfile)
+	return err
 }
 
 // Help command shows information about all commands

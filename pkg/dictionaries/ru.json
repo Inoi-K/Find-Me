@@ -37,6 +37,8 @@
 
   "male": "Парень",
   "female": "Девушка",
+  "like": "\uD83D\uDC4D",
+  "dislike": "\uD83D\uDC4E",
 
   "markSuccess": "✅"
 }
