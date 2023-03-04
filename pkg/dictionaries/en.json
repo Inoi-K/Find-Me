@@ -27,6 +27,9 @@
 
   "findFail": "Couldn't find :(",
 
+  "match": "Match! \uD83C\uDF89\n",
+  "likeReceived": "You've received a like ❤",
+
   "name": "Name",
   "gender": "Gender",
   "age": "Age",
@@ -36,9 +39,5 @@
   "tags": "Tags",
 
   "male": "Male",
-  "female": "Female",
-  "like": "\uD83D\uDC4D",
-  "dislike": "\uD83D\uDC4E",
-
-  "markSuccess": "✅"
+  "female": "Female"
 }

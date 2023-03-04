@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
+	"github.com/Inoi-K/Find-Me/pkg/database"
 	"github.com/Inoi-K/Find-Me/services/match/client"
 	"github.com/Inoi-K/Find-Me/services/match/session"
 	"google.golang.org/grpc"
@@ -59,6 +60,17 @@ func getRecommendations(ctx context.Context, userID, sphereID int64) ([]int64, e
 		return nil, err
 	}
 	return rep.RecommendationIDs, nil
+}
+
+func (s *server) Like(ctx context.Context, in *pb.LikeRequest) (*pb.LikeReply, error) {
+	isReciprocated, err := database.Like(ctx, in.LikerID, in.LikedID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.LikeReply{
+		IsReciprocated: isReciprocated,
+	}, nil
 }
 
 func Start() {

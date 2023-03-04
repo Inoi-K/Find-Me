@@ -21,6 +21,7 @@ const (
 	EditFieldCommand   = "editField"
 	SignUpCommand      = "signup"
 	FindCommand        = "find"
+	MatchCommand       = "match"
 
 	HelpCommand     = "help"
 	LanguageCommand = "lang"
@@ -50,7 +51,7 @@ var (
 	EditGenderMarkup  tgbotapi.InlineKeyboardMarkup
 	EditFacultyMarkup tgbotapi.InlineKeyboardMarkup
 	EditTagsMarkup    tgbotapi.InlineKeyboardMarkup
-	MatchMarkup       tgbotapi.InlineKeyboardMarkup
+	MatchMarkup       tgbotapi.ReplyKeyboardMarkup
 
 	UnknownCommandError = errors.New("unknown command")
 	ContextDoneError    = errors.New("context is done")
@@ -111,10 +112,10 @@ func UpdateIndex(ctx context.Context) {
 	}
 	EditTagsMarkup = makeInlineKeyboard(tags, "", 4)
 
-	MatchMarkup = tgbotapi.NewInlineKeyboardMarkup(
-		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Dislike), Dislike),
-			tgbotapi.NewInlineKeyboardButtonData(loc.Message(loc.Like), Like),
+	MatchMarkup = tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton(config.C.DislikeButton),
+			tgbotapi.NewKeyboardButton(config.C.LikeButton),
 		),
 	)
 }

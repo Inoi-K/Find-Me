@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type MatchClient interface {
 	Next(ctx context.Context, in *NextRequest, opts ...grpc.CallOption) (*NextReply, error)
 	UpdateRecommendations(ctx context.Context, in *UpdateRecommendationsRequest, opts ...grpc.CallOption) (*MatchEmpty, error)
+	Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*LikeReply, error)
 }
 
 type matchClient struct {
@@ -52,12 +53,22 @@ func (c *matchClient) UpdateRecommendations(ctx context.Context, in *UpdateRecom
 	return out, nil
 }
 
+func (c *matchClient) Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*LikeReply, error) {
+	out := new(LikeReply)
+	err := c.cc.Invoke(ctx, "/Match/Like", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MatchServer is the server API for Match service.
 // All implementations must embed UnimplementedMatchServer
 // for forward compatibility
 type MatchServer interface {
 	Next(context.Context, *NextRequest) (*NextReply, error)
 	UpdateRecommendations(context.Context, *UpdateRecommendationsRequest) (*MatchEmpty, error)
+	Like(context.Context, *LikeRequest) (*LikeReply, error)
 	mustEmbedUnimplementedMatchServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedMatchServer) Next(context.Context, *NextRequest) (*NextReply,
 }
 func (UnimplementedMatchServer) UpdateRecommendations(context.Context, *UpdateRecommendationsRequest) (*MatchEmpty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateRecommendations not implemented")
+}
+func (UnimplementedMatchServer) Like(context.Context, *LikeRequest) (*LikeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Like not implemented")
 }
 func (UnimplementedMatchServer) mustEmbedUnimplementedMatchServer() {}
 
@@ -120,6 +134,24 @@ func _Match_UpdateRecommendations_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Match_Like_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LikeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MatchServer).Like(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Match/Like",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MatchServer).Like(ctx, req.(*LikeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Match_ServiceDesc is the grpc.ServiceDesc for Match service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var Match_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateRecommendations",
 			Handler:    _Match_UpdateRecommendations_Handler,
+		},
+		{
+			MethodName: "Like",
+			Handler:    _Match_Like_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

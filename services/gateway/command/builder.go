@@ -8,25 +8,32 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+// send builds message and sends it directly to the user
+func send(bot *tgbotapi.BotAPI, userID int64, text string) error {
+	msg := newMessage(userID, text, nil)
+	_, err := bot.Send(msg)
+	return err
+}
+
 // reply builds message and sends it to the chat
 func reply(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, text string) error {
-	msg := newMessage(chat.ID, text, tgbotapi.InlineKeyboardMarkup{})
+	msg := newMessage(chat.ID, text, nil)
 	_, err := bot.Send(msg)
 	return err
 }
 
 // replyKeyboard builds message with keyboard and sends it to the chat
 func replyKeyboard(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, text string, keyboard tgbotapi.InlineKeyboardMarkup) error {
-	msg := newMessage(chat.ID, text, keyboard)
+	msg := newMessage(chat.ID, text, &keyboard)
 	_, err := bot.Send(msg)
 	return err
 }
 
 // newMessage builds message with all needed parameters
-func newMessage(chatID int64, text string, keyboard tgbotapi.InlineKeyboardMarkup) tgbotapi.MessageConfig {
+func newMessage(chatID int64, text string, keyboard *tgbotapi.InlineKeyboardMarkup) tgbotapi.MessageConfig {
 	msg := tgbotapi.NewMessage(chatID, text)
 	msg.ParseMode = config.C.ParseMode
-	if len(keyboard.InlineKeyboard) != 0 {
+	if keyboard != nil && len(keyboard.InlineKeyboard) != 0 {
 		msg.ReplyMarkup = keyboard
 	}
 	return msg

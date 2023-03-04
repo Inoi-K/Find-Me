@@ -27,6 +27,9 @@
 
   "findFail": "Не получилось найти :(",
 
+  "match": "Мэтч! \uD83C\uDF89\n",
+  "likeReceived": "Ты получил лайк ❤",
+
   "name": "Имя",
   "gender": "Пол",
   "age": "Возраст",
@@ -36,9 +39,5 @@
   "tags": "Тег",
 
   "male": "Парень",
-  "female": "Девушка",
-  "like": "\uD83D\uDC4D",
-  "dislike": "\uD83D\uDC4E",
-
-  "markSuccess": "✅"
+  "female": "Девушка"
 }

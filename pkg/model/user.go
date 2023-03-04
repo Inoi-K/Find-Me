@@ -8,6 +8,8 @@ type User struct {
 	Gender     string
 	Age        int64
 	Faculty    string
+	University string
+	Username   string
 	SphereInfo map[int64]*UserSphere
 }
 

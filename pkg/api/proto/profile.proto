@@ -13,6 +13,7 @@ service Profile {
 
 message ProfileEmpty {}
 
+// TODO review the types
 message SignUpRequest {
   int64 userID = 1;
   int64 sphereID = 2;
@@ -20,6 +21,8 @@ message SignUpRequest {
   string gender = 4;
   string age = 5;
   string faculty = 6;
+  string university = 7;
+  string username = 8;
 }
 
 message SignUpReply {
@@ -35,6 +38,8 @@ message GetUserMainReply {
   string gender = 2;
   int64 age = 3;
   string faculty = 4;
+  string university = 5;
+  string username = 6;
 }
 
 message GetUserAdditionalRequest {

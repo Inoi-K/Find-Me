@@ -45,10 +45,12 @@ func (s *server) GetUserMain(ctx context.Context, in *pb.GetUserMainRequest) (*p
 	}
 
 	return &pb.GetUserMainReply{
-		Name:    user.Name,
-		Gender:  user.Gender,
-		Age:     user.Age,
-		Faculty: user.Faculty,
+		Name:       user.Name,
+		Gender:     user.Gender,
+		Age:        user.Age,
+		Faculty:    user.Faculty,
+		University: user.University,
+		Username:   user.Username,
 	}, nil
 }
 

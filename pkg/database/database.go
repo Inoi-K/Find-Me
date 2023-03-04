@@ -128,8 +128,8 @@ func GetUser(ctx context.Context, userID int64) (*model.User, error) {
 // GetUserMain gets main info about a user
 func GetUserMain(ctx context.Context, userID int64) (*model.User, error) {
 	user := &model.User{}
-	query := fmt.Sprintf("SELECT name, gender, age, faculty FROM \"user\" WHERE id=%d;", userID)
-	err := db.pool.QueryRow(ctx, query).Scan(&user.Name, &user.Gender, &user.Age, &user.Faculty)
+	query := fmt.Sprintf("SELECT name, gender, age, faculty, university, username FROM \"user\" WHERE id=%d;", userID)
+	err := db.pool.QueryRow(ctx, query).Scan(&user.Name, &user.Gender, &user.Age, &user.Faculty, &user.University, &user.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -185,6 +185,7 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 	return sphereInfo, nil
 }
 
+// TODO refactor pb req to user model
 // AddUser adds user to db in all necessary tables
 func AddUser(ctx context.Context, request *pb.SignUpRequest) error {
 	query := fmt.Sprintf("INSERT INTO \"user\" VALUES (%d, '%s', '%s', %s, '%s');", request.UserID, request.Name, request.Gender, request.Age, request.Faculty)
@@ -307,4 +308,23 @@ func ConvertTagsToIDS(ctx context.Context, tags []string) ([]int64, error) {
 	}
 
 	return tagIDs, nil
+}
+
+func Like(ctx context.Context, likerID, likedID int64) (bool, error) {
+	// record a new like
+	query := fmt.Sprintf("INSERT INTO match VALUES (%d, %d);", likerID, likedID)
+	_, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return false, err
+	}
+
+	// check if there is a return like
+	query = fmt.Sprintf("SELECT 1 FROM match WHERE liker_id=%d AND liked_id=%d;", likedID, likerID)
+	rows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	return rows.Next(), nil
 }

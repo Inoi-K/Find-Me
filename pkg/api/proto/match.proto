@@ -5,6 +5,7 @@ option go_package = "/pb";
 service Match {
   rpc Next (NextRequest) returns (NextReply) {}
   rpc UpdateRecommendations (UpdateRecommendationsRequest) returns (MatchEmpty) {}
+  rpc Like (LikeRequest) returns (LikeReply) {}
 }
 
 message MatchEmpty {}
@@ -21,4 +22,13 @@ message NextReply {
 message UpdateRecommendationsRequest {
   int64 userID = 1;
   int64 sphereID = 2;
+}
+
+message LikeRequest {
+  int64 likerID = 1;
+  int64 likedID = 2;
+}
+
+message LikeReply {
+  bool isReciprocated = 1;
 }

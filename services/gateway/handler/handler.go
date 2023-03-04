@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/services/gateway/command"
-	loc "github.com/Inoi-K/Find-Me/services/gateway/localization"
 	"github.com/Inoi-K/Find-Me/services/gateway/session"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
@@ -57,7 +56,8 @@ func makeCommands() map[string]command.ICommand {
 		command.EditFieldButton:    &command.EditFieldCallback{},
 
 		// Shortcut commands for testing
-		command.FindCommand: &command.Find{},
+		command.FindCommand:  &command.Find{},
+		command.MatchCommand: &command.Match{},
 		//command.SignUpCommand: &command.SignUp{},
 		//command.EditFieldCommand: &command.EditField{},
 	}
@@ -144,6 +144,8 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 			session.UserStateArg[user.ID] <- message.Text
 		case session.EnterPhoto:
 			session.UserStateArg[user.ID] <- message.Photo[0].FileID
+		case session.Matching:
+			return executeCommand(ctx, upd, command.MatchCommand, message.Text)
 		default:
 			return command.UnknownStateError
 		}
@@ -202,12 +204,12 @@ func updateInlineKeyboard(upd tgbotapi.Update, queryData string) (bool, error) {
 		for columnIndex, button := range row {
 			if *button.CallbackData == queryData {
 				// TODO check a possible error with language changes
-				if li := strings.LastIndex(button.Text, loc.Message(loc.MarkSuccess)); li != -1 {
+				if li := strings.LastIndex(button.Text, config.C.MarkSuccess); li != -1 {
 					isNew = false
 					newKeyboard.InlineKeyboard[rowIndex][columnIndex].Text = button.Text[:(li - 1)]
 				} else {
 					isNew = true
-					newKeyboard.InlineKeyboard[rowIndex][columnIndex].Text += " " + loc.Message(loc.MarkSuccess)
+					newKeyboard.InlineKeyboard[rowIndex][columnIndex].Text += " " + config.C.MarkSuccess
 				}
 				break
 			}

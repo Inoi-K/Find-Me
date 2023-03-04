@@ -29,6 +29,9 @@ const (
 
 	FindFail = "findFail"
 
+	Match        = "match"
+	LikeReceived = "likeReceived"
+
 	// FIELDS
 	Name        = "name"
 	Gender      = "gender"
@@ -39,11 +42,8 @@ const (
 	Tags        = "tags"
 
 	// OPTIONS
-	Male    = "male"
-	Female  = "female"
-	Like    = "like"
-	Dislike = "dislike"
+	Male   = "male"
+	Female = "female"
 
-	MarkSuccess   = "markSuccess"
 	DeleteAccount = "deleteAccount"
 )

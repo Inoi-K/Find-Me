@@ -10,6 +10,7 @@ import (
 	"github.com/Inoi-K/Find-Me/services/gateway/session"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -218,7 +219,10 @@ func prepareProfile(ctx context.Context, userID, chatID int64) (*tgbotapi.PhotoC
 	if err != nil {
 		return nil, err
 	}
-	add, err := client.Profile.GetUserAdditional(ctx, &pb.GetUserAdditionalRequest{
+
+	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
+	defer cancel()
+	add, err := client.Profile.GetUserAdditional(ctx2, &pb.GetUserAdditionalRequest{
 		UserID:   userID,
 		SphereID: config.C.SphereID,
 	})
@@ -240,11 +244,15 @@ func prepareProfile(ctx context.Context, userID, chatID int64) (*tgbotapi.PhotoC
 type Find struct{}
 
 func (c *Find) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+	user := upd.SentFrom()
 	chat := upd.FromChat()
 
+	session.UserState[user.ID] = session.Matching
 	// get next user id
-	next, err := client.Match.Next(ctx, &pb.NextRequest{
-		UserID:   upd.SentFrom().ID,
+	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
+	defer cancel()
+	next, err := client.Match.Next(ctx2, &pb.NextRequest{
+		UserID:   user.ID,
 		SphereID: config.C.SphereID,
 	})
 	if err != nil {
@@ -261,9 +269,82 @@ func (c *Find) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.U
 		return err
 	}
 	nextProfile.ReplyMarkup = MatchMarkup
+	go func() {
+		// TODO handle possible data loss
+		if _, ok := session.UserStateArg[user.ID]; !ok {
+			session.UserStateArg[user.ID] = make(chan string)
+		}
+		session.UserStateArg[user.ID] <- strconv.FormatInt(next.NextUserID, 10)
+	}()
 
 	_, err = bot.Send(nextProfile)
 	return err
+}
+
+type Match struct{}
+
+func (c *Match) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+	user := upd.SentFrom()
+	likedUserID, err := strconv.ParseInt(<-session.UserStateArg[user.ID], 10, 0)
+	if err != nil {
+		return err
+	}
+
+	// no special handling for dislike
+	if args == config.C.DislikeButton {
+		return nil
+	}
+
+	// like handling
+	rep, err := client.Match.Like(ctx, &pb.LikeRequest{
+		LikerID: user.ID,
+		LikedID: likedUserID,
+	})
+	if err != nil {
+		return err
+	}
+
+	// send contacts each user
+	// or notify the liked one
+	if rep.IsReciprocated {
+		// get usernames
+		// TODO parallel
+		ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
+		defer cancel()
+		likerMain, err := client.Profile.GetUserMain(ctx2, &pb.GetUserMainRequest{
+			UserID: user.ID,
+		})
+		if err != nil {
+			return err
+		}
+		ctx3, cancel := context.WithTimeout(ctx, config.C.Timeout)
+		defer cancel()
+		likedMain, err := client.Profile.GetUserMain(ctx3, &pb.GetUserMainRequest{
+			UserID: likedUserID,
+		})
+		if err != nil {
+			return err
+		}
+
+		// send contacts
+		err = send(bot, user.ID, loc.Message(loc.Match)+likedMain.Username)
+		if err != nil {
+			return err
+		}
+
+		err = send(bot, likedUserID, loc.Message(loc.Match)+likerMain.Username)
+		if err != nil {
+			return err
+		}
+	} else {
+		// notify the liked one that he/she has received a like
+		err = send(bot, likedUserID, loc.Message(loc.LikeReceived))
+		if err != nil {
+			return err
+		}
+	}
+
+	return (&Find{}).Execute(ctx, bot, upd, args)
 }
 
 // Help command shows information about all commands
