@@ -14,9 +14,9 @@ MatchPort: 8082
 
 Separator: " "
 ParseMode: Markdown
-LikeButton: \uD83D\uDC4D
-DislikeButton: \uD83D\uDC4E
-markSuccess: ✅
+LikeButton: 👍
+DislikeButton: 👎
+HighlightMark: ✅
 
 TagsLimit: 5
 MainSphereCoefficient:  1.0

@@ -40,8 +40,7 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		loc.ChangeLanguage("en")
 	}
 
-	// check user existence
-	// contact the profile service
+	// contact the profile service to check user existence
 	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
 	defer cancel()
 	rep, err := client.Profile.Exists(ctx2, &pb.ExistsRequest{
@@ -60,7 +59,7 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 
 	// TODO validate user with corporate email
 
-	// main information
+	// ask for main information
 	var signUpArgs string
 	for _, field := range []string{Name, Gender, Age, Faculty} {
 		newArg, err := askStateField(ctx, bot, chat, user.ID, field)
@@ -77,7 +76,7 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		return err
 	}
 
-	// additional information
+	// ask for additional information
 	editFieldButton := &EditFieldCallback{}
 	for _, field := range []string{Photo, Description, Tags} {
 		err = editFieldButton.Execute(ctx, bot, upd, field)
@@ -121,11 +120,13 @@ func askArg(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, user
 
 // askArgKeyboard asks with a keyboard a user for a new value of the field and waits for it - response
 func askArgKeyboard(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, userID int64, messageKey string, keyboard tgbotapi.InlineKeyboardMarkup) (string, error) {
+	// send an 'enter field' message with keyboard if needed
 	err := replyKeyboard(bot, chat, loc.Message(messageKey), keyboard)
 	if err != nil {
 		return "", err
 	}
 
+	// create chan for arguments
 	session.UserStateArg[userID] = make(chan string)
 	arg := ""
 	switch session.UserState[userID] {
@@ -171,7 +172,7 @@ func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi
 
 	info := strings.Split(strings.TrimSpace(args), config.C.Separator)
 
-	// Contact the profile server
+	// contact the profile server to sign up the user
 	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
 	defer cancel()
 	_, err := client.Profile.SignUp(ctx2, &pb.SignUpRequest{
@@ -215,6 +216,7 @@ func (c *ShowProfile) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgb
 	return err
 }
 
+// prepareProfile returns telegram message draft with user image and caption by provided user and sphere IDs
 func prepareProfile(ctx context.Context, userID, chatID int64) (*tgbotapi.PhotoConfig, error) {
 	// get user
 	main, err := client.Profile.GetUserMain(ctx, &pb.GetUserMainRequest{
@@ -245,14 +247,16 @@ func prepareProfile(ctx context.Context, userID, chatID int64) (*tgbotapi.PhotoC
 	return &photoMsg, nil
 }
 
+// Find replies with a new user recommendation
 type Find struct{}
 
 func (c *Find) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
 	user := upd.SentFrom()
 	chat := upd.FromChat()
 
+	// change state
 	session.UserState[user.ID] = session.Matching
-	// get next user id
+	// contact the match service to get next user id
 	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
 	defer cancel()
 	next, err := client.Match.Next(ctx2, &pb.NextRequest{
@@ -278,6 +282,7 @@ func (c *Find) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.U
 		return err
 	}
 	nextProfile.ReplyMarkup = MatchMarkup
+	// store id of the recommended user in the chan
 	go func() {
 		// TODO handle possible data loss
 		if _, ok := session.UserStateArg[user.ID]; !ok {
@@ -286,13 +291,16 @@ func (c *Find) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.U
 		session.UserStateArg[user.ID] <- strconv.FormatInt(next.NextUserID, 10)
 	}()
 
+	// send profile
 	_, err = bot.Send(nextProfile)
 	return err
 }
 
+// Match handles the reaction (like/dislike) of a user on a recommendation
 type Match struct{}
 
 func (c *Match) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
+	// get both user IDs
 	user := upd.SentFrom()
 	likedUserID, err := strconv.ParseInt(<-session.UserStateArg[user.ID], 10, 0)
 	if err != nil {
@@ -313,7 +321,7 @@ func (c *Match) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		return err
 	}
 
-	// send contacts each user
+	// send contacts to each user
 	// or notify the liked one
 	if rep.IsReciprocated {
 		// get usernames
@@ -353,6 +361,7 @@ func (c *Match) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		}
 	}
 
+	// find a new recommendation
 	return (&Find{}).Execute(ctx, bot, upd, args)
 }
 

@@ -10,30 +10,30 @@ import (
 
 // send builds message and sends it directly to the user
 func send(bot *tgbotapi.BotAPI, userID int64, text string) error {
-	msg := newMessage(userID, text, nil)
+	msg := newMessage(userID, text, tgbotapi.InlineKeyboardMarkup{})
 	_, err := bot.Send(msg)
 	return err
 }
 
 // reply builds message and sends it to the chat
 func reply(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, text string) error {
-	msg := newMessage(chat.ID, text, nil)
+	msg := newMessage(chat.ID, text, tgbotapi.InlineKeyboardMarkup{})
 	_, err := bot.Send(msg)
 	return err
 }
 
 // replyKeyboard builds message with keyboard and sends it to the chat
 func replyKeyboard(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat, text string, keyboard tgbotapi.InlineKeyboardMarkup) error {
-	msg := newMessage(chat.ID, text, &keyboard)
+	msg := newMessage(chat.ID, text, keyboard)
 	_, err := bot.Send(msg)
 	return err
 }
 
 // newMessage builds message with all needed parameters
-func newMessage(chatID int64, text string, keyboard *tgbotapi.InlineKeyboardMarkup) tgbotapi.MessageConfig {
+func newMessage(chatID int64, text string, keyboard tgbotapi.InlineKeyboardMarkup) tgbotapi.MessageConfig {
 	msg := tgbotapi.NewMessage(chatID, text)
 	msg.ParseMode = config.C.ParseMode
-	if keyboard != nil && len(keyboard.InlineKeyboard) != 0 {
+	if len(keyboard.InlineKeyboard) != 0 {
 		msg.ReplyMarkup = keyboard
 	}
 	return msg
@@ -41,16 +41,20 @@ func newMessage(chatID int64, text string, keyboard *tgbotapi.InlineKeyboardMark
 
 // makeInlineKeyboard builds inline keyboard from the content
 func makeInlineKeyboard(content []model.Content, commandButton string, columnCount int) tgbotapi.InlineKeyboardMarkup {
+	// count the rows number taking in mind divisible/indivisible numbers
 	rowCount := len(content) / columnCount
 	if len(content)%columnCount != 0 {
 		rowCount++
 	}
 	keyboard := make([][]tgbotapi.InlineKeyboardButton, rowCount)
 
+	// specify command in the first part of the button data if needed
 	commandPart := commandButton
 	if len(commandPart) > 0 {
 		commandPart += config.C.Separator
 	}
+
+	// build the keyboard
 	for i := 0; i < rowCount; i++ {
 		buttonPlaced := i * columnCount
 		currentColumnCount := columnCount

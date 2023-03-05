@@ -89,7 +89,7 @@ func handleUpdate(ctx context.Context, update tgbotapi.Update) {
 	}
 }
 
-// handleMessage defines the type of the message (command or other - replies as echo in the latter case)
+// handleMessage defines the type of the message (command or text) and acts accordingly
 func handleMessage(ctx context.Context, update tgbotapi.Update) {
 	message := update.Message
 	user := message.From
@@ -99,7 +99,6 @@ func handleMessage(ctx context.Context, update tgbotapi.Update) {
 		return
 	}
 
-	// Print to console
 	log.Printf("%s wrote %s", user.FirstName, text)
 
 	var err error
@@ -121,6 +120,7 @@ func handleCommand(ctx context.Context, upd tgbotapi.Update) error {
 	return executeCommand(ctx, upd, curCommand, args)
 }
 
+// executeCommand executes the command if it exists
 func executeCommand(ctx context.Context, upd tgbotapi.Update, cmd string, args string) error {
 	if c, ok := commands[cmd]; ok {
 		return c.Execute(ctx, bot, upd, args)
@@ -134,7 +134,7 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 	message := upd.Message
 	user := upd.SentFrom()
 
-	// validated user (but might be not fully registered)
+	// user fields input
 	if state, ok := session.UserState[user.ID]; ok {
 		switch state {
 		case session.EnterName, session.EnterDescription:
@@ -152,7 +152,7 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 		return nil
 	}
 
-	// This is equivalent to forwarding, without the sender's name
+	// this is equivalent to forwarding, without the sender's name
 	copyMsg := tgbotapi.NewCopyMessage(message.Chat.ID, message.Chat.ID, message.MessageID)
 	_, err := bot.CopyMessage(copyMsg)
 	return err
@@ -163,6 +163,8 @@ func handleButton(ctx context.Context, upd tgbotapi.Update) {
 	query := upd.CallbackQuery
 	mainPart, args, isCommand := strings.Cut(query.Data, config.C.Separator)
 
+	// run command
+	// or handle the text data button
 	if isCommand {
 		err := executeCommand(ctx, upd, mainPart, args)
 		if err != nil {
@@ -187,7 +189,7 @@ func handleButton(ctx context.Context, upd tgbotapi.Update) {
 		}
 	}
 
-	// close the query
+	// close the query (to remove processing state of a button with a little timer image in it)
 	callbackCfg := tgbotapi.NewCallback(query.ID, "")
 	_, err := bot.Request(callbackCfg)
 	if err != nil {
@@ -195,6 +197,7 @@ func handleButton(ctx context.Context, upd tgbotapi.Update) {
 	}
 }
 
+// updateInlineKeyboard updates the picked button in the already sent inline keyboard
 func updateInlineKeyboard(upd tgbotapi.Update, queryData string) (bool, error) {
 	var isNew bool
 
@@ -203,19 +206,21 @@ func updateInlineKeyboard(upd tgbotapi.Update, queryData string) (bool, error) {
 	for rowIndex, row := range newKeyboard.InlineKeyboard {
 		for columnIndex, button := range row {
 			if *button.CallbackData == queryData {
-				// TODO check a possible error with language changes
-				if li := strings.LastIndex(button.Text, config.C.MarkSuccess); li != -1 {
+				// remove the highlight mark from the button if it was picked earlier
+				// or add the highlight mark to the button
+				if li := strings.LastIndex(button.Text, config.C.HighlightMark); li != -1 {
 					isNew = false
 					newKeyboard.InlineKeyboard[rowIndex][columnIndex].Text = button.Text[:(li - 1)]
 				} else {
 					isNew = true
-					newKeyboard.InlineKeyboard[rowIndex][columnIndex].Text += " " + config.C.MarkSuccess
+					newKeyboard.InlineKeyboard[rowIndex][columnIndex].Text += " " + config.C.HighlightMark
 				}
 				break
 			}
 		}
 	}
 
+	// send an update message
 	msg := tgbotapi.NewEditMessageReplyMarkup(upd.FromChat().ID, message.MessageID, *newKeyboard)
 	_, err := bot.Send(msg)
 	if err != nil {

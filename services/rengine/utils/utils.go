@@ -32,11 +32,13 @@ func JaccardIndex(s1, s2 map[int64]struct{}) float64 {
 	return float64(len(intersection)) / float64(len(s1)+len(s2)-len(intersection))
 }
 
+// KeyValue represents key-value map for storing in slice
 type KeyValue struct {
 	Key   int64
 	Value float64
 }
 
+// SortSetByValue returns a slice of the map sorted by value
 func SortSetByValue(m map[int64]float64) []KeyValue {
 	s := make([]KeyValue, len(m))
 	i := 0

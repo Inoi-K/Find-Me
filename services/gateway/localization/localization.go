@@ -23,7 +23,7 @@ func Initialize() {
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	for _, lang := range SupportedLanguages {
-		path := fmt.Sprintf("../../pkg/dictionaries/%v.json", lang.Data)
+		path := fmt.Sprintf("dictionaries/%v.json", lang.Data)
 		_, err := bundle.LoadMessageFile(path)
 		if err != nil {
 			log.Printf("no %v in %v", lang.Data, path)

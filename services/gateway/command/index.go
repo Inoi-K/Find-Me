@@ -27,8 +27,6 @@ const (
 	LanguageCommand = "lang"
 	LanguageButton  = "langButton"
 
-	Undo = "undo"
-
 	// FIELDS
 	Name        = "name"
 	Gender      = "gender"
@@ -38,10 +36,8 @@ const (
 	Description = "description"
 	Tags        = "tags"
 
-	Male    = "M"
-	Female  = "F"
-	Like    = "like"
-	Dislike = "dislike"
+	Male   = "M"
+	Female = "F"
 
 	DeleteAccount = "deleteAccount"
 )
@@ -112,6 +108,7 @@ func UpdateIndex(ctx context.Context) {
 	}
 	EditTagsMarkup = makeInlineKeyboard(tags, "", 4)
 
+	// match
 	MatchMarkup = tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton(config.C.DislikeButton),

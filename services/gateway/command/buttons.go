@@ -19,11 +19,14 @@ func (c *EditFieldCallback) Execute(ctx context.Context, bot *tgbotapi.BotAPI, u
 	user := upd.SentFrom()
 	chat := upd.FromChat()
 
+	// get an argument
 	newArg, err := askStateField(ctx, bot, chat, user.ID, args)
 	if err != nil {
 		return err
 	}
+	// format arguments
 	editArgs := args + config.C.Separator + newArg
+	// run edit field command
 	return (&EditField{}).Execute(ctx, bot, upd, editArgs)
 }
 
@@ -35,6 +38,7 @@ func (c *EditField) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbot
 	user := upd.SentFrom()
 	chat := upd.FromChat()
 
+	// parse the formatted arguments
 	field, value, _ := strings.Cut(args, config.C.Separator)
 	editRequest := &pb.EditRequest{
 		UserID:   user.ID,
@@ -44,7 +48,7 @@ func (c *EditField) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbot
 		Value: strings.Split(value, config.C.Separator),
 	}
 
-	// Contact the server and print out its response.
+	// contact the profile server for editing
 	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
 	defer cancel()
 	_, err := client.Profile.Edit(ctx2, editRequest)
@@ -56,12 +60,6 @@ func (c *EditField) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbot
 
 	return reply(bot, chat, loc.Message(loc.EditSuccess))
 }
-
-//type EditTagsCallback struct{}
-//
-//func (c *EditTagsCallback) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.Update, args string) error {
-//
-//}
 
 // LanguageCallback changes language
 type LanguageCallback struct{}

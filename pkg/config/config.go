@@ -27,7 +27,7 @@ type config struct {
 	ParseMode     string
 	LikeButton    string
 	DislikeButton string
-	MarkSuccess   string
+	HighlightMark string
 
 	TagsLimit              int
 	MainSphereCoefficient  float64

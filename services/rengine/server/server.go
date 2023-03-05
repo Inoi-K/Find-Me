@@ -15,6 +15,7 @@ type server struct {
 	pb.UnimplementedREngineServer
 }
 
+// GetRecommendations returns recommendations for user
 func (s *server) GetRecommendations(ctx context.Context, in *pb.GetRecommendationsRequest) (*pb.GetRecommendationsReply, error) {
 	ust, err := database.GetUserSphereTag(ctx)
 	if err != nil {
@@ -23,8 +24,6 @@ func (s *server) GetRecommendations(ctx context.Context, in *pb.GetRecommendatio
 
 	// create recommendations for current user
 	recommendations := recommendation.CreateRecommendationsForUser(in.UserID, in.SphereID, ust)
-
-	//recommendation.ShowSimilarityAll(users, "work")
 
 	return &pb.GetRecommendationsReply{
 		RecommendationIDs: recommendations,
