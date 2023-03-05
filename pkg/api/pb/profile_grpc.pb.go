@@ -22,11 +22,11 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProfileClient interface {
-	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*Empty, error)
+	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*ProfileEmpty, error)
 	GetUserMain(ctx context.Context, in *GetUserMainRequest, opts ...grpc.CallOption) (*GetUserMainReply, error)
 	GetUserAdditional(ctx context.Context, in *GetUserAdditionalRequest, opts ...grpc.CallOption) (*GetUserAdditionalReply, error)
 	Exists(ctx context.Context, in *ExistsRequest, opts ...grpc.CallOption) (*ExistsReply, error)
-	Edit(ctx context.Context, in *EditRequest, opts ...grpc.CallOption) (*Empty, error)
+	Edit(ctx context.Context, in *EditRequest, opts ...grpc.CallOption) (*ProfileEmpty, error)
 	GetTags(ctx context.Context, in *GetTagsRequest, opts ...grpc.CallOption) (*GetTagsReply, error)
 }
 
@@ -38,8 +38,8 @@ func NewProfileClient(cc grpc.ClientConnInterface) ProfileClient {
 	return &profileClient{cc}
 }
 
-func (c *profileClient) SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *profileClient) SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*ProfileEmpty, error) {
+	out := new(ProfileEmpty)
 	err := c.cc.Invoke(ctx, "/Profile/SignUp", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -74,8 +74,8 @@ func (c *profileClient) Exists(ctx context.Context, in *ExistsRequest, opts ...g
 	return out, nil
 }
 
-func (c *profileClient) Edit(ctx context.Context, in *EditRequest, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *profileClient) Edit(ctx context.Context, in *EditRequest, opts ...grpc.CallOption) (*ProfileEmpty, error) {
+	out := new(ProfileEmpty)
 	err := c.cc.Invoke(ctx, "/Profile/Edit", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -96,11 +96,11 @@ func (c *profileClient) GetTags(ctx context.Context, in *GetTagsRequest, opts ..
 // All implementations must embed UnimplementedProfileServer
 // for forward compatibility
 type ProfileServer interface {
-	SignUp(context.Context, *SignUpRequest) (*Empty, error)
+	SignUp(context.Context, *SignUpRequest) (*ProfileEmpty, error)
 	GetUserMain(context.Context, *GetUserMainRequest) (*GetUserMainReply, error)
 	GetUserAdditional(context.Context, *GetUserAdditionalRequest) (*GetUserAdditionalReply, error)
 	Exists(context.Context, *ExistsRequest) (*ExistsReply, error)
-	Edit(context.Context, *EditRequest) (*Empty, error)
+	Edit(context.Context, *EditRequest) (*ProfileEmpty, error)
 	GetTags(context.Context, *GetTagsRequest) (*GetTagsReply, error)
 	mustEmbedUnimplementedProfileServer()
 }
@@ -109,7 +109,7 @@ type ProfileServer interface {
 type UnimplementedProfileServer struct {
 }
 
-func (UnimplementedProfileServer) SignUp(context.Context, *SignUpRequest) (*Empty, error) {
+func (UnimplementedProfileServer) SignUp(context.Context, *SignUpRequest) (*ProfileEmpty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")
 }
 func (UnimplementedProfileServer) GetUserMain(context.Context, *GetUserMainRequest) (*GetUserMainReply, error) {
@@ -121,7 +121,7 @@ func (UnimplementedProfileServer) GetUserAdditional(context.Context, *GetUserAdd
 func (UnimplementedProfileServer) Exists(context.Context, *ExistsRequest) (*ExistsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Exists not implemented")
 }
-func (UnimplementedProfileServer) Edit(context.Context, *EditRequest) (*Empty, error) {
+func (UnimplementedProfileServer) Edit(context.Context, *EditRequest) (*ProfileEmpty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Edit not implemented")
 }
 func (UnimplementedProfileServer) GetTags(context.Context, *GetTagsRequest) (*GetTagsReply, error) {

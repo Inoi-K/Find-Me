@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = "/pb";
+
+service REngine {
+  rpc GetRecommendations (GetRecommendationsRequest) returns (GetRecommendationsReply) {}
+}
+
+message GetRecommendationsRequest {
+  int64 userID = 1;
+  int64 sphereID = 2;
+}
+
+message GetRecommendationsReply {
+  repeated int64 recommendationIDs = 1;
+}

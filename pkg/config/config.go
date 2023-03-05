@@ -13,18 +13,26 @@ type config struct {
 	Token       string
 	DatabaseURL string
 
-	Separator string // ArgumentSeparator
-	ParseMode string
-
 	DatabasePoolMaxConnections int32
 	Timeout                    time.Duration
 
 	ProfileHost string
 	ProfilePort string
+	REngineHost string
+	REnginePort string
+	MatchHost   string
+	MatchPort   string
+
+	Separator     string // ArgumentSeparator
+	ParseMode     string
+	LikeButton    string
+	DislikeButton string
+	MarkSuccess   string
 
 	TagsLimit              int
 	MainSphereCoefficient  float64
 	OtherSphereCoefficient float64
+	University             string
 	Faculties              []string
 }
 

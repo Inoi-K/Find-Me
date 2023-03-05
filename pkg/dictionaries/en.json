@@ -25,6 +25,12 @@
   "editSuccess": "Successfully edited!",
   "editFail": "Couldn't edit :(",
 
+  "findFail": "Couldn't find :(",
+  "findEnd": "Oops \uD83D\uDE33\nRecommendations ended. Try to look in later!",
+
+  "match": "Match! \uD83C\uDF89\n",
+  "likeReceived": "You've received a like ❤",
+
   "name": "Name",
   "gender": "Gender",
   "age": "Age",

@@ -18,7 +18,7 @@ func main() {
 
 	err := client.Open()
 	if err != nil {
-		log.Fatalf("culdn't connect to grpc client: %v", err)
+		log.Fatalf("couldn't connect to grpc client: %v", err)
 	}
 
 	err = handler.Start(ctx)

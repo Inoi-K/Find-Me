@@ -2,17 +2,25 @@ SphereID:
 DatabaseURL:
 Token:
 
-Separator: " "
-ParseMode: Markdown
-
 DatabasePoolMaxConnections: 50
 Timeout: 1000ms
 
 ProfileHost: localhost
 ProfilePort: 8080
+REngineHost: localhost
+REnginePort: 8081
+MatchHost: localhost
+MatchPort: 8082
 
-TagsLimit:
+Separator: " "
+ParseMode: Markdown
+LikeButton: \uD83D\uDC4D
+DislikeButton: \uD83D\uDC4E
+markSuccess: ✅
+
+TagsLimit: 5
 MainSphereCoefficient:  1.0
 OtherSphereCoefficient: 0.2
+University:
 Faculties:
   -

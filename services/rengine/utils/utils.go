@@ -3,8 +3,8 @@ package utils
 import "sort"
 
 // intersect gets two sets and returns their intersection
-func intersect(s1, s2 map[string]struct{}) map[string]struct{} {
-	s3 := make(map[string]struct{})
+func intersect(s1, s2 map[int64]struct{}) map[int64]struct{} {
+	s3 := make(map[int64]struct{})
 	for k := range s1 {
 		if _, consists := s2[k]; consists {
 			s3[k] = struct{}{}
@@ -14,8 +14,8 @@ func intersect(s1, s2 map[string]struct{}) map[string]struct{} {
 }
 
 // intersect gets two sets and returns their union
-func unite(s1, s2 map[string]struct{}) map[string]struct{} {
-	s3 := make(map[string]struct{})
+func unite(s1, s2 map[int64]struct{}) map[int64]struct{} {
+	s3 := make(map[int64]struct{})
 	for k := range s1 {
 		s3[k] = struct{}{}
 	}
@@ -26,18 +26,18 @@ func unite(s1, s2 map[string]struct{}) map[string]struct{} {
 }
 
 // JaccardIndex gets two sets and returns their Jaccard index
-func JaccardIndex(s1, s2 map[string]struct{}) float64 {
+func JaccardIndex(s1, s2 map[int64]struct{}) float64 {
 	intersection := intersect(s1, s2)
 
 	return float64(len(intersection)) / float64(len(s1)+len(s2)-len(intersection))
 }
 
 type KeyValue struct {
-	Key   string
+	Key   int64
 	Value float64
 }
 
-func SortSetByValue(m map[string]float64) []KeyValue {
+func SortSetByValue(m map[int64]float64) []KeyValue {
 	s := make([]KeyValue, len(m))
 	i := 0
 	for k, v := range m {

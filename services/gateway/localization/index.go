@@ -27,6 +27,12 @@ const (
 	EditSuccess = "editSuccess"
 	EditFail    = "editFail"
 
+	FindFail = "findFail"
+	FindEnd  = "findEnd"
+
+	Match        = "match"
+	LikeReceived = "likeReceived"
+
 	// FIELDS
 	Name        = "name"
 	Gender      = "gender"

@@ -20,10 +20,14 @@ const (
 	EditFieldButton    = "editButton"
 	EditFieldCommand   = "editField"
 	SignUpCommand      = "signup"
+	FindCommand        = "find"
+	MatchCommand       = "match"
 
 	HelpCommand     = "help"
 	LanguageCommand = "lang"
 	LanguageButton  = "langButton"
+
+	Undo = "undo"
 
 	// FIELDS
 	Name        = "name"
@@ -34,8 +38,10 @@ const (
 	Description = "description"
 	Tags        = "tags"
 
-	Male   = "M"
-	Female = "F"
+	Male    = "M"
+	Female  = "F"
+	Like    = "like"
+	Dislike = "dislike"
 
 	DeleteAccount = "deleteAccount"
 )
@@ -45,10 +51,12 @@ var (
 	EditGenderMarkup  tgbotapi.InlineKeyboardMarkup
 	EditFacultyMarkup tgbotapi.InlineKeyboardMarkup
 	EditTagsMarkup    tgbotapi.InlineKeyboardMarkup
+	MatchMarkup       tgbotapi.ReplyKeyboardMarkup
 
 	UnknownCommandError = errors.New("unknown command")
 	ContextDoneError    = errors.New("context is done")
 	UnknownStateError   = errors.New("unknown state")
+	KeyboardUpdateError = errors.New("couldn't update inline keyboard")
 )
 
 // UpdateIndex creates keyboard markups in format '<EditFieldButton><argumentSeparator><field>
@@ -103,4 +111,11 @@ func UpdateIndex(ctx context.Context) {
 		}
 	}
 	EditTagsMarkup = makeInlineKeyboard(tags, "", 4)
+
+	MatchMarkup = tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton(config.C.DislikeButton),
+			tgbotapi.NewKeyboardButton(config.C.LikeButton),
+		),
+	)
 }

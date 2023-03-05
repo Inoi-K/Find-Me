@@ -56,6 +56,8 @@ func makeCommands() map[string]command.ICommand {
 		command.EditFieldButton:    &command.EditFieldCallback{},
 
 		// Shortcut commands for testing
+		command.FindCommand:  &command.Find{},
+		command.MatchCommand: &command.Match{},
 		//command.SignUpCommand: &command.SignUp{},
 		//command.EditFieldCommand: &command.EditField{},
 	}
@@ -135,10 +137,15 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 	// validated user (but might be not fully registered)
 	if state, ok := session.UserState[user.ID]; ok {
 		switch state {
-		case session.EnterName, session.EnterAge, session.EnterDescription:
+		case session.EnterName, session.EnterDescription:
+			session.UserStateArg[user.ID] <- message.Text
+		case session.EnterAge:
+			// TODO check for decimal
 			session.UserStateArg[user.ID] <- message.Text
 		case session.EnterPhoto:
 			session.UserStateArg[user.ID] <- message.Photo[0].FileID
+		case session.Matching:
+			return executeCommand(ctx, upd, command.MatchCommand, message.Text)
 		default:
 			return command.UnknownStateError
 		}
@@ -167,6 +174,11 @@ func handleButton(ctx context.Context, upd tgbotapi.Update) {
 		if state, ok := session.UserState[user.ID]; ok {
 			switch state {
 			case session.EnterGender, session.EnterFaculty, session.EnterTags:
+				_, err := updateInlineKeyboard(upd, query.Data)
+				if err != nil {
+					log.Printf(command.KeyboardUpdateError.Error())
+					return
+				}
 				session.UserStateArg[user.ID] <- mainPart
 			default:
 				log.Printf(command.UnknownStateError.Error())
@@ -181,4 +193,34 @@ func handleButton(ctx context.Context, upd tgbotapi.Update) {
 	if err != nil {
 		log.Printf("callback config error: %v", err)
 	}
+}
+
+func updateInlineKeyboard(upd tgbotapi.Update, queryData string) (bool, error) {
+	var isNew bool
+
+	message := upd.CallbackQuery.Message
+	newKeyboard := message.ReplyMarkup
+	for rowIndex, row := range newKeyboard.InlineKeyboard {
+		for columnIndex, button := range row {
+			if *button.CallbackData == queryData {
+				// TODO check a possible error with language changes
+				if li := strings.LastIndex(button.Text, config.C.MarkSuccess); li != -1 {
+					isNew = false
+					newKeyboard.InlineKeyboard[rowIndex][columnIndex].Text = button.Text[:(li - 1)]
+				} else {
+					isNew = true
+					newKeyboard.InlineKeyboard[rowIndex][columnIndex].Text += " " + config.C.MarkSuccess
+				}
+				break
+			}
+		}
+	}
+
+	msg := tgbotapi.NewEditMessageReplyMarkup(upd.FromChat().ID, message.MessageID, *newKeyboard)
+	_, err := bot.Send(msg)
+	if err != nil {
+		return false, err
+	}
+
+	return isNew, nil
 }

@@ -47,11 +47,43 @@ func UserExists(ctx context.Context, userID int64) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer rows.Close()
 
 	return rows.Next(), nil
 }
 
+func GetUserSphereTag(ctx context.Context) (model.UST, error) {
+	query := fmt.Sprintf("SELECT * FROM user_tag;")
+	userSphereTagRows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer userSphereTagRows.Close()
+
+	ust := make(model.UST, 1000)
+	for userSphereTagRows.Next() {
+		var userID, sphereID, tagID int64
+		err = userSphereTagRows.Scan(&userID, &sphereID, &tagID)
+		if err != nil {
+			return nil, err
+		}
+
+		// new user
+		if _, ok := ust[userID]; !ok {
+			ust[userID] = make(map[int64]map[int64]struct{}, 1000)
+		}
+		// new sphere
+		if _, ok := ust[userID][sphereID]; !ok {
+			ust[userID][sphereID] = make(map[int64]struct{}, config.C.TagsLimit)
+		}
+		ust[userID][sphereID][tagID] = struct{}{}
+	}
+
+	return ust, nil
+}
+
 // GetUsers gets all (main and additional) information about all user
+// TODO caching/sharding/partitioning?
 func GetUsers(ctx context.Context) (map[int64]*model.User, error) {
 	query := fmt.Sprintf("SELECT id FROM \"user\";")
 	userRows, err := db.pool.Query(ctx, query)
@@ -96,8 +128,8 @@ func GetUser(ctx context.Context, userID int64) (*model.User, error) {
 // GetUserMain gets main info about a user
 func GetUserMain(ctx context.Context, userID int64) (*model.User, error) {
 	user := &model.User{}
-	query := fmt.Sprintf("SELECT name, gender, age, faculty FROM \"user\" WHERE id=%d;", userID)
-	err := db.pool.QueryRow(ctx, query).Scan(&user.Name, &user.Gender, &user.Age, &user.Faculty)
+	query := fmt.Sprintf("SELECT name, gender, age, faculty, university, username FROM \"user\" WHERE id=%d;", userID)
+	err := db.pool.QueryRow(ctx, query).Scan(&user.Name, &user.Gender, &user.Age, &user.Faculty, &user.University, &user.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -113,6 +145,8 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 	if err != nil {
 		return nil, err
 	}
+	defer userSphereRows.Close()
+
 	// TODO optimize it with caching
 	for userSphereRows.Next() {
 		var (
@@ -130,6 +164,7 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 		if err != nil {
 			return nil, err
 		}
+
 		tags := make(map[string]struct{})
 		for tagRows.Next() {
 			var tag string
@@ -139,6 +174,7 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 			}
 			tags[tag] = struct{}{}
 		}
+		tagRows.Close()
 
 		sphereInfo[sphereID] = &model.UserSphere{
 			Description: description,
@@ -149,6 +185,7 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 	return sphereInfo, nil
 }
 
+// TODO refactor pb req to user model
 // AddUser adds user to db in all necessary tables
 func AddUser(ctx context.Context, request *pb.SignUpRequest) error {
 	query := fmt.Sprintf("INSERT INTO \"user\" VALUES (%d, '%s', '%s', %s, '%s');", request.UserID, request.Name, request.Gender, request.Age, request.Faculty)
@@ -171,7 +208,11 @@ func EditField(ctx context.Context, field, value string, userID, sphereID int64)
 	query := fmt.Sprintf("UPDATE user_sphere SET %s='%s' WHERE user_id=%d AND sphere_id=%d;", field, value, userID, sphereID)
 	_, err := db.pool.Query(ctx, query)
 	if err != nil {
-		return err
+		query = fmt.Sprintf("UPDATE \"user\" SET %s='%s' WHERE id=%d;", field, value, userID)
+		_, err = db.pool.Query(ctx, query)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -183,6 +224,7 @@ func GetTags(ctx context.Context, sphereID int64) ([]model.Tag, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer tagRows.Close()
 
 	tags := make([]model.Tag, 0, 100)
 	for tagRows.Next() {
@@ -249,6 +291,8 @@ func ConvertTagsToIDS(ctx context.Context, tags []string) ([]int64, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer tagIDsRows.Close()
+
 	// TODO optimize it with caching
 	i := 0
 	tagIDs := make([]int64, len(tags))
@@ -264,4 +308,23 @@ func ConvertTagsToIDS(ctx context.Context, tags []string) ([]int64, error) {
 	}
 
 	return tagIDs, nil
+}
+
+func Like(ctx context.Context, likerID, likedID int64) (bool, error) {
+	// record a new like
+	query := fmt.Sprintf("INSERT INTO match VALUES (%d, %d);", likerID, likedID)
+	_, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return false, err
+	}
+
+	// check if there is a return like
+	query = fmt.Sprintf("SELECT 1 FROM match WHERE liker_id=%d AND liked_id=%d;", likedID, likerID)
+	rows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	return rows.Next(), nil
 }

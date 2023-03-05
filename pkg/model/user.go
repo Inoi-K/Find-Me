@@ -8,6 +8,8 @@ type User struct {
 	Gender     string
 	Age        int64
 	Faculty    string
+	University string
+	Username   string
 	SphereInfo map[int64]*UserSphere
 }
 
@@ -16,6 +18,9 @@ type UserSphere struct {
 	PhotoID     string
 	Tags        map[string]struct{}
 }
+
+// UST represent User Sphere Tag
+type UST map[int64]map[int64]map[int64]struct{}
 
 // NewUser creates a new user and handles description to tags conversion
 //func NewUser(name string, sphereDescription map[int64]string, sphereTags map[int64]map[string]struct{}) (*User, error) {
