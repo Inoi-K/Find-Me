@@ -52,6 +52,7 @@ func UserExists(ctx context.Context, userID int64) (bool, error) {
 	return rows.Next(), nil
 }
 
+// GetUserSphereTag returns user-sphere-tag model of all users
 func GetUserSphereTag(ctx context.Context) (model.UST, error) {
 	query := fmt.Sprintf("SELECT * FROM user_tag;")
 	userSphereTagRows, err := db.pool.Query(ctx, query)
@@ -159,6 +160,7 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 			return nil, err
 		}
 
+		// get tags
 		query = fmt.Sprintf("SELECT name FROM tag WHERE id IN (SELECT tag_id FROM user_tag WHERE user_id=%d AND sphere_id=%d);", userID, sphereID)
 		tagRows, err := db.pool.Query(ctx, query)
 		if err != nil {
@@ -176,6 +178,7 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 		}
 		tagRows.Close()
 
+		// combine fields in a model
 		sphereInfo[sphereID] = &model.UserSphere{
 			Description: description,
 			PhotoID:     photo,
@@ -185,8 +188,8 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 	return sphereInfo, nil
 }
 
-// TODO refactor pb req to user model
 // AddUser adds user to db in all necessary tables
+// TODO refactor pb req to user model
 func AddUser(ctx context.Context, request *pb.SignUpRequest) error {
 	query := fmt.Sprintf("INSERT INTO \"user\" VALUES (%d, '%s', '%s', %s, '%s');", request.UserID, request.Name, request.Gender, request.Age, request.Faculty)
 	_, err := db.pool.Query(ctx, query)
@@ -218,6 +221,7 @@ func EditField(ctx context.Context, field, value string, userID, sphereID int64)
 	return nil
 }
 
+// GetTags returns tags associated to the sphere
 func GetTags(ctx context.Context, sphereID int64) ([]model.Tag, error) {
 	query := fmt.Sprintf("SELECT * FROM tag WHERE id IN (SELECT tag_id FROM sphere_tag WHERE sphere_id=%d);", sphereID)
 	tagRows, err := db.pool.Query(ctx, query)
@@ -310,6 +314,7 @@ func ConvertTagsToIDS(ctx context.Context, tags []string) ([]int64, error) {
 	return tagIDs, nil
 }
 
+// Like registers like in the match table and checks for the other way like
 func Like(ctx context.Context, likerID, likedID int64) (bool, error) {
 	// record a new like
 	query := fmt.Sprintf("INSERT INTO match VALUES (%d, %d);", likerID, likedID)

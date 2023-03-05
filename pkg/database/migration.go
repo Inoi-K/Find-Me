@@ -2,9 +2,10 @@ package database
 
 import "context"
 
+// CreateTables creates base tables
 func CreateTables(ctx context.Context) error {
 	// user
-	query := "create table \"user\"\n(\n    id      integer not null\n        constraint user_pk\n            primary key,\n    name    text    not null,\n    gender  varchar(1),\n    age     integer,\n    faculty text\n);"
+	query := "create table if not exists \"user\"\n(\n    id         integer not null\n        constraint user_pk\n            primary key,\n    name       text    not null,\n    gender     varchar(1),\n    age        integer,\n    faculty    text,\n    university text,\n    username   text\n);"
 	_, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return err
@@ -46,7 +47,7 @@ func CreateTables(ctx context.Context) error {
 	}
 
 	// match
-	query = "create table if not exists match\n(\n    user_id_1 integer not null\n        constraint match_user_id_1_fk\n            references \"user\"\n            on update cascade on delete cascade,\n    user_id_2 integer not null\n        constraint match_user_id_2_fk\n            references \"user\"\n            on update cascade on delete cascade,\n    constraint match_pk\n        primary key (user_id_1, user_id_2)\n);"
+	query = "create table if not exists match\n(\n    liker_id integer not null\n        constraint match_user_id_1_fk\n            references \"user\"\n            on update cascade on delete cascade,\n    liked_id integer not null\n        constraint match_user_id_2_fk\n            references \"user\"\n            on update cascade on delete cascade,\n    constraint match_pk\n        primary key (liker_id, liked_id)\n);"
 	_, err = db.pool.Query(ctx, query)
 	if err != nil {
 		return err
