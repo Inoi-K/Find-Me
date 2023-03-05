@@ -1,0 +1,44 @@
+{
+  "start": "hello!",
+  "pong": "pong!",
+  "lang": "Please, choose a new language:",
+  "langSuccess": "The language successfully changed!",
+  "langFail": "The chosen language is not supported yet",
+  "help": "help",
+
+  "tryAgain": "Please, try again later",
+  "rubicon": "Rubicon",
+
+  "enterName": "Please, enter your name:",
+  "enterGender": "Please, enter your gender:",
+  "enterAge": "Please, enter your age:",
+  "enterFaculty": "Please, enter your faculty:",
+  "enterPhoto": "Please, enter your photo:",
+  "enterDescription": "Please, enter your description:",
+  "enterTags": "Please, enter your tags:",
+
+  "alreadyRegistered": "You are already registered",
+  "signUpSuccess": "Successfully signed up!",
+  "signUpFail": "Couldn't sign up :(",
+
+  "editMenu": "Choose a profile field to edit:",
+  "editSuccess": "Successfully edited!",
+  "editFail": "Couldn't edit :(",
+
+  "findFail": "Couldn't find :(",
+  "findEnd": "Oops \uD83D\uDE33\nRecommendations ended. Try to look in later!",
+
+  "match": "Match! \uD83C\uDF89\n",
+  "likeReceived": "You've received a like ❤",
+
+  "name": "Name",
+  "gender": "Gender",
+  "age": "Age",
+  "faculty": "Faculty",
+  "photo": "Photo",
+  "desc": "Description",
+  "tags": "Tags",
+
+  "male": "Male",
+  "female": "Female"
+}

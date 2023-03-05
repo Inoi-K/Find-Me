@@ -1,0 +1,26 @@
+SphereID:
+DatabaseURL:
+Token:
+
+DatabasePoolMaxConnections: 50
+Timeout: 1000ms
+
+ProfileHost: localhost
+ProfilePort: 8080
+REngineHost: localhost
+REnginePort: 8081
+MatchHost: localhost
+MatchPort: 8082
+
+Separator: " "
+ParseMode: Markdown
+LikeButton: 👍
+DislikeButton: 👎
+HighlightMark: ✅
+
+TagsLimit: 5
+MainSphereCoefficient:  1.0
+OtherSphereCoefficient: 0.2
+University:
+Faculties:
+  -
