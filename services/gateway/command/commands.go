@@ -69,6 +69,8 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		}
 		signUpArgs += newArg + config.C.Separator
 	}
+	// add university and username
+	signUpArgs += config.C.University + config.C.Separator + "@" + user.UserName
 	// sign up
 	err = (&SignUp{}).Execute(ctx, bot, upd, signUpArgs)
 	if err != nil {
@@ -173,12 +175,14 @@ func (c *SignUp) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi
 	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
 	defer cancel()
 	_, err := client.Profile.SignUp(ctx2, &pb.SignUpRequest{
-		UserID:   user.ID,
-		SphereID: config.C.SphereID,
-		Name:     info[0],
-		Gender:   info[1],
-		Age:      info[2],
-		Faculty:  info[3],
+		UserID:     user.ID,
+		SphereID:   config.C.SphereID,
+		Name:       info[0],
+		Gender:     info[1],
+		Age:        info[2],
+		Faculty:    info[3],
+		University: info[4],
+		Username:   info[5],
 	})
 	if err != nil {
 		log.Printf("couldn't sign up: %v", err)
@@ -256,9 +260,14 @@ func (c *Find) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.U
 		SphereID: config.C.SphereID,
 	})
 	if err != nil {
+		// recommendations failed
 		log.Printf("couldn't get recommendations: %v", err)
 		_ = reply(bot, chat, loc.Message(loc.FindFail))
 		return err
+	}
+	// no more users handling
+	if next != nil && next.NextUserID == -1 {
+		return reply(bot, chat, loc.Message(loc.FindEnd))
 	}
 
 	// prepare profile with like/dislike buttons
@@ -292,7 +301,7 @@ func (c *Match) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 
 	// no special handling for dislike
 	if args == config.C.DislikeButton {
-		return nil
+		return (&Find{}).Execute(ctx, bot, upd, args)
 	}
 
 	// like handling

@@ -24,14 +24,6 @@ func (s *server) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.ProfileE
 		return nil, err
 	}
 
-	// Contact the match server
-	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
-	defer cancel()
-	_, err = client.Match.UpdateRecommendations(ctx2, &pb.UpdateRecommendationsRequest{})
-	if err != nil {
-		return nil, err
-	}
-
 	return &pb.ProfileEmpty{}, nil
 }
 
@@ -115,6 +107,14 @@ func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.ProfileEmpty
 
 	default:
 		return nil, UnknownFieldError
+	}
+
+	// Contact the match server
+	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
+	defer cancel()
+	_, err := client.Match.UpdateRecommendations(ctx2, &pb.UpdateRecommendationsRequest{})
+	if err != nil {
+		return nil, err
 	}
 
 	return &pb.ProfileEmpty{}, nil

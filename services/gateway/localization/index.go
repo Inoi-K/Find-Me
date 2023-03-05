@@ -28,6 +28,7 @@ const (
 	EditFail    = "editFail"
 
 	FindFail = "findFail"
+	FindEnd  = "findEnd"
 
 	Match        = "match"
 	LikeReceived = "likeReceived"

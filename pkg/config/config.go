@@ -32,6 +32,7 @@ type config struct {
 	TagsLimit              int
 	MainSphereCoefficient  float64
 	OtherSphereCoefficient float64
+	University             string
 	Faculties              []string
 }
 

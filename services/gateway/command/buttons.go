@@ -40,7 +40,8 @@ func (c *EditField) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbot
 		UserID:   user.ID,
 		SphereID: config.C.SphereID,
 		Field:    field,
-		Value:    strings.Split(value, config.C.Separator),
+		// FIXME description cuts down to a first word only
+		Value: strings.Split(value, config.C.Separator),
 	}
 
 	// Contact the server and print out its response.

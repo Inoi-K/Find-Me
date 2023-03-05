@@ -27,6 +27,11 @@ func (s *server) Next(ctx context.Context, in *pb.NextRequest) (*pb.NextReply, e
 		}
 	}
 
+	if len(session.SUR[in.SphereID][in.UserID]) == 0 {
+		return &pb.NextReply{
+			NextUserID: -1,
+		}, nil
+	}
 	nextID = session.SUR[in.SphereID][in.UserID][0]
 	session.SUR[in.SphereID][in.UserID] = session.SUR[in.SphereID][in.UserID][1:]
 
@@ -37,10 +42,13 @@ func (s *server) Next(ctx context.Context, in *pb.NextRequest) (*pb.NextReply, e
 
 func (s *server) UpdateRecommendations(ctx context.Context, in *pb.UpdateRecommendationsRequest) (*pb.MatchEmpty, error) {
 	// update recommendations of current user
-	var err error
-	session.SUR[in.SphereID][in.UserID], err = getRecommendations(ctx, in.UserID, in.SphereID)
-	if err != nil {
-		return nil, err
+	if _, ok := session.SUR[in.SphereID][in.UserID]; !ok {
+		// get recommendations for current user
+		var err error
+		session.SUR[in.SphereID][in.UserID], err = getRecommendations(ctx, in.UserID, in.SphereID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// TODO update recommendations of affected online users
