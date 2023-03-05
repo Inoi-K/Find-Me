@@ -6,17 +6,20 @@ import (
 	"github.com/Inoi-K/Find-Me/services/rengine/utils"
 )
 
-func CreateRecommendationsForUser(userID int64, ust model.UST) []int64 {
+// CreateRecommendationsForUser creates
+func CreateRecommendationsForUser(userID, sphereID int64, ust model.UST) []int64 {
 	st1 := ust[userID]
 
 	// calculate similarities between current user and others
 	similarities := make(map[int64]float64, len(ust)-1)
 	for u2, st2 := range ust {
-		if u2 == userID {
+		// skip if it is the current user or if the other user doesn't exist not in the current user's sphere
+		_, ok := st2[sphereID]
+		if u2 == userID || !ok {
 			continue
 		}
 
-		similarity := calculateSimilarity(st1, st2, config.C.SphereID)
+		similarity := calculateSimilarity(st1, st2, sphereID)
 		// TODO tree insert?
 		similarities[u2] = similarity
 	}

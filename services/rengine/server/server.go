@@ -22,7 +22,7 @@ func (s *server) GetRecommendations(ctx context.Context, in *pb.GetRecommendatio
 	}
 
 	// create recommendations for current user
-	recommendations := recommendation.CreateRecommendationsForUser(in.UserID, ust)
+	recommendations := recommendation.CreateRecommendationsForUser(in.UserID, in.SphereID, ust)
 
 	//recommendation.ShowSimilarityAll(users, "work")
 

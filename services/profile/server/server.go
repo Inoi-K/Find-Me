@@ -55,9 +55,10 @@ func (s *server) GetUserAdditional(ctx context.Context, in *pb.GetUserAdditional
 		return nil, err
 	}
 
-	tags := make([]string, len(sphereInfo[config.C.SphereID].Tags))
+	// convert tags map to slice
+	tags := make([]string, len(sphereInfo[in.SphereID].Tags))
 	i := 0
-	for tag := range sphereInfo[config.C.SphereID].Tags {
+	for tag := range sphereInfo[in.SphereID].Tags {
 		tags[i] = tag
 		i++
 	}
@@ -109,10 +110,13 @@ func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.ProfileEmpty
 		return nil, UnknownFieldError
 	}
 
-	// Contact the match server
+	// contact the match server to update recommendations
 	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
 	defer cancel()
-	_, err := client.Match.UpdateRecommendations(ctx2, &pb.UpdateRecommendationsRequest{})
+	_, err := client.Match.UpdateRecommendations(ctx2, &pb.UpdateRecommendationsRequest{
+		UserID:   in.UserID,
+		SphereID: in.SphereID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -120,14 +124,17 @@ func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.ProfileEmpty
 	return &pb.ProfileEmpty{}, nil
 }
 
+// GetTags returns tags of the sphere
 func (s *server) GetTags(ctx context.Context, in *pb.GetTagsRequest) (*pb.GetTagsReply, error) {
 	log.Printf("Received get tags: %v", in.SphereID)
 
+	// get tags
 	tags, err := database.GetTags(ctx, in.SphereID)
 	if err != nil {
 		return nil, err
 	}
 
+	// convert tag model to 2 slices
 	rep := &pb.GetTagsReply{
 		TagNames: make([]string, len(tags)),
 		TagIDs:   make([]string, len(tags)),
