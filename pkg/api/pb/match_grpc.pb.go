@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type MatchClient interface {
 	Next(ctx context.Context, in *NextRequest, opts ...grpc.CallOption) (*NextReply, error)
 	UpdateRecommendations(ctx context.Context, in *UpdateRecommendationsRequest, opts ...grpc.CallOption) (*MatchEmpty, error)
-	Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*LikeReply, error)
+	Match(ctx context.Context, in *MatchRequest, opts ...grpc.CallOption) (*MatchReply, error)
 }
 
 type matchClient struct {
@@ -53,9 +53,9 @@ func (c *matchClient) UpdateRecommendations(ctx context.Context, in *UpdateRecom
 	return out, nil
 }
 
-func (c *matchClient) Like(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*LikeReply, error) {
-	out := new(LikeReply)
-	err := c.cc.Invoke(ctx, "/Match/Like", in, out, opts...)
+func (c *matchClient) Match(ctx context.Context, in *MatchRequest, opts ...grpc.CallOption) (*MatchReply, error) {
+	out := new(MatchReply)
+	err := c.cc.Invoke(ctx, "/Match/Match", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (c *matchClient) Like(ctx context.Context, in *LikeRequest, opts ...grpc.Ca
 type MatchServer interface {
 	Next(context.Context, *NextRequest) (*NextReply, error)
 	UpdateRecommendations(context.Context, *UpdateRecommendationsRequest) (*MatchEmpty, error)
-	Like(context.Context, *LikeRequest) (*LikeReply, error)
+	Match(context.Context, *MatchRequest) (*MatchReply, error)
 	mustEmbedUnimplementedMatchServer()
 }
 
@@ -82,8 +82,8 @@ func (UnimplementedMatchServer) Next(context.Context, *NextRequest) (*NextReply,
 func (UnimplementedMatchServer) UpdateRecommendations(context.Context, *UpdateRecommendationsRequest) (*MatchEmpty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateRecommendations not implemented")
 }
-func (UnimplementedMatchServer) Like(context.Context, *LikeRequest) (*LikeReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Like not implemented")
+func (UnimplementedMatchServer) Match(context.Context, *MatchRequest) (*MatchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Match not implemented")
 }
 func (UnimplementedMatchServer) mustEmbedUnimplementedMatchServer() {}
 
@@ -134,20 +134,20 @@ func _Match_UpdateRecommendations_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Match_Like_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LikeRequest)
+func _Match_Match_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MatchRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MatchServer).Like(ctx, in)
+		return srv.(MatchServer).Match(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Match/Like",
+		FullMethod: "/Match/Match",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MatchServer).Like(ctx, req.(*LikeRequest))
+		return srv.(MatchServer).Match(ctx, req.(*MatchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -168,8 +168,8 @@ var Match_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Match_UpdateRecommendations_Handler,
 		},
 		{
-			MethodName: "Like",
-			Handler:    _Match_Like_Handler,
+			MethodName: "Match",
+			Handler:    _Match_Match_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

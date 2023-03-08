@@ -17,7 +17,7 @@ type server struct {
 
 // GetRecommendations returns recommendations for user
 func (s *server) GetRecommendations(ctx context.Context, in *pb.GetRecommendationsRequest) (*pb.GetRecommendationsReply, error) {
-	ust, err := database.GetUserSphereTag(ctx)
+	ust, err := database.GetNewUserSphereTag(ctx, in.UserID, in.SphereID)
 	if err != nil {
 		log.Fatalf("failed to get user sphere tags %v", err)
 	}

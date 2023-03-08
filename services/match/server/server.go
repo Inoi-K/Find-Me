@@ -37,8 +37,6 @@ func (s *server) Next(ctx context.Context, in *pb.NextRequest) (*pb.NextReply, e
 
 	// get the next recommendation
 	nextID := session.SUR[in.SphereID][in.UserID][0]
-	// remove the next recommendation from the slice
-	session.SUR[in.SphereID][in.UserID] = session.SUR[in.SphereID][in.UserID][1:]
 
 	return &pb.NextReply{
 		NextUserID: nextID,
@@ -84,16 +82,23 @@ func getRecommendations(ctx context.Context, userID, sphereID int64) ([]int64, e
 	return rep.RecommendationIDs, nil
 }
 
-// Like handles user's like reaction
-func (s *server) Like(ctx context.Context, in *pb.LikeRequest) (*pb.LikeReply, error) {
-	log.Printf("Received like: %v", in.LikerID)
+// Match handles user's like reaction
+func (s *server) Match(ctx context.Context, in *pb.MatchRequest) (*pb.MatchReply, error) {
+	log.Printf("Received match: %v", in.FromID)
 
-	isReciprocated, err := database.Like(ctx, in.LikerID, in.LikedID)
+	// remove the recommendation from the slice
+	if in.ToID == session.SUR[in.SphereID][in.FromID][0] {
+		session.SUR[in.SphereID][in.FromID] = session.SUR[in.SphereID][in.FromID][1:]
+	} else {
+		log.Printf("strange behaviour: received like/dislike fromID=%d toID=%d in sphereID=%d, but the %d user recommendation was give in the last time", in.FromID, in.ToID, in.SphereID, session.SUR[in.SphereID][in.FromID][0])
+	}
+
+	isReciprocated, err := database.Match(ctx, in.FromID, in.ToID, in.SphereID, in.IsLike)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pb.LikeReply{
+	return &pb.MatchReply{
 		IsReciprocated: isReciprocated,
 	}, nil
 }

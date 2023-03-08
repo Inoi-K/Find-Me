@@ -307,23 +307,27 @@ func (c *Match) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		return err
 	}
 
-	// no special handling for dislike
+	// define is it like/dislike
+	isLike := true
 	if args == config.C.DislikeButton {
-		return (&Find{}).Execute(ctx, bot, upd, args)
+		isLike = false
 	}
 
-	// like handling
-	rep, err := client.Match.Like(ctx, &pb.LikeRequest{
-		LikerID: user.ID,
-		LikedID: likedUserID,
+	// contact the match service to update match info
+	rep, err := client.Match.Match(ctx, &pb.MatchRequest{
+		FromID:   user.ID,
+		ToID:     likedUserID,
+		SphereID: config.C.SphereID,
+		IsLike:   isLike,
 	})
 	if err != nil {
 		return err
 	}
 
-	// send contacts to each user
-	// or notify the liked one
-	if rep.IsReciprocated {
+	// define the response if needed
+	switch {
+	case isLike && rep.IsReciprocated:
+		// send contacts to each user
 		// get usernames
 		// TODO parallel
 		ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
@@ -353,12 +357,18 @@ func (c *Match) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		if err != nil {
 			return err
 		}
-	} else {
+
+	case isLike && !rep.IsReciprocated:
 		// notify the liked one that he/she has received a like
 		err = send(bot, likedUserID, loc.Message(loc.LikeReceived))
 		if err != nil {
 			return err
 		}
+
+	case !isLike && rep.IsReciprocated:
+		// notify the disliker that he/she lost a match
+
+	case !isLike && !rep.IsReciprocated:
 	}
 
 	// find a new recommendation

@@ -2,10 +2,12 @@ package database
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/pkg/model"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -55,6 +57,17 @@ func UserExists(ctx context.Context, userID int64) (bool, error) {
 // GetUserSphereTag returns user-sphere-tag model of all users
 func GetUserSphereTag(ctx context.Context) (model.UST, error) {
 	query := fmt.Sprintf("SELECT * FROM user_tag;")
+	return getUserSphereTag(ctx, query)
+}
+
+// GetNewUserSphereTag returns user-sphere-tag model of new (no record in match table) users for the given one
+func GetNewUserSphereTag(ctx context.Context, userID, sphereID int64) (model.UST, error) {
+	query := fmt.Sprintf("SELECT * FROM user_tag WHERE user_id NOT IN (SELECT to_id FROM match WHERE from_id=%d AND sphere_id=%d);", userID, sphereID)
+	return getUserSphereTag(ctx, query)
+}
+
+// getUserSphereTag converts select query to user-sphere-tag model
+func getUserSphereTag(ctx context.Context, query string) (model.UST, error) {
 	userSphereTagRows, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return nil, err
@@ -314,22 +327,29 @@ func ConvertTagsToIDS(ctx context.Context, tags []string) ([]int64, error) {
 	return tagIDs, nil
 }
 
-// Like registers like in the match table and checks for the other way like
-func Like(ctx context.Context, likerID, likedID int64) (bool, error) {
-	// record a new like
-	query := fmt.Sprintf("INSERT INTO match VALUES (%d, %d);", likerID, likedID)
+// Match registers like in the match table and checks for the other way like
+func Match(ctx context.Context, fromID, toID, sphereID int64, isLike bool) (bool, error) {
+	// remove the previous record if exists
+	query := fmt.Sprintf("DELETE FROM match WHERE from_id=%d AND to_id=%d;", fromID, toID)
 	_, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return false, err
 	}
 
-	// check if there is a return like
-	query = fmt.Sprintf("SELECT 1 FROM match WHERE liker_id=%d AND liked_id=%d;", likedID, likerID)
-	rows, err := db.pool.Query(ctx, query)
+	// record a new like
+	query = fmt.Sprintf("INSERT INTO match VALUES (%d, %d, %t, %d);", fromID, toID, isLike, sphereID)
+	_, err = db.pool.Query(ctx, query)
 	if err != nil {
 		return false, err
 	}
-	defer rows.Close()
 
-	return rows.Next(), nil
+	// check if there is a return like
+	query = fmt.Sprintf("SELECT is_like FROM match WHERE from_id=%d AND to_id=%d;", toID, fromID)
+	isReciprocated := false
+	err = db.pool.QueryRow(ctx, query).Scan(&isReciprocated)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return false, err
+	}
+
+	return isReciprocated, nil
 }
