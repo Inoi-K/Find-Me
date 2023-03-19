@@ -6,6 +6,7 @@ import (
 	"github.com/Inoi-K/Find-Me/services/gateway/client"
 	"github.com/Inoi-K/Find-Me/services/gateway/handler"
 	loc "github.com/Inoi-K/Find-Me/services/gateway/localization"
+	"github.com/Inoi-K/Find-Me/services/gateway/server"
 	"log"
 )
 
@@ -28,6 +29,8 @@ func main() {
 
 	// Tell the user the bot is online
 	log.Println("Start listening for updates...")
+
+	server.Start()
 
 	select {}
 

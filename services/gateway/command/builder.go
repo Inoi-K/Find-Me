@@ -99,6 +99,9 @@ func handleFieldSpecifics(field string) (state session.State, message string, ke
 		state = session.EnterTags
 		message = loc.EnterTags
 		keyboard = EditTagsMarkup
+	case Email:
+		state = session.EnterEmail
+		message = loc.EnterEmail
 	}
 	return
 }

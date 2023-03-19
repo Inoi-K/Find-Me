@@ -18,6 +18,7 @@ const (
 	EnterPhoto       = "enterPhoto"
 	EnterDescription = "enterDescription"
 	EnterTags        = "enterTags"
+	EnterEmail       = "enterEmail"
 
 	AlreadyRegistered = "alreadyRegistered"
 	SignUpSuccess     = "signUpSuccess"

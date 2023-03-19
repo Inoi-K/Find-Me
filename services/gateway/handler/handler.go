@@ -137,7 +137,7 @@ func handleText(ctx context.Context, upd tgbotapi.Update) error {
 	// user fields input
 	if state, ok := session.UserState[user.ID]; ok {
 		switch state {
-		case session.EnterName, session.EnterDescription:
+		case session.EnterName, session.EnterDescription, session.EnterEmail:
 			session.UserStateArg[user.ID] <- message.Text
 		case session.EnterAge:
 			// TODO check for decimal

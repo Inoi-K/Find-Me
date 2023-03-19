@@ -18,5 +18,6 @@ const (
 	EnterPhoto
 	EnterDescription
 	EnterTags
+	EnterEmail
 	Matching
 )

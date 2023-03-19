@@ -23,6 +23,16 @@ type config struct {
 	MatchHost   string
 	MatchPort   string
 
+	GatewayHost string
+	GatewayPort string
+	VerifyPath  string
+	VerifyKey   string
+	EmailFrom   string
+	SMTPHost    string
+	SMTPPort    int
+	SMTPUser    string
+	SMTPPass    string
+
 	Separator     string // ArgumentSeparator
 	ParseMode     string
 	LikeButton    string

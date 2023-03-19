@@ -8,6 +8,7 @@ import (
 	"github.com/Inoi-K/Find-Me/services/gateway/client"
 	loc "github.com/Inoi-K/Find-Me/services/gateway/localization"
 	"github.com/Inoi-K/Find-Me/services/gateway/session"
+	"github.com/Inoi-K/Find-Me/services/gateway/verification"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"strconv"
@@ -57,7 +58,23 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 
 	// TODO validate terms & agreement
 
-	// TODO validate user with corporate email
+	// validate user with corporate email
+	email, err := askStateField(ctx, bot, chat, user.ID, Email)
+	if err != nil {
+		return err
+	}
+	// TODO verify that arg is correct email (regexp)
+
+	session.UserStateArg[user.ID] = make(chan string)
+	err = verification.SendEmail(email, user.ID)
+	if err != nil {
+		log.Printf("couldn't verify email %s %v", email, err)
+		return reply(bot, chat, loc.Message(loc.TryAgain))
+	}
+	if status := <-session.UserStateArg[user.ID]; status != "verified" {
+		log.Printf("couldn't verify: %v", err)
+	}
+	close(session.UserStateArg[user.ID])
 
 	// ask for main information
 	var signUpArgs string
@@ -130,7 +147,7 @@ func askArgKeyboard(ctx context.Context, bot *tgbotapi.BotAPI, chat *tgbotapi.Ch
 	session.UserStateArg[userID] = make(chan string)
 	arg := ""
 	switch session.UserState[userID] {
-	case session.EnterName, session.EnterGender, session.EnterAge, session.EnterFaculty, session.EnterPhoto, session.EnterDescription:
+	case session.EnterName, session.EnterGender, session.EnterAge, session.EnterFaculty, session.EnterPhoto, session.EnterDescription, session.EnterEmail:
 		select {
 		case <-ctx.Done():
 			return "", ContextDoneError

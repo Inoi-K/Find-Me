@@ -12,6 +12,16 @@ REnginePort: 8081
 MatchHost: localhost
 MatchPort: 8082
 
+GatewayHost: localhost
+GatewayPort: 8083
+VerifyPath:
+VerifyKey:
+EmailFrom:
+SMTPHost:
+SMTPPort:
+SMTPUser:
+SMTPPass:
+
 Separator: " "
 ParseMode: Markdown
 LikeButton: 👍

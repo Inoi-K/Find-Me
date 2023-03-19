@@ -35,6 +35,7 @@ const (
 	Photo       = "photo"
 	Description = "description"
 	Tags        = "tags"
+	Email       = "email"
 
 	Male   = "M"
 	Female = "F"
