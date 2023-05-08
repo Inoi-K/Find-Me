@@ -7,19 +7,19 @@ import (
 )
 
 // CreateRecommendationsForUser returns a slice of recommended user IDs
-func CreateRecommendationsForUser(userID, sphereID int64, ust model.UST) []int64 {
-	st1 := ust[userID]
+func CreateRecommendationsForUser(userID, sphereID int64, isFamiliar bool, usdt model.USDT, w map[int64]map[int64]float64) []int64 {
+	std1 := usdt[userID]
 
 	// calculate similarities between current user and others
-	similarities := make(map[int64]float64, len(ust)-1)
-	for u2, st2 := range ust {
+	similarities := make(map[int64]float64, len(usdt)-1)
+	for u2, sdt2 := range usdt {
 		// skip if it is the current user or if the other user doesn't exist not in the current user's sphere
-		_, ok := st2[sphereID]
+		_, ok := sdt2[sphereID]
 		if u2 == userID || !ok {
 			continue
 		}
 
-		similarity := calculateSimilarity(st1, st2, sphereID)
+		similarity := calculateSimilarity(std1, sdt2, w, sphereID, isFamiliar)
 		// TODO tree insert w/ slice?
 		similarities[u2] = similarity
 	}
@@ -35,19 +35,29 @@ func CreateRecommendationsForUser(userID, sphereID int64, ust model.UST) []int64
 }
 
 // calculateSimilarity calculates and returns the similarity between the current user and provided one
-func calculateSimilarity(st1, st2 map[int64]map[int64]struct{}, mainSphereID int64) float64 {
-	mainSimilarity := 0.0
+func calculateSimilarity(sdt1, sdt2 map[int64]map[int64]map[int64]struct{}, weights map[int64]map[int64]float64, mainSphereID int64, isFamiliar bool) float64 {
+	res := 0.0
 
-	for sphereID, tags1 := range st1 {
-		tags2 := st2[sphereID]
-		similarity := utils.JaccardIndex(tags1, tags2)
+	for sphereID, dt1 := range sdt1 {
+		intersectionAll, t1AllCount, t2AllCount := make(map[int64]struct{}), 0, 0
 
-		coefficient := config.C.OtherSphereCoefficient
-		if sphereID == mainSphereID {
-			coefficient = config.C.MainSphereCoefficient
+		resD := 0.0
+		for dimensionID, t1 := range dt1 {
+			t2 := sdt2[sphereID][dimensionID]
+			intersectionD := utils.Intersect(t1, t2)
+			intersectionAll = utils.Unite(intersectionAll, intersectionD)
+			resD += weights[dimensionID][0] * utils.JaccardIndex(intersectionD, t1, t2)
+			t1AllCount += len(t1)
+			t2AllCount += len(t2)
 		}
-		mainSimilarity += similarity * coefficient
+
+		resAll := float64(len(intersectionAll)) / float64(t1AllCount+t2AllCount-len(intersectionAll))
+		sign := 1.0
+		if sphereID == mainSphereID && !isFamiliar {
+			sign = -sign
+		}
+		res += sign * weights[mainSphereID][sphereID] * (config.C.Alpha*resAll + (1-config.C.Alpha)*resD)
 	}
 
-	return mainSimilarity
+	return res
 }

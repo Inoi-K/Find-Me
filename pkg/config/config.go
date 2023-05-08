@@ -40,6 +40,7 @@ type config struct {
 	HighlightMark string
 
 	TagsLimit              int
+	Alpha                  float64
 	MainSphereCoefficient  float64
 	OtherSphereCoefficient float64
 	University             string

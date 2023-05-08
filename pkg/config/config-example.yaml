@@ -29,6 +29,7 @@ DislikeButton: 👎
 HighlightMark: ✅
 
 TagsLimit: 5
+Alpha: 0.5
 MainSphereCoefficient:  1.0
 OtherSphereCoefficient: 0.2
 University:
