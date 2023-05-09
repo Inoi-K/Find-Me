@@ -7,19 +7,32 @@ import (
 )
 
 // CreateRecommendationsForUser returns a slice of recommended user IDs
-func CreateRecommendationsForUser(userID, sphereID int64, searchFamiliar bool, usdt model.USDT, w map[int64]map[int64]float64) []int64 {
+func CreateRecommendationsForUser(userID, sphereID int64, searchFamiliar bool, usdt model.USDT, matches map[int64]map[int64]bool, w map[int64]map[int64]float64) []int64 {
 	std1 := usdt[userID]
 
 	// calculate similarities between current user and others
 	similarities := make(map[int64]float64, len(usdt)-1)
 	for u2, sdt2 := range usdt {
 		// skip if it is the current user or if the other user doesn't exist not in the current user's sphere
-		_, ok := sdt2[sphereID]
-		if u2 == userID || !ok {
+		if _, ok := sdt2[sphereID]; !ok || u2 == userID {
 			continue
 		}
 
-		similarity := calculateSimilarity(std1, sdt2, w, sphereID, searchFamiliar)
+		var similarity float64
+		if _, ok := matches[userID][u2]; ok {
+			// main user already reacted on the current user
+			// minimize the probability of his/her reappearance in the recommendations
+			similarity = -config.C.SimilarityLimit
+		} else if isLike, ok := matches[u2][userID]; ok && isLike {
+			// current user liked main user
+			// maximize the probability of his/her appearance in the recommendations
+			similarity = config.C.SimilarityLimit
+		} else {
+			// main and current user haven't seen each other
+			// calculate their similarity
+			similarity = calculateSimilarity(std1, sdt2, w, sphereID, searchFamiliar)
+		}
+
 		// TODO tree insert w/ slice?
 		similarities[u2] = similarity
 	}

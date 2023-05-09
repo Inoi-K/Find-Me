@@ -21,13 +21,17 @@ func (s *server) GetRecommendations(ctx context.Context, in *pb.GetRecommendatio
 	if err != nil {
 		log.Fatalf("failed to get user sphere tags %v", err)
 	}
+	matches, err := database.GetMatches(ctx, in.UserID, in.SphereID)
+	if err != nil {
+		log.Fatalf("failed to get matches %v", err)
+	}
 	w, err := database.GetWeights(ctx)
 	if err != nil {
 		log.Fatalf("failed to get weights %v", err)
 	}
 
 	// create recommendations for current user
-	recommendations := recommendation.CreateRecommendationsForUser(in.UserID, in.SphereID, in.SearchFamiliar, usdt, w)
+	recommendations := recommendation.CreateRecommendationsForUser(in.UserID, in.SphereID, in.SearchFamiliar, usdt, matches, w)
 
 	return &pb.GetRecommendationsReply{
 		RecommendationIDs: recommendations,
