@@ -59,22 +59,28 @@ func (s *server) UpdateRecommendations(ctx context.Context, in *pb.UpdateRecomme
 
 // updateUserRecommendations updates recommendations of the user per sphere
 func updateUserRecommendations(ctx context.Context, userID, sphereID int64) error {
-	var err error
-	session.SUR[sphereID][userID], err = getRecommendations(ctx, userID, sphereID)
+	searchFamiliar, err := database.GetSearchFamiliar(ctx, userID, sphereID)
 	if err != nil {
 		return err
 	}
+
+	session.SUR[sphereID][userID], err = getRecommendations(ctx, userID, sphereID, searchFamiliar)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // getRecommendations get the recommendations of user
-func getRecommendations(ctx context.Context, userID, sphereID int64) ([]int64, error) {
+func getRecommendations(ctx context.Context, userID, sphereID int64, searchFamiliar bool) ([]int64, error) {
 	// contact the rengine service to get recommendations
 	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
 	defer cancel()
 	rep, err := client.REngine.GetRecommendations(ctx2, &pb.GetRecommendationsRequest{
-		UserID:   userID,
-		SphereID: sphereID,
+		UserID:         userID,
+		SphereID:       sphereID,
+		SearchFamiliar: searchFamiliar,
 	})
 	if err != nil {
 		return nil, err

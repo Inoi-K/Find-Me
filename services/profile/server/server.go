@@ -5,7 +5,6 @@ import (
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/pkg/database"
-	"github.com/Inoi-K/Find-Me/services/profile/client"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -111,15 +110,15 @@ func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.ProfileEmpty
 	}
 
 	// contact the match server to update recommendations
-	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
-	defer cancel()
-	_, err := client.Match.UpdateRecommendations(ctx2, &pb.UpdateRecommendationsRequest{
-		UserID:   in.UserID,
-		SphereID: in.SphereID,
-	})
-	if err != nil {
-		return nil, err
-	}
+	//ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
+	//defer cancel()
+	//_, err := client.Match.UpdateRecommendations(ctx2, &pb.UpdateRecommendationsRequest{
+	//	UserID:   in.UserID,
+	//	SphereID: in.SphereID,
+	//})
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	return &pb.ProfileEmpty{}, nil
 }

@@ -7,7 +7,7 @@ import (
 )
 
 // CreateRecommendationsForUser returns a slice of recommended user IDs
-func CreateRecommendationsForUser(userID, sphereID int64, isFamiliar bool, usdt model.USDT, w map[int64]map[int64]float64) []int64 {
+func CreateRecommendationsForUser(userID, sphereID int64, searchFamiliar bool, usdt model.USDT, w map[int64]map[int64]float64) []int64 {
 	std1 := usdt[userID]
 
 	// calculate similarities between current user and others
@@ -19,7 +19,7 @@ func CreateRecommendationsForUser(userID, sphereID int64, isFamiliar bool, usdt 
 			continue
 		}
 
-		similarity := calculateSimilarity(std1, sdt2, w, sphereID, isFamiliar)
+		similarity := calculateSimilarity(std1, sdt2, w, sphereID, searchFamiliar)
 		// TODO tree insert w/ slice?
 		similarities[u2] = similarity
 	}
@@ -35,7 +35,7 @@ func CreateRecommendationsForUser(userID, sphereID int64, isFamiliar bool, usdt 
 }
 
 // calculateSimilarity calculates and returns the similarity between the current user and provided one
-func calculateSimilarity(sdt1, sdt2 map[int64]map[int64]map[int64]struct{}, weights map[int64]map[int64]float64, mainSphereID int64, isFamiliar bool) float64 {
+func calculateSimilarity(sdt1, sdt2 map[int64]map[int64]map[int64]struct{}, weights map[int64]map[int64]float64, mainSphereID int64, searchFamiliar bool) float64 {
 	res := 0.0
 
 	for sphereID, dt1 := range sdt1 {
@@ -53,7 +53,7 @@ func calculateSimilarity(sdt1, sdt2 map[int64]map[int64]map[int64]struct{}, weig
 
 		resAll := float64(len(intersectionAll)) / float64(t1AllCount+t2AllCount-len(intersectionAll))
 		sign := 1.0
-		if sphereID == mainSphereID && !isFamiliar {
+		if sphereID == mainSphereID && !searchFamiliar {
 			sign = -sign
 		}
 		res += sign * weights[mainSphereID][sphereID] * (config.C.Alpha*resAll + (1-config.C.Alpha)*resD)

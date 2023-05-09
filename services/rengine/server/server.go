@@ -27,7 +27,7 @@ func (s *server) GetRecommendations(ctx context.Context, in *pb.GetRecommendatio
 	}
 
 	// create recommendations for current user
-	recommendations := recommendation.CreateRecommendationsForUser(in.UserID, in.SphereID, in.IsFamiliar, usdt, w)
+	recommendations := recommendation.CreateRecommendationsForUser(in.UserID, in.SphereID, in.SearchFamiliar, usdt, w)
 
 	return &pb.GetRecommendationsReply{
 		RecommendationIDs: recommendations,

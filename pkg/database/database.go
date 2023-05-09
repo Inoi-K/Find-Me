@@ -86,6 +86,14 @@ func GetWeights(ctx context.Context) (map[int64]map[int64]float64, error) {
 	return w, nil
 }
 
+// GetSearchFamiliar gets a search option for recommendations generation
+func GetSearchFamiliar(ctx context.Context, userID, sphereID int64) (searchFamiliar bool, err error) {
+	// TODO make it categorical field 'search_option'
+	query := fmt.Sprintf("SELECT search_familiar FROM user_sphere WHERE user_id=%d AND sphere_id=%d;", userID, sphereID)
+	err = db.pool.QueryRow(ctx, query).Scan(&searchFamiliar)
+	return
+}
+
 // UserExists checks if user exists in db
 func UserExists(ctx context.Context, userID int64) (bool, error) {
 	query := fmt.Sprintf("SELECT 1 FROM \"user\" WHERE id=%d;", userID)

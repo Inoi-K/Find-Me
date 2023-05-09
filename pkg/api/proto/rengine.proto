@@ -9,7 +9,7 @@ service REngine {
 message GetRecommendationsRequest {
   int64 userID = 1;
   int64 sphereID = 2;
-  bool isFamiliar = 3;
+  bool searchFamiliar = 3;
 }
 
 message GetRecommendationsReply {

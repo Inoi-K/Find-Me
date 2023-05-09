@@ -16,7 +16,7 @@ func CreateTables(ctx context.Context) error {
 		// association rule
 		"create table if not exists association_rule\n(\n    base_id       integer not null\n        constraint table_name_tag_id_fk\n            references tag,\n    associated_id integer not null\n        constraint table_name_tag_id_fk_2\n            references tag,\n    constraint association_rule_pk\n        primary key (base_id, associated_id)\n);",
 		// user_sphere
-		"create table if not exists user_sphere\n(\n    user_id     integer not null\n        constraint user_sphere_user_fk\n            references \"user\",\n    sphere_id   integer not null\n        constraint user_sphere_sphere_fk\n            references sphere\n            on update cascade on delete cascade,\n    description text,\n    photo       text,\n    constraint user_sphere_pk\n        primary key (user_id, sphere_id)\n);",
+		"create table if not exists user_sphere\n(\n    user_id         integer              not null\n        constraint user_sphere_user_fk\n            references \"user\",\n    sphere_id       integer              not null\n        constraint user_sphere_sphere_fk\n            references sphere\n            on update cascade on delete cascade,\n    description     text,\n    photo           text                 not null,\n    search_familiar boolean default true not null,\n    constraint user_sphere_pk\n        primary key (user_id, sphere_id)\n);",
 		// sphere_tag
 		"create table if not exists sphere_tag\n(\n    sphere_id integer not null\n        constraint sphere_tag_sphere_fk\n            references sphere\n            on update cascade on delete cascade,\n    tag_id    integer not null\n        constraint sphere_tag_tag_fk\n            references tag\n            on update cascade on delete cascade,\n    constraint sphere_tag_pk\n        primary key (sphere_id, tag_id)\n);",
 		// user_tag
@@ -24,12 +24,12 @@ func CreateTables(ctx context.Context) error {
 		// match
 		"create table if not exists match\n(\n    from_id   integer not null\n        constraint match_user_id_1_fk\n            references \"user\"\n            on update cascade on delete cascade,\n    to_id     integer not null\n        constraint match_user_id_2_fk\n            references \"user\"\n            on update cascade on delete cascade,\n    is_like   boolean not null,\n    sphere_id integer not null\n        constraint match_sphere_id_fk\n            references sphere,\n    constraint match_pk\n        primary key (from_id, to_id)\n);",
 	}
+
 	for _, query := range queries {
 		_, err := db.pool.Query(ctx, query)
 		if err != nil {
 			return err
 		}
 	}
-
 	return nil
 }
