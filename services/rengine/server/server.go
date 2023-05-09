@@ -21,7 +21,7 @@ func (s *server) GetRecommendations(ctx context.Context, in *pb.GetRecommendatio
 	if err != nil {
 		log.Fatalf("failed to get user sphere tags %v", err)
 	}
-	matches, err := database.GetMatches(ctx, in.UserID, in.SphereID)
+	matches, err := database.GetMatches(ctx, in.SphereID)
 	if err != nil {
 		log.Fatalf("failed to get matches %v", err)
 	}
