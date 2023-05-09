@@ -409,3 +409,53 @@ func Match(ctx context.Context, fromID, toID, sphereID int64, isLike bool) (bool
 
 	return isReciprocated, nil
 }
+
+func GetMatches(ctx context.Context, sphereID int64) (map[int64]map[int64]bool, error) {
+	query := fmt.Sprintf("SELECT from_id, to_id, is_like FROM match WHERE sphere_id=%d;", sphereID)
+	rows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	matches := make(map[int64]map[int64]bool)
+	for rows.Next() {
+		var fromID, toID int64
+		var isLike bool
+		err = rows.Scan(&fromID, &toID, &isLike)
+		if err != nil {
+			return nil, err
+		}
+
+		if _, ok := matches[fromID]; !ok {
+			matches[fromID] = make(map[int64]bool)
+		}
+
+		matches[fromID][toID] = isLike
+	}
+
+	return matches, nil
+}
+
+func GetUserMatches(ctx context.Context, fromID, sphereID int64) (map[int64]bool, error) {
+	query := fmt.Sprintf("SELECT to_id, is_like FROM match WHERE from_id=%d AND sphere_id=%d;", fromID, sphereID)
+	rows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	matches := make(map[int64]bool)
+	for rows.Next() {
+		var toID int64
+		var isLike bool
+		err = rows.Scan(&toID, &isLike)
+		if err != nil {
+			return nil, err
+		}
+
+		matches[toID] = isLike
+	}
+
+	return matches, nil
+}
