@@ -3,7 +3,7 @@ package localization
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Inoi-K/Find-Me/pkg/model"
+	"github.com/Inoi-K/Find-Me/services/gateway/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
 	"log"

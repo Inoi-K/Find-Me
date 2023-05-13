@@ -2,8 +2,8 @@ package command
 
 import (
 	"github.com/Inoi-K/Find-Me/pkg/config"
-	"github.com/Inoi-K/Find-Me/pkg/model"
 	loc "github.com/Inoi-K/Find-Me/services/gateway/localization"
+	"github.com/Inoi-K/Find-Me/services/gateway/model"
 	"github.com/Inoi-K/Find-Me/services/gateway/session"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )

@@ -5,9 +5,9 @@ import (
 	"errors"
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
-	"github.com/Inoi-K/Find-Me/pkg/model"
 	"github.com/Inoi-K/Find-Me/services/gateway/client"
 	loc "github.com/Inoi-K/Find-Me/services/gateway/localization"
+	"github.com/Inoi-K/Find-Me/services/gateway/model"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 )
