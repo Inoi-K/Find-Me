@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type REngineClient interface {
-	GetRecommendations(ctx context.Context, in *GetRecommendationsRequest, opts ...grpc.CallOption) (*GetRecommendationsReply, error)
+	Next(ctx context.Context, in *NextRequest, opts ...grpc.CallOption) (*NextReply, error)
 }
 
 type rEngineClient struct {
@@ -33,9 +33,9 @@ func NewREngineClient(cc grpc.ClientConnInterface) REngineClient {
 	return &rEngineClient{cc}
 }
 
-func (c *rEngineClient) GetRecommendations(ctx context.Context, in *GetRecommendationsRequest, opts ...grpc.CallOption) (*GetRecommendationsReply, error) {
-	out := new(GetRecommendationsReply)
-	err := c.cc.Invoke(ctx, "/REngine/GetRecommendations", in, out, opts...)
+func (c *rEngineClient) Next(ctx context.Context, in *NextRequest, opts ...grpc.CallOption) (*NextReply, error) {
+	out := new(NextReply)
+	err := c.cc.Invoke(ctx, "/REngine/Next", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (c *rEngineClient) GetRecommendations(ctx context.Context, in *GetRecommend
 // All implementations must embed UnimplementedREngineServer
 // for forward compatibility
 type REngineServer interface {
-	GetRecommendations(context.Context, *GetRecommendationsRequest) (*GetRecommendationsReply, error)
+	Next(context.Context, *NextRequest) (*NextReply, error)
 	mustEmbedUnimplementedREngineServer()
 }
 
@@ -54,8 +54,8 @@ type REngineServer interface {
 type UnimplementedREngineServer struct {
 }
 
-func (UnimplementedREngineServer) GetRecommendations(context.Context, *GetRecommendationsRequest) (*GetRecommendationsReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetRecommendations not implemented")
+func (UnimplementedREngineServer) Next(context.Context, *NextRequest) (*NextReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Next not implemented")
 }
 func (UnimplementedREngineServer) mustEmbedUnimplementedREngineServer() {}
 
@@ -70,20 +70,20 @@ func RegisterREngineServer(s grpc.ServiceRegistrar, srv REngineServer) {
 	s.RegisterService(&REngine_ServiceDesc, srv)
 }
 
-func _REngine_GetRecommendations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetRecommendationsRequest)
+func _REngine_Next_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NextRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(REngineServer).GetRecommendations(ctx, in)
+		return srv.(REngineServer).Next(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/REngine/GetRecommendations",
+		FullMethod: "/REngine/Next",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(REngineServer).GetRecommendations(ctx, req.(*GetRecommendationsRequest))
+		return srv.(REngineServer).Next(ctx, req.(*NextRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -96,8 +96,8 @@ var REngine_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*REngineServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetRecommendations",
-			Handler:    _REngine_GetRecommendations_Handler,
+			MethodName: "Next",
+			Handler:    _REngine_Next_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

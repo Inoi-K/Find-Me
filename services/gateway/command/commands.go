@@ -276,7 +276,7 @@ func (c *Find) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.U
 	// contact the match service to get next user id
 	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
 	defer cancel()
-	next, err := client.Match.Next(ctx2, &pb.NextRequest{
+	next, err := client.REngine.Next(ctx2, &pb.NextRequest{
 		UserID:   user.ID,
 		SphereID: config.C.SphereID,
 	})

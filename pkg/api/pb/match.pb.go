@@ -20,201 +20,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type MatchEmpty struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *MatchEmpty) Reset() {
-	*x = MatchEmpty{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_pkg_api_proto_match_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *MatchEmpty) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MatchEmpty) ProtoMessage() {}
-
-func (x *MatchEmpty) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_api_proto_match_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MatchEmpty.ProtoReflect.Descriptor instead.
-func (*MatchEmpty) Descriptor() ([]byte, []int) {
-	return file_pkg_api_proto_match_proto_rawDescGZIP(), []int{0}
-}
-
-type NextRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	UserID   int64 `protobuf:"varint,1,opt,name=userID,proto3" json:"userID,omitempty"`
-	SphereID int64 `protobuf:"varint,2,opt,name=sphereID,proto3" json:"sphereID,omitempty"`
-}
-
-func (x *NextRequest) Reset() {
-	*x = NextRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_pkg_api_proto_match_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *NextRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*NextRequest) ProtoMessage() {}
-
-func (x *NextRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_api_proto_match_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use NextRequest.ProtoReflect.Descriptor instead.
-func (*NextRequest) Descriptor() ([]byte, []int) {
-	return file_pkg_api_proto_match_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *NextRequest) GetUserID() int64 {
-	if x != nil {
-		return x.UserID
-	}
-	return 0
-}
-
-func (x *NextRequest) GetSphereID() int64 {
-	if x != nil {
-		return x.SphereID
-	}
-	return 0
-}
-
-type NextReply struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	NextUserID int64 `protobuf:"varint,1,opt,name=nextUserID,proto3" json:"nextUserID,omitempty"`
-}
-
-func (x *NextReply) Reset() {
-	*x = NextReply{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_pkg_api_proto_match_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *NextReply) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*NextReply) ProtoMessage() {}
-
-func (x *NextReply) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_api_proto_match_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use NextReply.ProtoReflect.Descriptor instead.
-func (*NextReply) Descriptor() ([]byte, []int) {
-	return file_pkg_api_proto_match_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *NextReply) GetNextUserID() int64 {
-	if x != nil {
-		return x.NextUserID
-	}
-	return 0
-}
-
-type UpdateRecommendationsRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	UserID   int64 `protobuf:"varint,1,opt,name=userID,proto3" json:"userID,omitempty"`
-	SphereID int64 `protobuf:"varint,2,opt,name=sphereID,proto3" json:"sphereID,omitempty"`
-}
-
-func (x *UpdateRecommendationsRequest) Reset() {
-	*x = UpdateRecommendationsRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_pkg_api_proto_match_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *UpdateRecommendationsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateRecommendationsRequest) ProtoMessage() {}
-
-func (x *UpdateRecommendationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_api_proto_match_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateRecommendationsRequest.ProtoReflect.Descriptor instead.
-func (*UpdateRecommendationsRequest) Descriptor() ([]byte, []int) {
-	return file_pkg_api_proto_match_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *UpdateRecommendationsRequest) GetUserID() int64 {
-	if x != nil {
-		return x.UserID
-	}
-	return 0
-}
-
-func (x *UpdateRecommendationsRequest) GetSphereID() int64 {
-	if x != nil {
-		return x.SphereID
-	}
-	return 0
-}
-
 type MatchRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -229,7 +34,7 @@ type MatchRequest struct {
 func (x *MatchRequest) Reset() {
 	*x = MatchRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_pkg_api_proto_match_proto_msgTypes[4]
+		mi := &file_pkg_api_proto_match_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -242,7 +47,7 @@ func (x *MatchRequest) String() string {
 func (*MatchRequest) ProtoMessage() {}
 
 func (x *MatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_api_proto_match_proto_msgTypes[4]
+	mi := &file_pkg_api_proto_match_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -255,7 +60,7 @@ func (x *MatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatchRequest.ProtoReflect.Descriptor instead.
 func (*MatchRequest) Descriptor() ([]byte, []int) {
-	return file_pkg_api_proto_match_proto_rawDescGZIP(), []int{4}
+	return file_pkg_api_proto_match_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *MatchRequest) GetFromID() int64 {
@@ -297,7 +102,7 @@ type MatchReply struct {
 func (x *MatchReply) Reset() {
 	*x = MatchReply{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_pkg_api_proto_match_proto_msgTypes[5]
+		mi := &file_pkg_api_proto_match_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -310,7 +115,7 @@ func (x *MatchReply) String() string {
 func (*MatchReply) ProtoMessage() {}
 
 func (x *MatchReply) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_api_proto_match_proto_msgTypes[5]
+	mi := &file_pkg_api_proto_match_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -323,7 +128,7 @@ func (x *MatchReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatchReply.ProtoReflect.Descriptor instead.
 func (*MatchReply) Descriptor() ([]byte, []int) {
-	return file_pkg_api_proto_match_proto_rawDescGZIP(), []int{5}
+	return file_pkg_api_proto_match_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *MatchReply) GetIsReciprocated() bool {
@@ -337,41 +142,21 @@ var File_pkg_api_proto_match_proto protoreflect.FileDescriptor
 
 var file_pkg_api_proto_match_proto_rawDesc = []byte{
 	0x0a, 0x19, 0x70, 0x6b, 0x67, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f,
-	0x6d, 0x61, 0x74, 0x63, 0x68, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x0c, 0x0a, 0x0a, 0x4d,
-	0x61, 0x74, 0x63, 0x68, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x41, 0x0a, 0x0b, 0x4e, 0x65, 0x78,
-	0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x75, 0x73, 0x65, 0x72,
-	0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x44,
-	0x12, 0x1a, 0x0a, 0x08, 0x73, 0x70, 0x68, 0x65, 0x72, 0x65, 0x49, 0x44, 0x18, 0x02, 0x20, 0x01,
-	0x28, 0x03, 0x52, 0x08, 0x73, 0x70, 0x68, 0x65, 0x72, 0x65, 0x49, 0x44, 0x22, 0x2b, 0x0a, 0x09,
-	0x4e, 0x65, 0x78, 0x74, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x1e, 0x0a, 0x0a, 0x6e, 0x65, 0x78,
-	0x74, 0x55, 0x73, 0x65, 0x72, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0a, 0x6e,
-	0x65, 0x78, 0x74, 0x55, 0x73, 0x65, 0x72, 0x49, 0x44, 0x22, 0x52, 0x0a, 0x1c, 0x55, 0x70, 0x64,
-	0x61, 0x74, 0x65, 0x52, 0x65, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x64, 0x61, 0x74, 0x69, 0x6f,
-	0x6e, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x75, 0x73, 0x65,
-	0x72, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49,
-	0x44, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x70, 0x68, 0x65, 0x72, 0x65, 0x49, 0x44, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x03, 0x52, 0x08, 0x73, 0x70, 0x68, 0x65, 0x72, 0x65, 0x49, 0x44, 0x22, 0x6e, 0x0a,
-	0x0c, 0x4d, 0x61, 0x74, 0x63, 0x68, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x16, 0x0a,
-	0x06, 0x66, 0x72, 0x6f, 0x6d, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x66,
-	0x72, 0x6f, 0x6d, 0x49, 0x44, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x6f, 0x49, 0x44, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x03, 0x52, 0x04, 0x74, 0x6f, 0x49, 0x44, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x70, 0x68,
-	0x65, 0x72, 0x65, 0x49, 0x44, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03, 0x52, 0x08, 0x73, 0x70, 0x68,
-	0x65, 0x72, 0x65, 0x49, 0x44, 0x12, 0x16, 0x0a, 0x06, 0x69, 0x73, 0x4c, 0x69, 0x6b, 0x65, 0x18,
-	0x04, 0x20, 0x01, 0x28, 0x08, 0x52, 0x06, 0x69, 0x73, 0x4c, 0x69, 0x6b, 0x65, 0x22, 0x34, 0x0a,
-	0x0a, 0x4d, 0x61, 0x74, 0x63, 0x68, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x26, 0x0a, 0x0e, 0x69,
-	0x73, 0x52, 0x65, 0x63, 0x69, 0x70, 0x72, 0x6f, 0x63, 0x61, 0x74, 0x65, 0x64, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x08, 0x52, 0x0e, 0x69, 0x73, 0x52, 0x65, 0x63, 0x69, 0x70, 0x72, 0x6f, 0x63, 0x61,
-	0x74, 0x65, 0x64, 0x32, 0x99, 0x01, 0x0a, 0x05, 0x4d, 0x61, 0x74, 0x63, 0x68, 0x12, 0x22, 0x0a,
-	0x04, 0x4e, 0x65, 0x78, 0x74, 0x12, 0x0c, 0x2e, 0x4e, 0x65, 0x78, 0x74, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x1a, 0x0a, 0x2e, 0x4e, 0x65, 0x78, 0x74, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22,
-	0x00, 0x12, 0x45, 0x0a, 0x15, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x63, 0x6f, 0x6d,
-	0x6d, 0x65, 0x6e, 0x64, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x1d, 0x2e, 0x55, 0x70, 0x64,
-	0x61, 0x74, 0x65, 0x52, 0x65, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x64, 0x61, 0x74, 0x69, 0x6f,
-	0x6e, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0b, 0x2e, 0x4d, 0x61, 0x74, 0x63,
-	0x68, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x00, 0x12, 0x25, 0x0a, 0x05, 0x4d, 0x61, 0x74, 0x63,
-	0x68, 0x12, 0x0d, 0x2e, 0x4d, 0x61, 0x74, 0x63, 0x68, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x0b, 0x2e, 0x4d, 0x61, 0x74, 0x63, 0x68, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x42,
-	0x05, 0x5a, 0x03, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6d, 0x61, 0x74, 0x63, 0x68, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x6e, 0x0a, 0x0c, 0x4d,
+	0x61, 0x74, 0x63, 0x68, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x66,
+	0x72, 0x6f, 0x6d, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x66, 0x72, 0x6f,
+	0x6d, 0x49, 0x44, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x6f, 0x49, 0x44, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x03, 0x52, 0x04, 0x74, 0x6f, 0x49, 0x44, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x70, 0x68, 0x65, 0x72,
+	0x65, 0x49, 0x44, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03, 0x52, 0x08, 0x73, 0x70, 0x68, 0x65, 0x72,
+	0x65, 0x49, 0x44, 0x12, 0x16, 0x0a, 0x06, 0x69, 0x73, 0x4c, 0x69, 0x6b, 0x65, 0x18, 0x04, 0x20,
+	0x01, 0x28, 0x08, 0x52, 0x06, 0x69, 0x73, 0x4c, 0x69, 0x6b, 0x65, 0x22, 0x34, 0x0a, 0x0a, 0x4d,
+	0x61, 0x74, 0x63, 0x68, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x26, 0x0a, 0x0e, 0x69, 0x73, 0x52,
+	0x65, 0x63, 0x69, 0x70, 0x72, 0x6f, 0x63, 0x61, 0x74, 0x65, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x08, 0x52, 0x0e, 0x69, 0x73, 0x52, 0x65, 0x63, 0x69, 0x70, 0x72, 0x6f, 0x63, 0x61, 0x74, 0x65,
+	0x64, 0x32, 0x2e, 0x0a, 0x05, 0x4d, 0x61, 0x74, 0x63, 0x68, 0x12, 0x25, 0x0a, 0x05, 0x4d, 0x61,
+	0x74, 0x63, 0x68, 0x12, 0x0d, 0x2e, 0x4d, 0x61, 0x74, 0x63, 0x68, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x0b, 0x2e, 0x4d, 0x61, 0x74, 0x63, 0x68, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22,
+	0x00, 0x42, 0x05, 0x5a, 0x03, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -386,24 +171,16 @@ func file_pkg_api_proto_match_proto_rawDescGZIP() []byte {
 	return file_pkg_api_proto_match_proto_rawDescData
 }
 
-var file_pkg_api_proto_match_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_pkg_api_proto_match_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_pkg_api_proto_match_proto_goTypes = []interface{}{
-	(*MatchEmpty)(nil),                   // 0: MatchEmpty
-	(*NextRequest)(nil),                  // 1: NextRequest
-	(*NextReply)(nil),                    // 2: NextReply
-	(*UpdateRecommendationsRequest)(nil), // 3: UpdateRecommendationsRequest
-	(*MatchRequest)(nil),                 // 4: MatchRequest
-	(*MatchReply)(nil),                   // 5: MatchReply
+	(*MatchRequest)(nil), // 0: MatchRequest
+	(*MatchReply)(nil),   // 1: MatchReply
 }
 var file_pkg_api_proto_match_proto_depIdxs = []int32{
-	1, // 0: Match.Next:input_type -> NextRequest
-	3, // 1: Match.UpdateRecommendations:input_type -> UpdateRecommendationsRequest
-	4, // 2: Match.Match:input_type -> MatchRequest
-	2, // 3: Match.Next:output_type -> NextReply
-	0, // 4: Match.UpdateRecommendations:output_type -> MatchEmpty
-	5, // 5: Match.Match:output_type -> MatchReply
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
+	0, // 0: Match.Match:input_type -> MatchRequest
+	1, // 1: Match.Match:output_type -> MatchReply
+	1, // [1:2] is the sub-list for method output_type
+	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -416,54 +193,6 @@ func file_pkg_api_proto_match_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_pkg_api_proto_match_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MatchEmpty); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_pkg_api_proto_match_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NextRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_pkg_api_proto_match_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NextReply); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_pkg_api_proto_match_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UpdateRecommendationsRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_pkg_api_proto_match_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MatchRequest); i {
 			case 0:
 				return &v.state
@@ -475,7 +204,7 @@ func file_pkg_api_proto_match_proto_init() {
 				return nil
 			}
 		}
-		file_pkg_api_proto_match_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_pkg_api_proto_match_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MatchReply); i {
 			case 0:
 				return &v.state
@@ -494,7 +223,7 @@ func file_pkg_api_proto_match_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_pkg_api_proto_match_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

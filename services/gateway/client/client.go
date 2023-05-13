@@ -10,8 +10,10 @@ import (
 var (
 	Profile     pb.ProfileClient
 	Match       pb.MatchClient
+	REngine     pb.REngineClient
 	connProfile *grpc.ClientConn
 	connMatch   *grpc.ClientConn
+	connREngine *grpc.ClientConn
 )
 
 // Open creates connections to other services
@@ -33,6 +35,14 @@ func Open() error {
 		return err
 	}
 	Match = pb.NewMatchClient(connMatch)
+
+	// Set up a connection to the rengine server
+	address = config.C.REngineHost + ":" + config.C.REnginePort
+	connREngine, err = grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return err
+	}
+	REngine = pb.NewREngineClient(connREngine)
 
 	return nil
 }

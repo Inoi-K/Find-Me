@@ -3,25 +3,7 @@ syntax = "proto3";
 option go_package = "/pb";
 
 service Match {
-  rpc Next (NextRequest) returns (NextReply) {}
-  rpc UpdateRecommendations (UpdateRecommendationsRequest) returns (MatchEmpty) {}
   rpc Match (MatchRequest) returns (MatchReply) {}
-}
-
-message MatchEmpty {}
-
-message NextRequest {
-  int64 userID = 1;
-  int64 sphereID = 2;
-}
-
-message NextReply {
-  int64 nextUserID = 1;
-}
-
-message UpdateRecommendationsRequest {
-  int64 userID = 1;
-  int64 sphereID = 2;
 }
 
 message MatchRequest {
