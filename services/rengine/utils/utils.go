@@ -2,8 +2,8 @@ package utils
 
 import "sort"
 
-// intersect gets two sets and returns their intersection
-func intersect(s1, s2 map[int64]struct{}) map[int64]struct{} {
+// Intersect gets two sets and returns their intersection
+func Intersect(s1, s2 map[int64]struct{}) map[int64]struct{} {
 	s3 := make(map[int64]struct{})
 	for k := range s1 {
 		if _, consists := s2[k]; consists {
@@ -13,8 +13,8 @@ func intersect(s1, s2 map[int64]struct{}) map[int64]struct{} {
 	return s3
 }
 
-// intersect gets two sets and returns their union
-func unite(s1, s2 map[int64]struct{}) map[int64]struct{} {
+// Unite gets two sets and returns their union
+func Unite(s1, s2 map[int64]struct{}) map[int64]struct{} {
 	s3 := make(map[int64]struct{})
 	for k := range s1 {
 		s3[k] = struct{}{}
@@ -25,9 +25,14 @@ func unite(s1, s2 map[int64]struct{}) map[int64]struct{} {
 	return s3
 }
 
-// JaccardIndex gets two sets and returns their Jaccard index
-func JaccardIndex(s1, s2 map[int64]struct{}) float64 {
-	intersection := intersect(s1, s2)
+// JaccardIndex gets two sets and their intersection and returns Jaccard index
+func JaccardIndex(i, s1, s2 map[int64]struct{}) float64 {
+	return float64(len(i)) / float64(len(s1)+len(s2)-len(i))
+}
+
+// JaccardIndexFull gets two sets and returns their Jaccard index
+func JaccardIndexFull(s1, s2 map[int64]struct{}) float64 {
+	intersection := Intersect(s1, s2)
 
 	return float64(len(intersection)) / float64(len(s1)+len(s2)-len(intersection))
 }

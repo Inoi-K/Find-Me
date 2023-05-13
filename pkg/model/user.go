@@ -19,8 +19,8 @@ type UserSphere struct {
 	Tags        map[string]struct{}
 }
 
-// UST represent User Sphere Tag
-type UST map[int64]map[int64]map[int64]struct{}
+// USDT represent User Sphere Dimension Tag
+type USDT map[int64]map[int64]map[int64]map[int64]struct{}
 
 // NewUser creates a new user and handles description to tags conversion
 //func NewUser(name string, sphereDescription map[int64]string, sphereTags map[int64]map[string]struct{}) (*User, error) {

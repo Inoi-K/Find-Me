@@ -29,8 +29,8 @@ DislikeButton: 👎
 HighlightMark: ✅
 
 TagsLimit: 5
-MainSphereCoefficient:  1.0
-OtherSphereCoefficient: 0.2
+Alpha: 0.5
+SimilarityLimit: 1000
 University:
 Faculties:
   -

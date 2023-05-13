@@ -17,13 +17,21 @@ type server struct {
 
 // GetRecommendations returns recommendations for user
 func (s *server) GetRecommendations(ctx context.Context, in *pb.GetRecommendationsRequest) (*pb.GetRecommendationsReply, error) {
-	ust, err := database.GetNewUserSphereTag(ctx, in.UserID, in.SphereID)
+	usdt, err := database.GetUsersTag(ctx)
 	if err != nil {
 		log.Fatalf("failed to get user sphere tags %v", err)
 	}
+	matches, err := database.GetMatches(ctx, in.SphereID)
+	if err != nil {
+		log.Fatalf("failed to get matches %v", err)
+	}
+	w, err := database.GetWeights(ctx)
+	if err != nil {
+		log.Fatalf("failed to get weights %v", err)
+	}
 
 	// create recommendations for current user
-	recommendations := recommendation.CreateRecommendationsForUser(in.UserID, in.SphereID, ust)
+	recommendations := recommendation.CreateRecommendationsForUser(in.UserID, in.SphereID, in.SearchFamiliar, usdt, matches, w)
 
 	return &pb.GetRecommendationsReply{
 		RecommendationIDs: recommendations,

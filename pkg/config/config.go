@@ -39,11 +39,11 @@ type config struct {
 	DislikeButton string
 	HighlightMark string
 
-	TagsLimit              int
-	MainSphereCoefficient  float64
-	OtherSphereCoefficient float64
-	University             string
-	Faculties              []string
+	TagsLimit       int
+	Alpha           float64
+	SimilarityLimit float64
+	University      string
+	Faculties       []string
 }
 
 func ReadConfig() {

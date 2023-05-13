@@ -42,6 +42,58 @@ func ConnectDB(ctx context.Context) error {
 	return CreateTables(ctx)
 }
 
+func GetWeights(ctx context.Context) (map[int64]map[int64]float64, error) {
+	query := fmt.Sprintf("SELECT * FROM weight;")
+	rows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	//defer rows.Close()
+
+	w := make(map[int64]map[int64]float64)
+	for rows.Next() {
+		var fromID, toID int64
+		var weight float64
+		err = rows.Scan(&fromID, &toID, &weight)
+		if err != nil {
+			return w, err
+		}
+
+		if _, ok := w[fromID]; !ok {
+			w[fromID] = make(map[int64]float64)
+		}
+		w[fromID][toID] = weight
+	}
+	rows.Close()
+
+	query = fmt.Sprintf("SELECT id, weight FROM dimension;")
+	rows, err = db.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var dimensionID int64
+		var weight float64
+		err = rows.Scan(&dimensionID, &weight)
+		if err != nil {
+			return w, err
+		}
+
+		w[dimensionID] = map[int64]float64{0: weight}
+	}
+
+	return w, nil
+}
+
+// GetSearchFamiliar gets a search option for recommendations generation
+func GetSearchFamiliar(ctx context.Context, userID, sphereID int64) (searchFamiliar bool, err error) {
+	// TODO make it categorical field 'search_option'
+	query := fmt.Sprintf("SELECT search_familiar FROM user_sphere WHERE user_id=%d AND sphere_id=%d;", userID, sphereID)
+	err = db.pool.QueryRow(ctx, query).Scan(&searchFamiliar)
+	return
+}
+
 // UserExists checks if user exists in db
 func UserExists(ctx context.Context, userID int64) (bool, error) {
 	query := fmt.Sprintf("SELECT 1 FROM \"user\" WHERE id=%d;", userID)
@@ -54,46 +106,50 @@ func UserExists(ctx context.Context, userID int64) (bool, error) {
 	return rows.Next(), nil
 }
 
-// GetUserSphereTag returns user-sphere-tag model of all users
-func GetUserSphereTag(ctx context.Context) (model.UST, error) {
+// GetUsersTag returns user-sphere-tag model of all users
+func GetUsersTag(ctx context.Context) (model.USDT, error) {
 	query := fmt.Sprintf("SELECT * FROM user_tag;")
-	return getUserSphereTag(ctx, query)
+	return getUserTag(ctx, query)
 }
 
-// GetNewUserSphereTag returns user-sphere-tag model of new (no record in match table) users for the given one
-func GetNewUserSphereTag(ctx context.Context, userID, sphereID int64) (model.UST, error) {
-	query := fmt.Sprintf("SELECT * FROM user_tag WHERE user_id NOT IN (SELECT to_id FROM match WHERE from_id=%d AND sphere_id=%d);", userID, sphereID)
-	return getUserSphereTag(ctx, query)
+// GetUserTag returns user-sphere-tag model of users for the given one
+func GetUserTag(ctx context.Context, userID, sphereID int64) (model.USDT, error) {
+	query := fmt.Sprintf("SELECT * FROM user_tag WHERE user_id=%d AND sphere_id=%d;", userID, sphereID)
+	return getUserTag(ctx, query)
 }
 
-// getUserSphereTag converts select query to user-sphere-tag model
-func getUserSphereTag(ctx context.Context, query string) (model.UST, error) {
+// getUserTag converts select query to user-sphere-tag model
+func getUserTag(ctx context.Context, query string) (model.USDT, error) {
 	userSphereTagRows, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 	defer userSphereTagRows.Close()
 
-	ust := make(model.UST, 1000)
+	usdt := make(model.USDT, 1000)
 	for userSphereTagRows.Next() {
-		var userID, sphereID, tagID int64
-		err = userSphereTagRows.Scan(&userID, &sphereID, &tagID)
+		var userID, sphereID, tagID, dimensionID int64
+		err = userSphereTagRows.Scan(&userID, &sphereID, &tagID, &dimensionID)
 		if err != nil {
 			return nil, err
 		}
 
 		// new user
-		if _, ok := ust[userID]; !ok {
-			ust[userID] = make(map[int64]map[int64]struct{}, 1000)
+		if _, ok := usdt[userID]; !ok {
+			usdt[userID] = make(map[int64]map[int64]map[int64]struct{}, 1000)
 		}
 		// new sphere
-		if _, ok := ust[userID][sphereID]; !ok {
-			ust[userID][sphereID] = make(map[int64]struct{}, config.C.TagsLimit)
+		if _, ok := usdt[userID][sphereID]; !ok {
+			usdt[userID][sphereID] = make(map[int64]map[int64]struct{})
 		}
-		ust[userID][sphereID][tagID] = struct{}{}
+		// new dimension
+		if _, ok := usdt[userID][sphereID][dimensionID]; !ok {
+			usdt[userID][sphereID][dimensionID] = make(map[int64]struct{}, config.C.TagsLimit)
+		}
+		usdt[userID][sphereID][dimensionID][tagID] = struct{}{}
 	}
 
-	return ust, nil
+	return usdt, nil
 }
 
 // GetUsers gets all (main and additional) information about all user
@@ -174,7 +230,7 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 		}
 
 		// get tags
-		query = fmt.Sprintf("SELECT name FROM tag WHERE id IN (SELECT tag_id FROM user_tag WHERE user_id=%d AND sphere_id=%d);", userID, sphereID)
+		query = fmt.Sprintf("SELECT name FROM tag WHERE id IN (SELECT tag_id FROM user_tag WHERE user_id=%d AND sphere_id=%d AND dimension_id=%d);", userID, sphereID, 1)
 		tagRows, err := db.pool.Query(ctx, query)
 		if err != nil {
 			return nil, err
@@ -352,4 +408,54 @@ func Match(ctx context.Context, fromID, toID, sphereID int64, isLike bool) (bool
 	}
 
 	return isReciprocated, nil
+}
+
+func GetMatches(ctx context.Context, sphereID int64) (map[int64]map[int64]bool, error) {
+	query := fmt.Sprintf("SELECT from_id, to_id, is_like FROM match WHERE sphere_id=%d;", sphereID)
+	rows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	matches := make(map[int64]map[int64]bool)
+	for rows.Next() {
+		var fromID, toID int64
+		var isLike bool
+		err = rows.Scan(&fromID, &toID, &isLike)
+		if err != nil {
+			return nil, err
+		}
+
+		if _, ok := matches[fromID]; !ok {
+			matches[fromID] = make(map[int64]bool)
+		}
+
+		matches[fromID][toID] = isLike
+	}
+
+	return matches, nil
+}
+
+func GetUserMatches(ctx context.Context, fromID, sphereID int64) (map[int64]bool, error) {
+	query := fmt.Sprintf("SELECT to_id, is_like FROM match WHERE from_id=%d AND sphere_id=%d;", fromID, sphereID)
+	rows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	matches := make(map[int64]bool)
+	for rows.Next() {
+		var toID int64
+		var isLike bool
+		err = rows.Scan(&toID, &isLike)
+		if err != nil {
+			return nil, err
+		}
+
+		matches[toID] = isLike
+	}
+
+	return matches, nil
 }
