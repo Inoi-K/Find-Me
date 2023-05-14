@@ -6,8 +6,8 @@ import (
 	"github.com/Inoi-K/Find-Me/services/rengine/utils"
 )
 
-// CreateRecommendationsForUser returns a slice of recommended user IDs
-func CreateRecommendationsForUser(userID, sphereID int64, searchFamiliar bool, usdt model.USDT, matches map[int64]map[int64]bool, w map[int64]map[int64]float64) []int64 {
+// CalculateSimilarities returns a slice of recommended user IDs
+func CalculateSimilarities(userID, sphereID int64, searchFamiliar bool, usdt model.USDT, matches map[int64]map[int64]bool, w map[int64]map[int64]float64) map[int64]float64 {
 	std1 := usdt[userID]
 
 	// calculate similarities between current user and others
@@ -33,18 +33,10 @@ func CreateRecommendationsForUser(userID, sphereID int64, searchFamiliar bool, u
 			similarity = calculateSimilarity(std1, sdt2, w, sphereID, searchFamiliar)
 		}
 
-		// TODO tree insert w/ slice?
 		similarities[u2] = similarity
 	}
-	sortedSimilarities := utils.SortSetByValue(similarities)
 
-	// convert similarities to recommendation of IDs
-	recommendations := make([]int64, len(sortedSimilarities))
-	for i := 0; i < len(sortedSimilarities); i++ {
-		recommendations[i] = sortedSimilarities[i].Key
-	}
-
-	return recommendations
+	return similarities
 }
 
 // calculateSimilarity calculates and returns the similarity between the current user and provided one

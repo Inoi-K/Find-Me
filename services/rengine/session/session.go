@@ -1,6 +1,6 @@
 package session
 
 var (
-	// SUR = SphereUserRecommendations
-	SUR map[int64]map[int64][]int64
+	// SUS = SphereUserSimilarities
+	SUS map[int64]map[int64]map[int64]float64
 )

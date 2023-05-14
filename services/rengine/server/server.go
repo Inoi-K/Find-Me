@@ -6,6 +6,7 @@ import (
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/pkg/database"
 	"github.com/Inoi-K/Find-Me/services/rengine/recommendation"
+	"github.com/Inoi-K/Find-Me/services/rengine/selection"
 	"github.com/Inoi-K/Find-Me/services/rengine/session"
 	"google.golang.org/grpc"
 	"log"
@@ -19,7 +20,7 @@ type server struct {
 // Next gets the next user recommendation and returns it
 func (s *server) Next(ctx context.Context, in *pb.NextRequest) (*pb.NextReply, error) {
 	// create recommendations for the user if they do not exist yet
-	if _, ok := session.SUR[in.SphereID][in.UserID]; !ok {
+	if _, ok := session.SUS[in.SphereID][in.UserID]; !ok {
 		usdt, err := database.GetUsersTag(ctx)
 		if err != nil {
 			log.Fatalf("failed to get user sphere tags %v", err)
@@ -38,20 +39,18 @@ func (s *server) Next(ctx context.Context, in *pb.NextRequest) (*pb.NextReply, e
 		}
 
 		// create recommendations for current user
-		session.SUR[in.SphereID][in.UserID] = recommendation.CreateRecommendationsForUser(in.UserID, in.SphereID, searchFamiliar, usdt, matches, w)
+		session.SUS[in.SphereID][in.UserID] = recommendation.CalculateSimilarities(in.UserID, in.SphereID, searchFamiliar, usdt, matches, w)
 	}
 
 	// no more recommendations
-	if len(session.SUR[in.SphereID][in.UserID]) == 0 {
+	if len(session.SUS[in.SphereID][in.UserID]) == 0 {
 		return &pb.NextReply{
 			NextUserID: -1,
 		}, nil
 	}
 
 	// get the next recommendation
-	nextID := session.SUR[in.SphereID][in.UserID][0]
-	// remove the recommendation from the slice
-	session.SUR[in.SphereID][in.UserID] = session.SUR[in.SphereID][in.UserID][1:]
+	nextID := selection.PickStrategy.Pick(session.SUS[in.SphereID][in.UserID])
 
 	return &pb.NextReply{
 		NextUserID: nextID,

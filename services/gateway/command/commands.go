@@ -273,7 +273,7 @@ func (c *Find) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.U
 
 	// change state
 	session.UserState[user.ID] = session.Matching
-	// contact the match service to get next user id
+	// contact the rengine service to get next user id
 	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
 	defer cancel()
 	next, err := client.REngine.Next(ctx2, &pb.NextRequest{
