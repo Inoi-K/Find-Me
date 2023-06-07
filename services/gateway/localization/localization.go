@@ -3,10 +3,11 @@ package localization
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+
 	"github.com/Inoi-K/Find-Me/services/gateway/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
-	"log"
 )
 
 var (
@@ -19,7 +20,7 @@ var (
 )
 
 func Initialize() {
-	bundle = i18n.NewBundle(language.English)
+	bundle = i18n.NewBundle(language.Russian)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	for _, lang := range SupportedLanguages {
@@ -30,7 +31,7 @@ func Initialize() {
 		}
 	}
 
-	localizer = i18n.NewLocalizer(bundle, language.English.String())
+	localizer = i18n.NewLocalizer(bundle, language.Russian.String())
 }
 
 // ChangeLanguage changes the app language to a new one and returns true if it is supported, otherwise returns false

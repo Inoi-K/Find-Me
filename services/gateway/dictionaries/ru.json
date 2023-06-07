@@ -6,6 +6,10 @@
   "langFail": "Выбранный язык пока что не поддерживается",
   "help": "help",
 
+  "terms": "Продолжение пользования сервисом подтверждает твое согласие со следующими документами:\nполитика конфиденциальности - https://docs.google.com/document/d/1TwccAVlw7e969Ztth\\_4wXVbOtHZQfyVY4DHkjqv3ylU/edit?usp=sharing\nправила сообщества - https://docs.google.com/document/d/1P0-EpQkqHyOVzPuQizCpDyfhcSSU1\\_9\\_hZYw0TnIKPo/edit?usp=sharing\nусловия использования - https://docs.google.com/document/d/1mxDmMQ0HfSZR9rLUymdnITgWmQ3Nb2-ZnYJh\\_lPyjtc/edit?usp=sharing",
+  "emailWrong": "Почта не похожа на университетскую :(",
+  "emailWaiting": "Письмо с подтверждение отправлено на указанную почту! Перейди по ссылке из письма, чтобы подтвердить свою личность",
+  "emailVerified": "Университетская почта успешно подтверждена!",
   "tryAgain": "Пожалуйста, попробуй еще раз позднее",
   "rubicon": "Рубикон",
 
@@ -30,7 +34,7 @@
   "findEnd": "Упс \uD83D\uDE33\nРекоммендации закончились. Попробуй заглянуть позже!",
 
   "match": "Мэтч! \uD83C\uDF89\n",
-  "likeReceived": "Ты получил лайк ❤",
+  "likeReceived": "Ты получил лайк \uD83D\uDD25",
 
   "name": "Имя",
   "gender": "Пол",
@@ -38,7 +42,7 @@
   "faculty": "Факультет",
   "photo": "Фото",
   "desc": "Описание",
-  "tags": "Тег",
+  "tags": "Теги",
 
   "male": "Парень",
   "female": "Девушка"

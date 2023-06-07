@@ -2,12 +2,14 @@ package server
 
 import (
 	"context"
+	"log"
+	"net"
+	"strings"
+
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/pkg/database"
 	"google.golang.org/grpc"
-	"log"
-	"net"
 )
 
 type server struct {
@@ -86,7 +88,7 @@ func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.ProfileEmpty
 	log.Printf("Received edit field: %v", in.UserID)
 
 	switch in.Field {
-	case AgeField, FacultyField, PhotoField, DescriptionField:
+	case AgeField, FacultyField, PhotoField:
 		switch n := len(in.Value); {
 		case n == 0:
 			return nil, WrongArgumentsNumberError
@@ -99,8 +101,27 @@ func (s *server) Edit(ctx context.Context, in *pb.EditRequest) (*pb.ProfileEmpty
 			return nil, err
 		}
 
+	case DescriptionField:
+		err := database.EditField(ctx, in.Field, strings.Join(in.Value, config.C.Separator), in.UserID, in.SphereID)
+		if err != nil {
+			return nil, err
+		}
+
 	case TagsField:
-		err := database.EditTags(ctx, in.Value, in.UserID, in.SphereID)
+		err := database.DeleteTags(ctx, in.UserID, in.SphereID)
+		if err != nil {
+			return nil, err
+		}
+		addTags, err := database.GetAssociateTags(ctx, in.Value)
+		if err != nil {
+			return nil, err
+		}
+
+		err = database.AddTags(ctx, in.Value, in.UserID, in.SphereID, 1)
+		if err != nil {
+			return nil, err
+		}
+		err = database.AddTags(ctx, addTags, in.UserID, in.SphereID, 2)
 		if err != nil {
 			return nil, err
 		}

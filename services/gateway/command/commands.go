@@ -3,6 +3,11 @@ package command
 import (
 	"context"
 	"fmt"
+	"log"
+	"regexp"
+	"strconv"
+	"strings"
+
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/services/gateway/client"
@@ -10,9 +15,6 @@ import (
 	"github.com/Inoi-K/Find-Me/services/gateway/session"
 	"github.com/Inoi-K/Find-Me/services/gateway/verification"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"log"
-	"strconv"
-	"strings"
 )
 
 // ICommand provides an interface for all commands and buttons callbacks
@@ -40,6 +42,7 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 	if !ok {
 		loc.ChangeLanguage("en")
 	}
+	UpdateIndex(ctx)
 
 	// contact the profile service to check user existence
 	ctx2, cancel := context.WithTimeout(ctx, config.C.Timeout)
@@ -57,6 +60,10 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 	}
 
 	// TODO validate terms & agreement
+	err = reply(bot, chat, loc.Message(loc.Terms))
+	if err != nil {
+		return err
+	}
 
 	// validate user with corporate email
 	email, err := askStateField(ctx, bot, chat, user.ID, Email)
@@ -64,6 +71,11 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		return err
 	}
 	// TODO verify that arg is correct email (regexp)
+	r := regexp.MustCompile(config.C.EmailRegexp)
+	if !r.MatchString(email) {
+		log.Printf("wrong email %s %v", email, err)
+		return reply(bot, chat, loc.Message(loc.EmailWrong))
+	}
 
 	session.UserStateArg[user.ID] = make(chan string)
 	err = verification.SendEmail(email, user.ID)
@@ -71,10 +83,18 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		log.Printf("couldn't verify email %s %v", email, err)
 		return reply(bot, chat, loc.Message(loc.TryAgain))
 	}
+	err = reply(bot, chat, loc.Message(loc.EmailWaiting))
+	if err != nil {
+		return err
+	}
 	if status := <-session.UserStateArg[user.ID]; status != "verified" {
 		log.Printf("couldn't verify: %v", err)
 	}
 	close(session.UserStateArg[user.ID])
+	err = reply(bot, chat, loc.Message(loc.EmailVerified))
+	if err != nil {
+		return err
+	}
 
 	// ask for main information
 	var signUpArgs string
@@ -102,7 +122,7 @@ func (c *Start) Execute(ctx context.Context, bot *tgbotapi.BotAPI, upd tgbotapi.
 		}
 	}
 
-	return reply(bot, chat, loc.Message(loc.Rubicon))
+	return (&ShowProfile{}).Execute(ctx, bot, upd, "")
 }
 
 // askStateField handles getting a new value for the field

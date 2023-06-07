@@ -8,8 +8,12 @@ const (
 	LangFail    = "langFail"
 	Pong        = "pong"
 
-	TryAgain = "tryAgain"
-	Rubicon  = "rubicon"
+	Terms         = "terms"
+	TryAgain      = "tryAgain"
+	EmailWrong    = "emailWrong"
+	EmailWaiting  = "emailWaiting"
+	EmailVerified = "emailVerified"
+	Rubicon       = "rubicon"
 
 	EnterName        = "enterName"
 	EnterGender      = "enterGender"

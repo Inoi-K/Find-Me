@@ -2,13 +2,14 @@ package command
 
 import (
 	"context"
+	"log"
+	"strings"
+
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/services/gateway/client"
 	loc "github.com/Inoi-K/Find-Me/services/gateway/localization"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"log"
-	"strings"
 )
 
 // EditFieldCallback asks a user for a new value of a field and edits it
@@ -70,6 +71,7 @@ func (c *LanguageCallback) Execute(ctx context.Context, bot *tgbotapi.BotAPI, up
 	result := loc.Message(loc.LangFail) // fail in current language
 	if loc.ChangeLanguage(args) {
 		result = loc.Message(loc.LangSuccess) // success in new language
+		UpdateIndex(ctx)
 	}
 
 	return reply(bot, chat, result)

@@ -1,9 +1,10 @@
 package config
 
 import (
-	"github.com/spf13/viper"
 	"log"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 var C *config
@@ -32,6 +33,7 @@ type config struct {
 	SMTPPort    int
 	SMTPUser    string
 	SMTPPass    string
+	EmailRegexp string
 
 	Separator     string // ArgumentSeparator
 	ParseMode     string

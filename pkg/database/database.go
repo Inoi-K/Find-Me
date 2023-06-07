@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/Inoi-K/Find-Me/pkg/api/pb"
 	"github.com/Inoi-K/Find-Me/pkg/config"
 	"github.com/Inoi-K/Find-Me/pkg/model"
@@ -260,7 +262,7 @@ func GetUserAdditional(ctx context.Context, userID int64) (map[int64]*model.User
 // AddUser adds user to db in all necessary tables
 // TODO refactor pb req to user model
 func AddUser(ctx context.Context, request *pb.SignUpRequest) error {
-	query := fmt.Sprintf("INSERT INTO \"user\" VALUES (%d, '%s', '%s', %s, '%s');", request.UserID, request.Name, request.Gender, request.Age, request.Faculty)
+	query := fmt.Sprintf("INSERT INTO \"user\" VALUES (%d, '%s', '%s', %s, '%s', '%s', '%s');", request.UserID, request.Name, request.Gender, request.Age, request.Faculty, request.University, request.Username)
 	_, err := db.pool.Query(ctx, query)
 	if err != nil {
 		return err
@@ -317,22 +319,11 @@ func GetTags(ctx context.Context, sphereID int64) ([]model.Tag, error) {
 	return tags, nil
 }
 
-// EditTags updates tags of a user
-func EditTags(ctx context.Context, tagIDs []string, userID, sphereID int64) error {
-	var err error
-	err = DeleteTags(ctx, userID, sphereID)
-	if err != nil {
-		return err
-	}
-
-	return AddTags(ctx, tagIDs, userID, sphereID)
-}
-
 // AddTags creates new tags for a user in a sphere
-func AddTags(ctx context.Context, tags []string, userID, sphereID int64) error {
+func AddTags(ctx context.Context, tags []string, userID, sphereID, dimensionID int64) error {
 	var valuesPart string
 	for _, tagID := range tags {
-		valuesPart += fmt.Sprintf("(%d, %d, %s),", userID, sphereID, tagID)
+		valuesPart += fmt.Sprintf("(%d, %d, %s, %d),", userID, sphereID, tagID, dimensionID)
 	}
 	query := fmt.Sprintf("INSERT INTO user_tag VALUES %s;", valuesPart[:len(valuesPart)-1])
 	_, err := db.pool.Query(ctx, query)
@@ -350,6 +341,28 @@ func DeleteTags(ctx context.Context, userID, sphereID int64) error {
 		return err
 	}
 	return nil
+}
+
+// GetAssociateTags return associated to the given tags
+func GetAssociateTags(ctx context.Context, tags []string) ([]string, error) {
+	t := strings.Join(tags, ",")
+	query := fmt.Sprintf("SELECT associated_id FROM association_rule WHERE base_id IN (%s) AND associated_id NOT IN (%s);", t, t)
+	rows, err := db.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	addTagIDs := make([]string, 0)
+	for rows.Next() {
+		var addTagID string
+		err = rows.Scan(&addTagID)
+		if err != nil {
+			return addTagIDs, err
+		}
+		addTagIDs = append(addTagIDs, addTagID)
+	}
+
+	return addTagIDs, nil
 }
 
 // ConvertTagsToIDS gets names of tags and returns their IDs
